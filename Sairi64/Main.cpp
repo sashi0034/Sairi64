@@ -32,13 +32,6 @@ void Main()
 	Scene::SetBackground(ColorF{0.3, 0.3, 0.3});
 	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 
-	// ImGUI設定
-	// ImGuiStyle& style = ImGui::GetStyle();
-	// constexpr ImVec2 scaleFactor = ImVec2(1.5f, 1.5f);
-	// style.ScaleAllSizes(scaleFactor.x);
-	// ImGuiIO& io = ImGui::GetIO();
-	// io.FontGlobalScale = scaleFactor.y;
-
 	N64::N64System n64System{};
 	N64::N64Frame n64Frame{};
 

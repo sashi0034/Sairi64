@@ -8,10 +8,12 @@ namespace N64
 		sys.GetCpu().Step(sys);
 	}
 
-	void N64Frame::RunUntilAbort(N64System& sys)
+	void N64Frame::RunUntilAbort(N64System& sys, int cycleCount)
 	{
-		while (true)
+		while (cycleCount != 0)
 		{
+			cycleCount--;
+
 			sys.GetCpu().Step(sys);
 		}
 	}

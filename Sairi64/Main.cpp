@@ -1,22 +1,30 @@
 ﻿#include "stdafx.h"
 
-#include "Utils/Util.h"
+#define CATCH_CONFIG_RUNNER
+#include <ThirdParty/Catch2/catch.hpp>
 
+#include "Utils/Util.h"
 
 void Main()
 {
+	// テスト実行
+	const bool isPassedTests = Catch::Session().run() == 0;
+	if (!isPassedTests)
+	{
+		static_cast<void>(std::getchar());
+	}
+
+	// シーン設定など
+	Console.open();
+
+	Window::SetTitle(U"GBEmu");
+	Window::SetStyle(WindowStyle::Sizable);
+	Scene::SetResizeMode(ResizeMode::Keep);
+	constexpr Size sceneSize = {1920, 1080};
+	Scene::Resize(sceneSize.x, sceneSize.y);
+	Window::Resize(1280, 720);
 	Scene::SetBackground(ColorF{0.3, 0.3, 0.3});
-
-	uint16 a = 0b1100'1111'0000'1111;
-	Print(U"{:016B}"_fmt(Utils::GetBits<1, 2>(a)));;
-	Print(U"{:016B}"_fmt(Utils::GetBits<1, 6>(a)));;
-	Print(U"{:016B}"_fmt(Utils::GetBits<1, 10>(a)));;
-	Print(U"{:016B}"_fmt(Utils::GetBits<1, 14>(a)));;
-
-	Print(U"{:016B}"_fmt(Utils::SetBits<1, 2>(a, uint16(0b11))));;
-	Print(U"{:016B}"_fmt(Utils::SetBits<1, 6>(a, uint16(~0))));;
-	Print(U"{:016B}"_fmt(Utils::SetBits<1, 10>(a, uint16(~0))));;
-	Print(U"{:016B}"_fmt(Utils::SetBits<1, 14>(a, uint16(~0))));;
+	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 
 	while (System::Update())
 	{

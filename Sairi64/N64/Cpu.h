@@ -1,9 +1,7 @@
 ﻿#pragma once
+#include "Cpu_detail/Cpu.h"
 
 namespace N64
 {
-	class Cpu
-	{
-	public:
-	};
+	using Cpu = Cpu_detail::Cpu;
 }

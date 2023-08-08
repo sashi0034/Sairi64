@@ -3,6 +3,8 @@
 #define CATCH_CONFIG_RUNNER
 #include <ThirdParty/Catch2/catch.hpp>
 
+#include "N64/N64Frame.h"
+#include "N64/N64System.h"
 #include "Utils/Util.h"
 
 void Main()
@@ -26,7 +28,11 @@ void Main()
 	Scene::SetBackground(ColorF{0.3, 0.3, 0.3});
 	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 
+	N64::N64System n64System{};
+	N64::N64Frame n64Frame{};
+
 	while (System::Update())
 	{
+		n64Frame.RunUntilAbort(n64System);
 	}
 }

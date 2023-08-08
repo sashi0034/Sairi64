@@ -13,7 +13,7 @@ namespace Utils
 	}
 
 	template <int x1, int x2, typename T, typename U>
-	T SetBits(T value, U newBits)
+	[[nodiscard]] T SetBits(T value, U newBits)
 	{
 		static_assert(std::is_integral<T>::value, "Type must be an integral type");
 		static_assert(x1 <= x2 && x2 < std::numeric_limits<T>::digits);

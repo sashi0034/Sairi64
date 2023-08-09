@@ -1,6 +1,8 @@
 ﻿#include "stdafx.h"
 #include "N64Frame.h"
 
+#include "Includes/imgui/imgui.h"
+
 namespace N64
 {
 	void emulateFrame(N64System& sys)
@@ -8,13 +10,15 @@ namespace N64
 		sys.GetCpu().Step(sys);
 	}
 
-	void N64Frame::RunUntilAbort(N64System& sys, int cycleCount)
+	void N64Frame::RunOnConsole(N64System& sys)
 	{
-		while (cycleCount != 0)
-		{
-			cycleCount--;
+		// ImGui::Begin("N64Frame StepCyclesCompressive");
+		// ImGui::SliderInt("m_stepCycles", &m_stepCycles, 1, 100000);
+		// ImGui::End();
 
-			sys.GetCpu().Step(sys);
+		while (true)
+		{
+			emulateFrame(sys);
 		}
 	}
 

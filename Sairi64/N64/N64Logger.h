@@ -10,6 +10,7 @@ namespace N64
 		static void Warn(const String& message);
 		static void Error(const String& message);
 		static void Assert(bool ok, const String& message);
+		static void Abort();
 	};
 }
 

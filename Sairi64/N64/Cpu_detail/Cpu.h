@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Gpr.h"
 
 namespace N64
 {
@@ -35,10 +36,12 @@ namespace N64::Cpu_detail
 	{
 	public:
 		void Step(N64System& n64);
+		Gpr& GetGpr() { return m_gpr; }
 
 	private:
 		class Operation;
 
 		Pc m_pc;
+		Gpr m_gpr;
 	};
 }

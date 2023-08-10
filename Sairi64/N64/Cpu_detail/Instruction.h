@@ -150,6 +150,10 @@ namespace N64::Cpu_detail
 		uint32 Rd() const { return GetBits<11, 15>(Raw()); }
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
+
+		StringView RdName() const;
+		StringView RtName() const;
+		StringView RsName() const;
 	};
 
 	class InstructionCopZ1 : public Instruction
@@ -159,6 +163,9 @@ namespace N64::Cpu_detail
 		uint32 Rd() const { return GetBits<11, 15>(Raw()); }
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
+
+		StringView RdName() const;
+		StringView RtName() const;
 	};
 
 	class InstructionCopFi : public Instruction

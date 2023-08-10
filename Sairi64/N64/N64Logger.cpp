@@ -27,4 +27,10 @@ namespace N64
 	{
 		if (ok == false) Error(message);
 	}
+
+	void N64Logger::Abort()
+	{
+		System::MessageBoxOK(U"N64 Abort", MessageBoxStyle::Error);
+		std::exit(-1);
+	}
 }

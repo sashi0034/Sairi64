@@ -5,6 +5,7 @@
 
 #include "DearImGuiAddon/DearImGuiAddon.hpp"
 #include "N64/N64Frame.h"
+#include "N64/N64Singleton.h"
 #include "N64/N64System.h"
 #include "Ui/UiManager.h"
 #include "Utils/Util.h"
@@ -30,14 +31,15 @@ void Main()
 	const bool isPassedTests = Catch::Session().run() == 0;
 	if (!isPassedTests)
 	{
-		static_cast<void>(std::getchar());
+		Utils::WaitAnyKeyOnConsole();
 	}
 
 	// コンソール起動
 	Console.open();
 
-	N64::N64System n64System{};
-	N64::N64Frame n64Frame{};
+	N64::N64Singleton n64;
+	N64::N64System& n64System = n64.GetSystem();
+	N64::N64Frame& n64Frame = n64.GetFrame();
 
 	Ui::UiManager uiManager{};
 

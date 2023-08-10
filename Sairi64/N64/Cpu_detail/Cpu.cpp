@@ -2,6 +2,7 @@
 #include "Cpu.h"
 
 #include "N64/N64Logger.h"
+#include "Utils/Util.h"
 
 namespace N64::Cpu_detail
 {

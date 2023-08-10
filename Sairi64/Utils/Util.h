@@ -36,4 +36,9 @@ namespace Utils
 		explicit constexpr EnumValue(T v) : value{v} { return; }
 		operator T() const { return value; }
 	};
+
+	inline void WaitAnyKeyOnConsole()
+	{
+		(void)(std::getchar());
+	}
 }

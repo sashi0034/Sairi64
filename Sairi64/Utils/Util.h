@@ -8,7 +8,7 @@ namespace Utils
 		static_assert(std::is_integral<T>::value, "Type must be an integral type");
 		static_assert(x1 <= x2 && x2 < std::numeric_limits<T>::digits);
 
-		const T mask = ((T(1) << (x2 - x1 + 1)) - 1) << x1;
+		constexpr T mask = ((T(1) << (x2 - x1 + 1)) - 1) << x1;
 		return (value & mask) >> x1;
 	}
 
@@ -19,10 +19,10 @@ namespace Utils
 		static_assert(std::is_convertible<U, T>::value);
 		static_assert(x1 <= x2 && x2 < std::numeric_limits<T>::digits);
 
-		T mask = ((T(1) << (x2 - x1 + 1)) - 1);
-		const T newBits1 = static_cast<U>(newBits) & mask;
-		mask <<= x1;
+		constexpr T mask1 = ((T(1) << (x2 - x1 + 1)) - 1);
+		const T newBits1 = static_cast<U>(newBits) & mask1;
 
-		return (value & ~mask) | ((newBits1 << x1) & mask);
+		constexpr T mask2 = mask1 << x1;
+		return (value & ~mask2) | ((newBits1 << x1) & mask2);
 	}
 }

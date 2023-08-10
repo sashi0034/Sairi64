@@ -154,6 +154,8 @@ namespace N64::Cpu_detail
 		StringView RdName() const;
 		StringView RtName() const;
 		StringView RsName() const;
+
+		String Stringify() const;
 	};
 
 	class InstructionCopZ1 : public Instruction

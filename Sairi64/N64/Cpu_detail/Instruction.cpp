@@ -22,6 +22,11 @@ namespace N64::Cpu_detail
 		RETURN_GPR_NAME(Rs)
 	}
 
+	String InstructionR::Stringify() const
+	{
+		return U"{} sa:{}, rd:{}, rt:{}, rs:{}"_fmt(StringifyEnum(Funct()), RdName(), RtName(), RsName());
+	}
+
 	StringView InstructionCopZ1::RdName() const
 	{
 		RETURN_GPR_NAME(Rd)

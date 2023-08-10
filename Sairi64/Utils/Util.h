@@ -41,4 +41,11 @@ namespace Utils
 	{
 		(void)(std::getchar());
 	}
+
+	template <typename E>
+	[[nodiscard]] String StringifyEnum(E value) noexcept
+	{
+		const auto enumName = NAMEOF_ENUM(value);
+		return Unicode::Widen(enumName);
+	}
 }

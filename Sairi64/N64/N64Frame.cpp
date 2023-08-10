@@ -5,24 +5,25 @@
 
 namespace N64
 {
-	void emulateFrame(N64System& sys)
+	void N64Frame::Init(N64System& n64, const N64InitArgs& arg)
 	{
-		sys.GetCpu().Step(sys);
+		n64.GetMemory().GetRom().LoadFile(arg.filePath);
 	}
 
-	void N64Frame::RunOnConsole(N64System& sys)
+	void emulateFrame(N64System& n64)
 	{
-		// ImGui::Begin("N64Frame StepCyclesCompressive");
-		// ImGui::SliderInt("m_stepCycles", &m_stepCycles, 1, 100000);
-		// ImGui::End();
+		n64.GetCpu().Step(n64);
+	}
 
+	void N64Frame::RunOnConsole(N64System& n64)
+	{
 		while (true)
 		{
-			emulateFrame(sys);
+			emulateFrame(n64);
 		}
 	}
 
-	void N64Frame::ControlFrame(N64System& sys)
+	void N64Frame::ControlFrame(N64System& n64)
 	{
 		const double actualDeltaTime = Scene::DeltaTime();
 		constexpr double virtualDeltaTime = 1.0 / 60.0; // TODO: accurate FPS?
@@ -33,7 +34,7 @@ namespace N64
 		while (m_fragmentTime >= virtualDeltaTime)
 		{
 			m_fragmentTime -= virtualDeltaTime;
-			emulateFrame(sys);
+			emulateFrame(n64);
 		}
 	}
 }

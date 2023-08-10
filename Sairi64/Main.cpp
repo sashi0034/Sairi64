@@ -4,6 +4,7 @@
 #include <ThirdParty/Catch2/catch.hpp>
 
 #include "DearImGuiAddon/DearImGuiAddon.hpp"
+#include "N64/N64Config.h"
 #include "N64/N64Frame.h"
 #include "N64/N64Singleton.h"
 #include "N64/N64System.h"
@@ -23,6 +24,10 @@ void setupWindow()
 	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 }
 
+N64::N64Config debugConfig{
+	.rom = {U"asset\\rom\\mimi-6126231.z64"}
+};
+
 void Main()
 {
 	Addon::Register<DearImGuiAddon>(U"ImGui");
@@ -39,9 +44,11 @@ void Main()
 
 	N64::N64Singleton n64;
 	N64::N64System& n64System = n64.GetSystem();
-	N64::N64Frame& n64Frame = n64.GetFrame();
+	N64::N64Frame n64Frame{};
 
 	Ui::UiManager uiManager{};
+
+	n64Frame.Init(n64System, {debugConfig.rom.filePath});
 
 	// N64コンソール実行
 	n64Frame.RunOnConsole(n64System);

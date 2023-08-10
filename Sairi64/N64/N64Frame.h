@@ -3,11 +3,17 @@
 
 namespace N64
 {
+	struct N64InitArgs
+	{
+		String filePath;
+	};
+
 	class N64Frame
 	{
 	public:
-		void RunOnConsole(N64System& sys);
-		void ControlFrame(N64System& sys);
+		void Init(N64System& n64, const N64InitArgs& arg);
+		void RunOnConsole(N64System& n64);
+		void ControlFrame(N64System& n64);
 
 	private:
 		double m_fragmentTime{};

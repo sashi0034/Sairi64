@@ -130,6 +130,10 @@
     <ClCompile Include="N64\Cpu_detail\Cpu_Operation.cpp" />
     <ClCompile Include="N64\Cpu_detail\Gpr.cpp" />
     <ClCompile Include="N64\Cpu_detail\Instruction.cpp" />
+    <ClCompile Include="N64\Memory.cpp" />
+    <ClCompile Include="N64\Memory_detail\Memory.cpp" />
+    <ClCompile Include="N64\Memory_detail\Rom.cpp" />
+    <ClCompile Include="N64\N64Config.cpp" />
     <ClCompile Include="N64\N64Frame.cpp" />
     <ClCompile Include="N64\N64Logger.cpp" />
     <ClCompile Include="N64\N64Singleton.cpp" />
@@ -350,6 +354,10 @@
     <ClInclude Include="N64\Cpu_detail\Cpu_Operation.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Instruction.h" />
+    <ClInclude Include="N64\Memory.h" />
+    <ClInclude Include="N64\Memory_detail\Memory.h" />
+    <ClInclude Include="N64\Memory_detail\Rom.h" />
+    <ClInclude Include="N64\N64Config.h" />
     <ClInclude Include="N64\N64Frame.h" />
     <ClInclude Include="N64\N64Logger.h" />
     <ClInclude Include="N64\N64Singleton.h" />

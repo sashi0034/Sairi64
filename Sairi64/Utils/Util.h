@@ -16,6 +16,7 @@ namespace Utils
 	[[nodiscard]] T SetBits(T value, U newBits)
 	{
 		static_assert(std::is_integral<T>::value, "Type must be an integral type");
+		static_assert(std::is_convertible<U, T>::value);
 		static_assert(x1 <= x2 && x2 < std::numeric_limits<T>::digits);
 
 		T mask = ((T(1) << (x2 - x1 + 1)) - 1);

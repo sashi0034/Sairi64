@@ -34,8 +34,11 @@ namespace N64::Cpu_detail
 	class Cpu
 	{
 	public:
-		void Step(N64System& sys);
+		void Step(N64System& n64);
+
 	private:
+		class Operation;
+
 		Pc m_pc;
 	};
 }

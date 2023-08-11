@@ -6,14 +6,14 @@ namespace N64
 {
 	using namespace Utils;
 
+	class PAddr32 : public EnumValue<uint32>
+	{
+	public:
+		constexpr explicit PAddr32(unsigned v): EnumValue(v) { return; }
+	};
+
 	namespace Mmu
 	{
-		class PAddr32 : public EnumValue<uint32>
-		{
-		public:
-			constexpr explicit PAddr32(unsigned v): EnumValue(v) { return; }
-		};
-
 		// https://n64brew.dev/wiki/Memory_map#Physical_Memory_Map_accesses
 
 		namespace VMap
@@ -36,15 +36,13 @@ namespace N64
 		}
 
 		uint64 ReadPaddr64(N64System& n64, PAddr32 paddr);
-		// uint64 ReadPaddr32(N64System& n64, PAddr32 paddr);
-		// uint64 ReadPaddr16(N64System& n64, PAddr32 paddr);
-		// uint64 ReadPaddr8(N64System& n64, PAddr32 paddr);
-		//
-		// uint64 WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value);
-		// uint64 WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value);
-		// uint64 WritePaddr16(N64System& n64, PAddr32 paddr, uint16 value);
-		// uint64 WritePaddr8(N64System& n64, PAddr32 paddr, uint8 value);
-	}
+		uint32 ReadPaddr32(N64System& n64, PAddr32 paddr);
+		uint16 ReadPaddr16(N64System& n64, PAddr32 paddr);
+		uint8 ReadPaddr8(N64System& n64, PAddr32 paddr);
 
-	using namespace Mmu;
+		void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value);
+		void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value);
+		void WritePaddr16(N64System& n64, PAddr32 paddr, uint16 value);
+		void WritePaddr8(N64System& n64, PAddr32 paddr, uint8 value);
+	}
 }

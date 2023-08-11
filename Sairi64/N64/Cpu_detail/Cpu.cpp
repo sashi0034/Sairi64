@@ -1,6 +1,8 @@
 ﻿#include "stdafx.h"
 #include "Cpu.h"
 
+#include "Cpu_Operation.h"
+#include "Instruction.h"
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 #include "Utils/Util.h"
@@ -18,8 +20,11 @@ namespace N64::Cpu_detail
 			N64Logger::Abort();
 		}
 
-		// TODO: memory
+		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
+		N64_TRACE(U"fetched instr: {:#010x} from pc = {:#018x}"_fmt(fetchedInstr.Raw(), m_pc.Curr()));
 
 		m_pc.Step();
+
+		Operation::OperateInstruction(n64, *this, fetchedInstr);
 	}
 }

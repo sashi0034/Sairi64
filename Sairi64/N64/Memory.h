@@ -4,4 +4,6 @@
 namespace N64
 {
 	using Memory = Memory_detail::Memory;
+
+	using CicType = Memory_detail::CicType;
 }

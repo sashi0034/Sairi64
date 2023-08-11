@@ -36,6 +36,7 @@ namespace N64::Cpu_detail
 	{
 	public:
 		void Step(N64System& n64);
+		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
 
 	private:

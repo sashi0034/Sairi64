@@ -11,5 +11,6 @@ namespace N64::Cpu_detail
 
 	private:
 		class Impl;
+		class Op;
 	};
 }

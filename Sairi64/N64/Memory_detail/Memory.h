@@ -15,10 +15,10 @@ namespace N64::Memory_detail
 	public:
 		Memory();
 		Rom& GetRom() { return m_rom; }
-		Array<uint8>& Rdram() { return m_rdram; }
+		std::array<uint8, RdramSize_0x00800000>& Rdram() { return m_rdram; }
 
 	private:
 		Rom m_rom{};
-		Array<uint8> m_rdram{};
+		std::array<uint8, RdramSize_0x00800000> m_rdram{};
 	};
 }

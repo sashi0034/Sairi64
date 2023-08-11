@@ -42,8 +42,8 @@ void Main()
 	// コンソール起動
 	Console.open();
 
-	N64::N64Singleton n64;
-	N64::N64System& n64System = n64.GetSystem();
+	const auto n64 = std::make_unique<N64::N64Singleton>();
+	N64::N64System& n64System = n64->GetSystem();
 	N64::N64Frame n64Frame{};
 
 	Ui::UiManager uiManager{};

@@ -37,6 +37,18 @@ namespace Utils
 		operator T() const { return value; }
 	};
 
+	template <typename T>
+	class AddressRange
+	{
+		static_assert(std::is_integral<T>::value);
+
+	public:
+		const T base;
+		const T end;
+		explicit constexpr AddressRange(T baseAddr, T endAddr) : base{baseAddr}, end{endAddr} { return; }
+		bool IsBetween(T addr) const { return base <= addr && addr <= end; }
+	};
+
 	inline void WaitAnyKeyOnConsole()
 	{
 		(void)(std::getchar());

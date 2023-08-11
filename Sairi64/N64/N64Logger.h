@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <source_location>
 
 namespace N64
 {
@@ -10,7 +11,8 @@ namespace N64
 		static void Warn(const String& message);
 		static void Error(const String& message);
 		static void Assert(bool ok, const String& message);
-		static void Abort();
+		static void Abort(const String& message);
+		static void Abort(const std::source_location& location = std::source_location::current());
 	};
 }
 

@@ -5,13 +5,14 @@
 
 #define END_OP N64_TRACE(instr.Stringify()); return {}
 
-using namespace N64::Cpu_detail;
-
-struct OperatedUnit
+namespace N64::Cpu_detail
 {
-};
+	struct OperatedUnit
+	{
+	};
+}
 
-class Cpu::Operation::Op
+class N64::Cpu_detail::Cpu::Operation::Op
 {
 public:
 	[[nodiscard]]

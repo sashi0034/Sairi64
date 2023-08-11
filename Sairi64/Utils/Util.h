@@ -47,6 +47,7 @@ namespace Utils
 		const T end;
 		explicit constexpr AddressRange(T baseAddr, T endAddr) : base{baseAddr}, end{endAddr} { return; }
 		bool IsBetween(T addr) const { return base <= addr && addr <= end; }
+		T Offset(T addr) const { return addr - base; }
 	};
 
 	inline void WaitAnyKeyOnConsole()

@@ -296,7 +296,7 @@ namespace N64
 		// TODO: COP0初期化
 
 		// TODO: fix?
-		Mmu::WritePaddr32(n64, PAddr32(0x04300004), 0x01010101);
+		// Mmu::WritePaddr32(n64, PAddr32(0x04300004), 0x01010101);
 
 		// ROMの最初0x1000バイトをSP DMEMにコピー
 		std::copy_n(rom.Data().begin(), 0x1000, n64.GetRsp().Dmem().begin());

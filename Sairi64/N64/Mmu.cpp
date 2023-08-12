@@ -59,8 +59,17 @@ namespace N64::Mmu
 			const uint32 offset = paddr - PMap::SpImem.base;
 			return n64.GetRsp().ReadImem<Wire>(offset);
 		}
+		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
+		{
+			if constexpr (wire32)
+			{
+				const uint64 offset = paddr - PMap::PifRam.base;
+				return ReadBytes32(n64.GetSI().GetPifRam(), offset);
+			}
+		}
 
-		N64Logger::Abort(U"read paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
+		N64Logger::Abort(U"read paddr {} bit: {:08X}"_fmt(
+			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
 		return 0;
 	}
 
@@ -76,22 +85,29 @@ namespace N64::Mmu
 		if (PMap::RdramMemory.IsBetween(paddr)) // 0x00000000, 0x007FFFFF
 		{
 			const uint32 offset = paddr - PMap::RdramMemory.base;
-			WriteBytes<Wire>(n64.GetMemory().Rdram(), offset, value);
+			return WriteBytes<Wire>(n64.GetMemory().Rdram(), offset, value);
 		}
 		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
 			const uint32 offset = paddr - PMap::SpDmem.base;
-			n64.GetRsp().WriteDmem<Wire>(offset, value);
+			return n64.GetRsp().WriteDmem<Wire>(offset, value);
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
 		{
 			const uint32 offset = paddr - PMap::SpImem.base;
-			n64.GetRsp().WriteImem<Wire>(offset, value);
+			return n64.GetRsp().WriteImem<Wire>(offset, value);
 		}
-		else
+		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
 		{
-			N64Logger::Abort(U"write paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
+			if constexpr (wire32)
+			{
+				const uint64 offset = paddr - PMap::PifRam.base;
+				return WriteBytes32(n64.GetSI().GetPifRam(), offset, value);
+			}
 		}
+
+		N64Logger::Abort(U"write paddr {} bit: {:08X}"_fmt(
+			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
 	}
 
 	uint64 ReadPaddr64(N64System& n64, PAddr32 paddr)

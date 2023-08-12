@@ -93,8 +93,8 @@ namespace N64::Memory_detail
 		const uint32 checksum = crc32(0, &m_rom[0x40], 0x9C0);
 		m_cic = checksumToCic(checksum);
 
-		N64Logger::Info(U"imageName\t= \"{}\""_fmt(Unicode::Widen(m_header.imageName)));
-		N64Logger::Info(U"CIC\t= {}"_fmt(Utils::StringifyEnum(m_cic)));
+		N64Logger::Info(U"imageName: \"{}\""_fmt(Unicode::Widen(m_header.imageName)));
+		N64Logger::Info(U"CIC: {}"_fmt(Utils::StringifyEnum(m_cic)));
 
 		return true;
 	}

@@ -7,6 +7,12 @@
 
 namespace N64::Cpu_detail
 {
+	String Instruction::OpName() const
+	{
+		const auto op = StringifyEnum(Op());
+		return op.isEmpty() ? U"op:{:06b}"_fmt(static_cast<uint8>(Op())) : std::move(op);
+	}
+
 	StringView InstructionR::RdName() const
 	{
 		RETURN_GPR_NAME(Rd)
@@ -24,7 +30,7 @@ namespace N64::Cpu_detail
 
 	String InstructionR::Stringify() const
 	{
-		return U"{} sa:{}, rd:{}, rt:{}, rs:{}"_fmt(StringifyEnum(Funct()), RdName(), RtName(), RsName());
+		return U"{} sa:{}, rd:{}, rt:{}, rs:{}"_fmt(StringifyEnum(Funct()), Sa(), RdName(), RtName(), RsName());
 	}
 
 	StringView InstructionCopZ1::RdName() const

@@ -124,6 +124,8 @@ namespace N64::Cpu_detail
 		uint32 Raw() const { return m_raw; }
 		Opcode Op() const { return static_cast<Opcode>(GetBits<26, 31>(Raw())); }
 
+		String OpName() const;
+
 	private:
 		uint32 m_raw{};
 	};

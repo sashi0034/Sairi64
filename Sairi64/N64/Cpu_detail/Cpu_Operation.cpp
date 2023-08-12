@@ -105,7 +105,7 @@ public:
 		default: ;
 		}
 
-		N64Logger::Abort();
+		N64Logger::Abort(U"not implemented: instruction {}"_fmt(instr.OpName()));
 		return {};
 	}
 
@@ -198,7 +198,7 @@ private:
 		default: ;
 		}
 
-		N64Logger::Abort();
+		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
 		return {};
 	}
 };

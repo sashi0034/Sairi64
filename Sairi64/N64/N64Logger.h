@@ -11,7 +11,7 @@ namespace N64
 		static void Warn(const String& message);
 		static void Error(const String& message);
 		static void Assert(bool ok, const String& message);
-		static void Abort(const String& message);
+		static void Abort(const String& message, const std::source_location& location = std::source_location::current());
 		static void Abort(const std::source_location& location = std::source_location::current());
 	};
 }

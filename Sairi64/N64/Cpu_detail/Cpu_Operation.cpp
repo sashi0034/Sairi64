@@ -116,7 +116,7 @@ private:
 		switch (instr.Funct())
 		{
 		case OpSpecialFunct::SLL:
-			break;
+			return Op::SLL(cpu, instr);
 		case OpSpecialFunct::SRL:
 			break;
 		case OpSpecialFunct::SRA:

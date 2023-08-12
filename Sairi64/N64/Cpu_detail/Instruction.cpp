@@ -30,6 +30,8 @@ namespace N64::Cpu_detail
 
 	String InstructionR::Stringify() const
 	{
+		if (Raw() == 0) return U"NOP";
+
 		return U"{} sa:{}, rd:{}, rt:{}, rs:{}"_fmt(StringifyEnum(Funct()), Sa(), RdName(), RtName(), RsName());
 	}
 

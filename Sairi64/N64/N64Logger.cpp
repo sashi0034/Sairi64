@@ -28,16 +28,19 @@ namespace N64
 		if (ok == false) Error(message);
 	}
 
-	void N64Logger::Abort(const String& message)
+	void N64Logger::Abort(const String& message, const std::source_location& location)
 	{
-		Error(message);
+		Error(U"{}\n\tlocation: {} ({}) {}"_fmt(
+			message,
+			Unicode::Widen(location.file_name()),
+			location.line(),
+			Unicode::Widen(location.function_name())));
 		System::MessageBoxOK(U"N64 Abort", MessageBoxStyle::Error);
 		std::exit(-1);
 	}
 
 	void N64Logger::Abort(const std::source_location& location)
 	{
-		Abort(U"abort: {} ({}) {}"_fmt(
-			Unicode::Widen(location.file_name()), location.line(), Unicode::Widen(location.function_name())));
+		Abort(U"aborted!", location);
 	}
 }

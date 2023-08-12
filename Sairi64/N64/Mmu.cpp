@@ -55,7 +55,7 @@ namespace N64::Mmu
 			return n64.GetRsp().ReadDmem<Wire>(offset);
 		}
 
-		N64Logger::Abort();
+		N64Logger::Abort(U"read paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
 		return 0;
 	}
 
@@ -80,7 +80,7 @@ namespace N64::Mmu
 		}
 		else
 		{
-			N64Logger::Abort();
+			N64Logger::Abort(U"write paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
 		}
 	}
 

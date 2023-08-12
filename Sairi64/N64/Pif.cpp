@@ -11,10 +11,17 @@ namespace N64
 	{
 		bool pal = false; // TODO
 
+		const uint32 cicSeed = n64.GetMemory().GetRom().CicSeed();
+		Mmu::WritePaddr32(n64, PAddr32(Mmu::PMap::PifRam.base + 0x24), cicSeed);
+
 		// TODO: GPRなど
 
-		// PC初期化
+
+		// CPU設定
+		n64.GetCpu().GetGpr().Write(22, )
 		n64.GetCpu().GetPc().Reset(0xA4000040);
+
+		// TODO: COP0初期化
 	}
 
 	void Pif::ExecutePifRom(N64System& n64)

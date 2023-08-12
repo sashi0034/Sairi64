@@ -54,6 +54,11 @@ namespace N64::Mmu
 			const uint32 offset = paddr - PMap::RspDmem.base;
 			return n64.GetRsp().ReadDmem<Wire>(offset);
 		}
+		else if (PMap::RspImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
+		{
+			const uint32 offset = paddr - PMap::RspImem.base;
+			return n64.GetRsp().ReadImem<Wire>(offset);
+		}
 
 		N64Logger::Abort(U"read paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
 		return 0;
@@ -77,6 +82,11 @@ namespace N64::Mmu
 		{
 			const uint32 offset = paddr - PMap::RspDmem.base;
 			n64.GetRsp().WriteDmem<Wire>(offset, value);
+		}
+		else if (PMap::RspImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
+		{
+			const uint32 offset = paddr - PMap::RspImem.base;
+			n64.GetRsp().WriteImem<Wire>(offset, value);
 		}
 		else
 		{

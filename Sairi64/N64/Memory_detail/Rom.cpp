@@ -98,4 +98,19 @@ namespace N64::Memory_detail
 
 		return true;
 	}
+
+	uint32 Rom::CicSeed() const
+	{
+		// https://github.com/SimoneN64/Kaizen/blob/dffd36fc31731a0391a9b90f88ac2e5ed5d3f9ec/src/backend/core/mmio/PIF.hpp#L84
+		constexpr std::array<uint32, static_cast<int>(CicType::CIC_NUS_6106_7106) + 1> cicSeeds = {
+			0x0,
+			0x00043F3F, // CIC_NUS_6101
+			0x00043F3F, // CIC_NUS_7102
+			0x00043F3F, // CIC_NUS_6102_7101
+			0x00047878, // CIC_NUS_6103_7103
+			0x00049191, // CIC_NUS_6105_7105
+			0x00048585, // CIC_NUS_6106_7106
+		};
+		return cicSeeds[static_cast<uint32>(m_cic)];
+	}
 }

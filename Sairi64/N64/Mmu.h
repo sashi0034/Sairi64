@@ -33,6 +33,8 @@ namespace N64
 			constexpr AddressRange<uint32> RspDmem{0x04000000, 0x04000FFF};
 			constexpr AddressRange<uint32> RspImem{0x04001000, 0x04001FFF};
 			constexpr AddressRange<uint32> RspRegisters{0x04040000, 0x040BFFFF};
+
+			constexpr AddressRange<uint32> PifRam{0x1FC007C0, 0x1FC007FF};
 		}
 
 		uint64 ReadPaddr64(N64System& n64, PAddr32 paddr);

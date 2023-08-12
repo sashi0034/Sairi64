@@ -44,6 +44,7 @@ namespace N64::Memory_detail
 	public:
 		bool LoadFile(const FilePath& filePath);
 		CicType Cic() const { return m_cic; }
+		uint32 CicSeed() const;
 
 	private:
 		Array<uint8> m_rom{};

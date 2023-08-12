@@ -29,6 +29,28 @@ namespace Utils
 		return (value & ~mask2) | ((newBits1 << x1) & mask2);
 	}
 
+	template <int x1, int x2, typename T>
+	class BitAccessor
+	{
+		static_assert(std::is_integral<T>::value);
+		static_assert(x1 <= x2 && x2 < std::numeric_limits<T>::digits);
+
+	public:
+		explicit BitAccessor(T& ref) : m_ref(ref) { return; };
+		T Get() const { return Utils::GetBits<x1, x2>(m_ref); }
+		operator T() const { return Get(); }
+		void Set(T value) { m_ref = Utils::SetBits<x1, x2>(m_ref, value); }
+
+	private:
+		T& m_ref;
+	};
+
+	template <int x1, int x2 = x1, typename T>
+	auto BitAccess(T& ref)
+	{
+		return BitAccessor<x1, x2, T>(ref);
+	}
+
 	inline uint64_t ReadBytes64(std::span<const uint8_t> span, uint64_t offset)
 	{
 		return (static_cast<uint64_t>(span[offset + 0]) << 56) |

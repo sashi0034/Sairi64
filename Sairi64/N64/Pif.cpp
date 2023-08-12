@@ -291,7 +291,7 @@ namespace N64
 
 		// CPU適用
 		n64.GetCpu().GetGpr().Write(22, (cicSeed >> 8) & 0xFF);
-		n64.GetCpu().GetPc().Reset(0xA4000040);
+		n64.GetCpu().GetPc().Change64(0xA4000040);
 
 		// TODO: COP0初期化
 

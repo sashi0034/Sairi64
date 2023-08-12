@@ -36,4 +36,15 @@ namespace Tests
 		REQUIRE(SetBits<0, 31>(value32, 0xFF12FF34) == 0xFF12FF34);
 		REQUIRE(SetBits<4, 8>(value32, 0b1'1011) == 0b1100'1100'1100'1100'1100'1101'1011'1100);
 	}
+
+	TEST_CASE("UtilTest_BitAccess")
+	{
+		uint16 bit = 0b0101'0000'1111'0011;
+
+		auto&& access4_5 = BitAccess<4, 5>(bit);
+		REQUIRE(access4_5.Get() == 0b11);
+		access4_5.Set(0b00);
+		REQUIRE(access4_5.Get() == 0b00);
+		REQUIRE(bit == 0b0101'0000'1100'0011);
+	}
 }

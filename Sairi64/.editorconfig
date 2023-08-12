@@ -66,3 +66,6 @@ cpp_space_around_assignment_operator = insert
 cpp_space_pointer_reference_alignment = left
 cpp_space_around_ternary_operator = insert
 cpp_wrap_preserve_blocks = one_liners
+
+# ReSharper properties
+resharper_break_template_declaration = do_not_change

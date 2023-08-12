@@ -52,7 +52,7 @@ namespace N64::Mmu
 		else if (PMap::RspDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
 			const uint32 offset = paddr - PMap::RspDmem.base;
-			// TODO: return RSP DMEM
+			return n64.GetRsp().ReadDmem<Wire>(offset);
 		}
 
 		N64Logger::Abort();
@@ -76,7 +76,7 @@ namespace N64::Mmu
 		else if (PMap::RspDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
 			const uint32 offset = paddr - PMap::RspDmem.base;
-			// TODO: RSP DMEM
+			n64.GetRsp().WriteDmem<Wire>(offset, value);
 		}
 		else
 		{

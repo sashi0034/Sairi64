@@ -14,7 +14,7 @@ namespace N64
 
 	namespace Mmu
 	{
-		// https://n64brew.dev/wiki/Memory_map#Physical_Memory_Map_accesses
+		// https://n64brew.dev/wiki/Memory_map
 
 		namespace VMap
 		{

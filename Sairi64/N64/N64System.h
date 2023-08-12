@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Cpu.h"
 #include "Memory.h"
+#include "Rsp.h"
 
 namespace N64
 {
@@ -8,10 +9,12 @@ namespace N64
 	{
 	public:
 		Cpu& GetCpu() { return m_cpu; }
+		Rsp& GetRsp() { return m_rsp; }
 		Memory& GetMemory() { return m_memory; }
 
 	private:
 		Cpu m_cpu;
+		Rsp m_rsp;
 		Memory m_memory;
 	};
 }

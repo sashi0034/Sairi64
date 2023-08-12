@@ -3,9 +3,6 @@
 
 namespace N64::Rsp_detail
 {
-	constexpr uint32 RspDmemSize_0x1000 = 0x1000;
-	constexpr uint32 RspImemSize_0x1000 = 0x1000;
-
 	class Pc
 	{
 	public:
@@ -30,10 +27,17 @@ namespace N64::Rsp_detail
 		uint16 m_next{};
 	};
 
+	constexpr uint32 SpDmemSize_0x1000 = 0x1000;
+	constexpr uint32 SpImemSize_0x1000 = 0x1000;
+
+	using SpDmem = std::array<uint8, SpDmemSize_0x1000>;
+	using SpImem = std::array<uint8, SpImemSize_0x1000>;
+
 	// https://n64brew.dev/wiki/Reality_Signal_Processor
 	class Rsp
 	{
 	public:
+		SpDmem& Dmem() { return m_dmem; }
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
 
 		template <typename Wire> void WriteDmem(uint32 addr, Wire value)
@@ -49,8 +53,8 @@ namespace N64::Rsp_detail
 		}
 
 	private:
-		std::array<uint8, RspDmemSize_0x1000> m_dmem{};
-		std::array<uint8, RspImemSize_0x1000> m_imem{};
+		SpDmem m_dmem{};
+		SpImem m_imem{};
 
 		Pc m_pc{};
 	};

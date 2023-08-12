@@ -32,6 +32,8 @@ namespace N64::Cpu_detail
 		uint64 m_next{};
 	};
 
+	// https://ultra64.ca/files/documentation/silicon-graphics/SGI_R4300_RISC_Processor_Specification_REV2.2.pdf
+
 	class Cpu
 	{
 	public:
@@ -39,10 +41,17 @@ namespace N64::Cpu_detail
 		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
 
+		uint64 Lo() const { return m_lo; }
+		uint64 Hi() const { return m_hi; }
+		void SetLo(uint64 lo) { m_lo = lo; }
+		void SetHi(uint64 hi) { m_hi = hi; }
+
 	private:
 		class Operation;
 
-		Pc m_pc;
-		Gpr m_gpr;
+		Pc m_pc{};
+		Gpr m_gpr{};
+		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果
+		uint64 m_hi{}; // 64ビットの整数乗算/除算レジスタの下位結果
 	};
 }

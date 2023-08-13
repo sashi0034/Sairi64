@@ -45,7 +45,7 @@ public:
 		case Opcode::XORI:
 			break;
 		case Opcode::LUI:
-			break;
+			return Op::LUI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::CP0:
 			return interpretCP0(n64, cpu, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:

@@ -32,8 +32,18 @@ public:
 	[[nodiscard]]
 	static OperatedUnit SLL(Cpu& cpu, InstructionR instr) // possibly NOP
 	{
-		const int32 result = cpu.GetGpr().Read(instr.Rt()) << instr.Sa();
+		const sint32 result = cpu.GetGpr().Read(instr.Rt()) << instr.Sa();
 		cpu.GetGpr().Write(instr.Rd(), result);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit LUI(Cpu& cpu, InstructionI instr)
+	{
+		sint64 imm = static_cast<sint16>(instr.Imm());
+		imm *= 0x10000; // 負数の左シフトは未定義動作なので乗算で実装
+		cpu.GetGpr().Write(instr.Rt(), imm);
 
 		END_OP;
 	}

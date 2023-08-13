@@ -97,7 +97,7 @@ namespace N64::Cpu_detail
 		DSRA32 = 0b111111,
 	};
 
-	enum class OpRegimmRt : uint8
+	enum class OpRegimm : uint8
 	{
 		BLTZ = 0b00000,
 		BGEZ = 0b00001,
@@ -152,7 +152,24 @@ namespace N64::Cpu_detail
 	{
 	public:
 		uint32 Imm() const { return GetBits<0, 15>(Raw()); }
-		OpRegimmRt Rt() const { return static_cast<OpRegimmRt>(GetBits<16, 20>(Raw())); }
+		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
+		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
+
+		StringView RdName() const;
+		StringView RtName() const;
+
+		String Stringify() const;
+	};
+
+	class InstructionRegimm : public Instruction
+	{
+		OpRegimm Sub() const { return static_cast<OpRegimm>(GetBits<16, 20>(Raw())); }
+	};
+
+	class InstructionRegimmB : public InstructionRegimm
+	{
+	public:
+		uint32 Offset() const { return GetBits<0, 15>(Raw()); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
 	};
 

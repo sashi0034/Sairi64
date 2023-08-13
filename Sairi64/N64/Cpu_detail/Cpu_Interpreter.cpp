@@ -1,21 +1,21 @@
 ﻿#include "stdafx.h"
-#include "Cpu_Operation.h"
+#include "Cpu_Interpreter.h"
 
-#include "Cpu_Operation_Op.h"
+#include "Cpu_Interpreter_Op.h"
 #include "N64/N64Logger.h"
 
 using namespace N64::Cpu_detail;
 
-class Cpu::Operation::Impl
+class Cpu::Interpreter::Impl
 {
 public:
 	[[nodiscard]]
-	static OperatedUnit OperateInstructionInternal(N64System& n64, Cpu& cpu, Instruction instr)
+	static OperatedUnit InterpretInstructionInternal(N64System& n64, Cpu& cpu, Instruction instr)
 	{
 		switch (instr.Op())
 		{
 		case Opcode::SPECIAL:
-			return operateSPECIAL(n64, cpu, static_cast<InstructionR>(instr));
+			return interpretSPECIAL(n64, cpu, static_cast<InstructionR>(instr));
 		case Opcode::REGIMM:
 			break;
 		case Opcode::J:
@@ -47,7 +47,7 @@ public:
 		case Opcode::LUI:
 			break;
 		case Opcode::CP0:
-			return operateCP0(n64, cpu, static_cast<InstructionCop>(instr));
+			return interpretCP0(n64, cpu, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:
 			break;
 		case Opcode::BEQL:
@@ -111,7 +111,7 @@ public:
 
 private:
 	[[nodiscard]]
-	static OperatedUnit operateSPECIAL(N64System& n64, Cpu& cpu, InstructionR instr)
+	static OperatedUnit interpretSPECIAL(N64System& n64, Cpu& cpu, InstructionR instr)
 	{
 		switch (instr.Funct())
 		{
@@ -203,7 +203,7 @@ private:
 	}
 
 	[[nodiscard]]
-	static OperatedUnit operateCP0(N64System& n64, Cpu& cpu, InstructionCop instr)
+	static OperatedUnit interpretCP0(N64System& n64, Cpu& cpu, InstructionCop instr)
 	{
 		switch (instr.Sub())
 		{
@@ -234,7 +234,7 @@ private:
 	}
 };
 
-void Cpu::Operation::OperateInstruction(N64System& n64, Cpu& cpu, Instruction instr)
+void Cpu::Interpreter::InterpretInstruction(N64System& n64, Cpu& cpu, Instruction instr)
 {
-	return (void)Impl::OperateInstructionInternal(n64, cpu, instr);
+	return (void)Impl::InterpretInstructionInternal(n64, cpu, instr);
 }

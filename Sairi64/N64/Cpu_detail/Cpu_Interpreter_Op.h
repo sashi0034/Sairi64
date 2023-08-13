@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Cpu_Operation.h"
+#include "Cpu_Interpreter.h"
 #include "N64/N64Logger.h"
 
 #define END_OP N64_TRACE(instr.Stringify()); return {}
@@ -12,7 +12,7 @@ namespace N64::Cpu_detail
 	};
 }
 
-class N64::Cpu_detail::Cpu::Operation::Op
+class N64::Cpu_detail::Cpu::Interpreter::Op
 {
 public:
 	[[nodiscard]]
@@ -38,6 +38,7 @@ public:
 		END_OP;
 	}
 
+	// TODO: templateでMTC1も表現?
 	[[nodiscard]]
 	static OperatedUnit MTC0(Cpu& cpu, InstructionCopSub instr)
 	{

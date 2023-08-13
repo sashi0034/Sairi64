@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Cpu.h"
 
-#include "Cpu_Operation.h"
+#include "Cpu_Interpreter.h"
 #include "Instruction.h"
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
@@ -25,6 +25,6 @@ namespace N64::Cpu_detail
 
 		m_pc.Step();
 
-		Operation::OperateInstruction(n64, *this, fetchedInstr);
+		Interpreter::InterpretInstruction(n64, *this, fetchedInstr);
 	}
 }

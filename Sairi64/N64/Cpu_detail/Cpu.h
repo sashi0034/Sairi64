@@ -53,7 +53,7 @@ namespace N64::Cpu_detail
 		void SetHi(uint64 hi) { m_hi = hi; }
 
 	private:
-		class Operation;
+		class Interpreter;
 
 		Pc m_pc{};
 		Gpr m_gpr{};

@@ -127,7 +127,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cop0.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu.cpp" />
-    <ClCompile Include="N64\Cpu_detail\Cpu_Operation.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp" />
     <ClCompile Include="N64\Cpu_detail\Gpr.cpp" />
     <ClCompile Include="N64\Cpu_detail\Instruction.cpp" />
     <ClCompile Include="N64\Memory_detail\Memory.cpp" />
@@ -355,8 +355,8 @@
     <ClInclude Include="N64\Cpu.h" />
     <ClInclude Include="N64\Cpu_detail\Cop0.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu.h" />
-    <ClInclude Include="N64\Cpu_detail\Cpu_Operation.h" />
-    <ClInclude Include="N64\Cpu_detail\Cpu_Operation_Op.h" />
+    <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter.h" />
+    <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Instruction.h" />
     <ClInclude Include="N64\Memory.h" />

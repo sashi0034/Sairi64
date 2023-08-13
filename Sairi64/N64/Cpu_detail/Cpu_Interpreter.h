@@ -4,10 +4,10 @@
 
 namespace N64::Cpu_detail
 {
-	class Cpu::Operation
+	class Cpu::Interpreter
 	{
 	public:
-		static void OperateInstruction(N64System& n64, Cpu& cpu, Instruction instr);
+		static void InterpretInstruction(N64System& n64, Cpu& cpu, Instruction instr);
 
 	private:
 		class Impl;

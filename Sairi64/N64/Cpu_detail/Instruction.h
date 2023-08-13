@@ -115,6 +115,24 @@ namespace N64::Cpu_detail
 		DMTC = 0b00101,
 		CFC = 0b00010,
 		CTC = 0b00110,
+		CO_0x10 = 0x10,
+		// 0b10000
+		CO_0x11 = 0x11,
+		CO_0x12 = 0x12,
+		CO_0x13 = 0x13,
+		CO_0x14 = 0x14,
+		CO_0x15 = 0x15,
+		CO_0x16 = 0x16,
+		CO_0x17 = 0x17,
+		CO_0x18 = 0x18,
+		CO_0x19 = 0x19,
+		CO_0x1A = 0x1A,
+		CO_0x1B = 0x1B,
+		CO_0x1C = 0x1C,
+		CO_0x1D = 0x1D,
+		CO_0x1E = 0x1E,
+		CO_0x1F = 0x1F,
+		// 0b11111
 	};
 
 	class Instruction
@@ -160,19 +178,35 @@ namespace N64::Cpu_detail
 		String Stringify() const;
 	};
 
-	class InstructionCopZ1 : public Instruction
+	class InstructionCop : public Instruction
+	{
+	public:
+		OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
+		String Stringify() const;
+	};
+
+	class InstructionCopSub : public InstructionCop
 	{
 	public:
 		uint32 ShouldBeZero() const { return GetBits<0, 10>(Raw()); }
 		uint32 Rd() const { return GetBits<11, 15>(Raw()); }
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
-		OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
+		// OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
 
 		StringView RdName() const;
 		StringView RtName() const;
+
+		String Stringify() const;
 	};
 
-	class InstructionCopFi : public Instruction
+	class InstructionCopCo : public InstructionCop
+	{
+	public:
+		uint32 Funct() const { return GetBits<0, 5>(Raw()); }
+		uint32 ShouldBeZero() const { return GetBits<6, 24>(Raw()); }
+	};
+
+	class InstructionFi : public Instruction
 	{
 	public:
 		uint32 Offset() const { return GetBits<0, 15>(Raw()); }

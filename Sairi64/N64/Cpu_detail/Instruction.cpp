@@ -35,13 +35,23 @@ namespace N64::Cpu_detail
 		return U"{} sa:{}, rd:{}, rt:{}, rs:{}"_fmt(StringifyEnum(Funct()), Sa(), RdName(), RtName(), RsName());
 	}
 
-	StringView InstructionCopZ1::RdName() const
+	String InstructionCop::Stringify() const
+	{
+		return U"{} {}"_fmt(StringifyEnum(Op()), StringifyEnum(Sub()));
+	}
+
+	StringView InstructionCopSub::RdName() const
 	{
 		RETURN_GPR_NAME(Rd)
 	}
 
-	StringView InstructionCopZ1::RtName() const
+	StringView InstructionCopSub::RtName() const
 	{
 		RETURN_GPR_NAME(Rt)
+	}
+
+	String InstructionCopSub::Stringify() const
+	{
+		return U"{} rt:{}, rd:{}"_fmt(StringifyEnum(Sub()), RtName(), RdName());
 	}
 }

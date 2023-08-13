@@ -15,7 +15,7 @@ public:
 		switch (instr.Op())
 		{
 		case Opcode::SPECIAL:
-			return operateSpecial(n64, cpu, static_cast<InstructionR>(instr));
+			return operateSPECIAL(n64, cpu, static_cast<InstructionR>(instr));
 		case Opcode::REGIMM:
 			break;
 		case Opcode::J:
@@ -47,7 +47,7 @@ public:
 		case Opcode::LUI:
 			break;
 		case Opcode::CP0:
-			break;
+			return operateCP0(n64, cpu, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:
 			break;
 		case Opcode::BEQL:
@@ -111,7 +111,7 @@ public:
 
 private:
 	[[nodiscard]]
-	static OperatedUnit operateSpecial(N64System& n64, Cpu& cpu, InstructionR instr)
+	static OperatedUnit operateSPECIAL(N64System& n64, Cpu& cpu, InstructionR instr)
 	{
 		switch (instr.Funct())
 		{
@@ -194,6 +194,37 @@ private:
 		case OpSpecialFunct::DSRL32:
 			break;
 		case OpSpecialFunct::DSRA32:
+			break;
+		default: ;
+		}
+
+		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
+		return {};
+	}
+
+	[[nodiscard]]
+	static OperatedUnit operateCP0(N64System& n64, Cpu& cpu, InstructionCop instr)
+	{
+		switch (instr.Sub())
+		{
+		case OpCopSub::MFC:
+			break;
+		case OpCopSub::DMFC:
+			break;
+		case OpCopSub::MTC:
+			return Op::MTC0(cpu, static_cast<InstructionCopSub>(instr));
+		case OpCopSub::DMTC:
+			break;
+		case OpCopSub::CFC:
+			break;
+		case OpCopSub::CTC:
+			break;
+		// @formatter:off
+		case OpCopSub::CO_0x10: case OpCopSub::CO_0x11: case OpCopSub::CO_0x12: case OpCopSub::CO_0x13:
+		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
+		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
+		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
+			// TODO
 			break;
 		default: ;
 		}

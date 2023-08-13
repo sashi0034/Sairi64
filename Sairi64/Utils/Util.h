@@ -5,7 +5,7 @@ namespace Utils
 	template <class...>
 	constexpr std::false_type AlwaysFalse{};
 
-	template <int x1, int x2, typename T>
+	template <int x1, int x2 = x1, typename T>
 	T GetBits(T value)
 	{
 		static_assert(std::is_integral<T>::value);
@@ -15,7 +15,7 @@ namespace Utils
 		return (value & mask) >> x1;
 	}
 
-	template <int x1, int x2, typename T, typename U>
+	template <int x1, int x2 = x1, typename T, typename U>
 	[[nodiscard]] T SetBits(T value, U newBits)
 	{
 		static_assert(std::is_integral<T>::value);

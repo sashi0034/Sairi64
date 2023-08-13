@@ -37,4 +37,12 @@ public:
 
 		END_OP;
 	}
+
+	[[nodiscard]]
+	static OperatedUnit MTC0(Cpu& cpu, InstructionCopSub instr)
+	{
+		const uint32 rt = cpu.GetGpr().Read(instr.Rt());
+		cpu.GetCop0().Write32(instr.Rd(), rt);
+		END_OP;
+	}
 };

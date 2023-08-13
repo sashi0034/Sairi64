@@ -10,6 +10,13 @@ namespace N64::Cpu_detail
 	struct OperatedUnit
 	{
 	};
+
+	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/mips_instructions.h#L6
+	template <typename T>
+	bool isOverflowSignedAdd(T value1, T value2, T result)
+	{
+		return (((~(value1 ^ value2) & (value1 ^ result)) >> ((sizeof(T) * 8) - 1)) & 1);
+	}
 }
 
 class N64::Cpu_detail::Cpu::Interpreter::Op
@@ -24,7 +31,14 @@ public:
 		const uint32 rt = gpr.Read(instr.Rt());
 		const uint32 result = rs + rt;
 
-		gpr.Write(instr.Rd(), (int64)static_cast<int32>(result));
+		if (isOverflowSignedAdd(rs, rt, result))
+		{
+			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+		}
+		else
+		{
+			gpr.Write(instr.Rd(), (sint64)static_cast<sint32>(result));
+		}
 
 		END_OP;
 	}
@@ -69,5 +83,11 @@ public:
 		const uint32 rt = cpu.GetGpr().Read(instr.Rt());
 		cpu.GetCop0().Write32(instr.Rd(), rt);
 		END_OP;
+	}
+
+private:
+	static void throwException(Cpu& cpu, ExceptionCode code, int coprocessorError)
+	{
+		cpu.handleException(cpu.m_pc.Prev(), code, coprocessorError);
 	}
 };

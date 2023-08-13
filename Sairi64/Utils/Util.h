@@ -151,7 +151,7 @@ namespace Utils
 	public:
 		const T value;
 		explicit constexpr EnumValue(T v) : value{v} { return; }
-		operator T() const { return value; }
+		constexpr operator T() const { return value; }
 	};
 
 	template <typename T>

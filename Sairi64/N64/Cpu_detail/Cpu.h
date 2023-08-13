@@ -24,6 +24,13 @@ namespace N64::Cpu_detail
 			m_next += 4;
 		}
 
+		void Change32(uint32 pc)
+		{
+			m_prev = m_curr;
+			m_curr = (sint64)static_cast<sint32>(pc);
+			m_next = pc + 4;
+		}
+
 		void Change64(uint64 pc)
 		{
 			m_prev = m_curr;
@@ -60,5 +67,7 @@ namespace N64::Cpu_detail
 		Cop0 m_cop0{};
 		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果
 		uint64 m_hi{}; // 64ビットの整数乗算/除算レジスタの下位結果
+
+		void handleException(uint64 pc, ExceptionCode code, int coprocessorError);
 	};
 }

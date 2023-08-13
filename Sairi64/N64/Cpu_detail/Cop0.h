@@ -5,6 +5,33 @@ namespace N64::Cpu_detail
 {
 	using Utils::BitAccess;
 
+	class ExceptionCode : public Utils::EnumValue<uint32>
+	{
+	public:
+		constexpr explicit ExceptionCode(uint32 v): EnumValue(v) { return; }
+	};
+
+	// https://n64.readthedocs.io/#exception-codes
+	namespace ExceptionKinds
+	{
+		constexpr ExceptionCode Interrupt{0};
+		constexpr ExceptionCode TLBModification{1};
+		constexpr ExceptionCode TLBMissLoad{2};
+		constexpr ExceptionCode TLBMissStore{3};
+		constexpr ExceptionCode AddressErrorLoad{4};
+		constexpr ExceptionCode AddressErrorStore{5};
+		constexpr ExceptionCode BusErrorInstructionFetch{6};
+		constexpr ExceptionCode BusErrorLoadStore{7};
+		constexpr ExceptionCode Syscall{8};
+		constexpr ExceptionCode Breakpoint{9};
+		constexpr ExceptionCode ReservedInstruction{10};
+		constexpr ExceptionCode CoprocessorUnusable{11};
+		constexpr ExceptionCode ArithmeticOverflow{12};
+		constexpr ExceptionCode Trap{13};
+		constexpr ExceptionCode FloatingPoint{15};
+		constexpr ExceptionCode Watch{23};
+	}
+
 	constexpr uint32 Cop0Regs_32 = 32;
 
 	constexpr StringView Cop0RegName_Unused = U"Unused";
@@ -69,6 +96,17 @@ namespace N64::Cpu_detail
 		auto Cu2() { return BitAccess<30>(m_raw); } // 1
 		auto Cu3() { return BitAccess<31>(m_raw); } // 1
 
+		// [0, 15]
+		auto De() { return BitAccess<16>(m_raw); } // 1
+		auto Ce() { return BitAccess<17>(m_raw); } // 1
+		auto Ch() { return BitAccess<18>(m_raw); } // 1
+		// [19, 19]
+		auto Sr() { return BitAccess<20>(m_raw); } // 1
+		auto Ts() { return BitAccess<21>(m_raw); } // 1
+		auto Bev() { return BitAccess<22>(m_raw); } // 1
+		// [23, 23]
+		auto Its() { return BitAccess<24>(m_raw); } // 1
+		// [25, 31]
 	private:
 		uint32 m_raw{};
 	};
@@ -142,8 +180,7 @@ namespace N64::Cpu_detail
 	{
 	public:
 		Cop0();
-		const Cop0Reg& Reg() const { return m_reg; }
-		Cop0Reg& TouchReg() { return m_reg; }
+		Cop0Reg& Reg() { return m_reg; }
 
 		uint64 Read64(uint8 number) const;
 		uint32 Read32(uint8 number) const;

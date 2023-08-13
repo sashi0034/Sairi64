@@ -146,7 +146,7 @@ private:
 		case OpSpecialFunct::ADD:
 			return Op::ADD(cpu, instr);
 		case OpSpecialFunct::ADDU:
-			break;
+			return Op::ADDU(cpu, instr);
 		case OpSpecialFunct::SUB:
 			break;
 		case OpSpecialFunct::SUBU:

@@ -30,6 +30,20 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit ADDU(Cpu& cpu, InstructionR instr)
+	{
+		auto&& gpr = cpu.GetGpr();
+
+		const uint32 rs = gpr.Read(instr.Rs());
+		const uint32 rt = gpr.Read(instr.Rt());
+		const sint32 result = rs + rt;
+
+		gpr.Write(instr.Rd(), static_cast<sint64>(result));
+
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit SLL(Cpu& cpu, InstructionR instr) // possibly NOP
 	{
 		const sint32 result = cpu.GetGpr().Read(instr.Rt()) << instr.Sa();

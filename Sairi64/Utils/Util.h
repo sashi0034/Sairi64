@@ -178,4 +178,14 @@ namespace Utils
 		const auto enumName = NAMEOF_ENUM(value);
 		return Unicode::Widen(enumName);
 	}
+
+	using sint8 = std::int8_t;
+	using sint16 = std::int16_t;
+	using sint32 = std::int32_t;
+	using sint64 = std::int32_t;
 }
+
+using Utils::sint8;
+using Utils::sint16;
+using Utils::sint32;
+using Utils::sint64;

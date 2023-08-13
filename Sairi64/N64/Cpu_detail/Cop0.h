@@ -37,19 +37,20 @@ namespace N64::Cpu_detail
 		Unused_23 = 23,
 		Unused_24 = 24,
 		Unused_25 = 25,
-		ECC = 26,
-		CacheErr = 27,
+		ParityError = 26,
+		CacheError = 27,
 		TagLo = 28,
 		TagHi = 29,
-		ErrEPC = 30,
+		ErrorEPC = 30,
 		Unused_31 = 31,
 	};
 
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/r4300i.h#L276C2-L276C2
-	class Cop0Status
+	class Cop0Status32
 	{
 	public:
-		Cop0Status(uint32 raw = 0): m_raw(raw) { return; }
+		Cop0Status32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
 
 		auto Ie() { return BitAccess<0>(m_raw); } // 1
 		auto Exl() { return BitAccess<1>(m_raw); } // 1
@@ -72,10 +73,11 @@ namespace N64::Cpu_detail
 		uint32 m_raw{};
 	};
 
-	class Cop0Cause
+	class Cop0Cause32
 	{
 	public:
-		Cop0Cause(uint32 raw = 0): m_raw(raw) { return; }
+		Cop0Cause32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
 
 		auto InterruptPending() { return BitAccess<8, 15>(m_raw); }
 
@@ -99,22 +101,23 @@ namespace N64::Cpu_detail
 		uint32 m_raw{};
 	};
 
+	// https://n64.readthedocs.io/#:~:text=for%20what%20purposes.-,COP0%20Registers,-Register%20Number
 	struct Cop0Reg
 	{
 		uint32 index;
-		uint32 random;
+		// (1) random
 		uint32 entryLo0; // TODO: refine type?
 		uint32 entryLo1; // TODO: refine type?
 		uint32 context; // TODO: refine type?
-		uint32 page_mask; // TODO: refine type?
+		uint32 pageMask; // TODO: refine type?
 		uint32 wired;
 		// (7)
 		uint32 badVAddr;
 		uint32 count;
 		uint64 entryHi; // 64bit TODO: refine type?
 		uint32 compare;
-		Cop0Status status; // TODO: refine type?
-		Cop0Cause cause; // TODO: refine type?
+		Cop0Status32 status;
+		Cop0Cause32 cause;
 		uint64 epc; // 64bit
 		uint32 prId;
 		uint32 config;
@@ -142,9 +145,14 @@ namespace N64::Cpu_detail
 		const Cop0Reg& Reg() const { return m_reg; }
 		Cop0Reg& TouchReg() { return m_reg; }
 
-		uint64 Read(uint8 number);
+		uint64 Read64(uint8 number) const;
+		uint32 Read32(uint8 number) const;
+		void Write64(uint8 number, uint64 value);
+		void Write32(uint8 number, uint32 value);
 
 	private:
+		template <typename Wire> Wire readInternal(uint8 number) const;
+		template <typename Wire> void writeInternal(uint8 number, Wire value);
 		Cop0Reg m_reg{};
 		bool m_llBit{};
 	};

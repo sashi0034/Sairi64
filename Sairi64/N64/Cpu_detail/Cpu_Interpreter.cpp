@@ -71,7 +71,7 @@ public:
 		case Opcode::LH:
 			break;
 		case Opcode::LW:
-			break;
+			return Op::LW(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
 			break;
 		case Opcode::LHU:

@@ -22,7 +22,7 @@ namespace N64::Mmu
 			return PAddr32(vaddr - VMap::KSEG1.base);
 		}
 
-		N64Logger::Abort();
+		N64Logger::Abort(U"unsupported vaddr: {:016x}"_fmt(vaddr));
 		return none;
 	}
 
@@ -68,7 +68,7 @@ namespace N64::Mmu
 			}
 		}
 
-		N64Logger::Abort(U"read paddr {}-bit: {:08X}"_fmt(
+		N64Logger::Abort(U"read unsupported paddr {}-bit: {:08X}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
 		return 0;
 	}
@@ -106,7 +106,7 @@ namespace N64::Mmu
 			}
 		}
 
-		N64Logger::Abort(U"write paddr {}-bit: {:08X}"_fmt(
+		N64Logger::Abort(U"write unsupported paddr {}-bit: {:08X}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
 	}
 

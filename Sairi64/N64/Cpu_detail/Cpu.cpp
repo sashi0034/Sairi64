@@ -11,7 +11,7 @@ namespace N64::Cpu_detail
 {
 	void Cpu::Step(N64System& n64)
 	{
-		N64_TRACE(U"CPU cycle starts PC={:#018x}"_fmt(m_pc.Curr()));
+		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
 		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(*this, m_pc.Curr());
 		if (paddrOfPc.has_value() == false)

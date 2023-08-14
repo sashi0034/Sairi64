@@ -31,9 +31,9 @@ public:
 		case Opcode::BGTZ:
 			break;
 		case Opcode::ADDI:
-			break;
+			return Op::ADDI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::ADDIU:
-			break;
+			return Op::ADDIU(cpu, static_cast<InstructionI>(instr));
 		case Opcode::SLTI:
 			break;
 		case Opcode::SLTIU:

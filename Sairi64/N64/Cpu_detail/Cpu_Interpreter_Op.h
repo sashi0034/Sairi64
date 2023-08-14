@@ -58,6 +58,41 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit ADDI(Cpu& cpu, InstructionI instr)
+	{
+		auto&& gpr = cpu.GetGpr();
+
+		const uint32 rs = gpr.Read(instr.Rs());
+		const uint32 imm = static_cast<sint32>(static_cast<sint16>(instr.Imm()));
+		const uint32 result = rs + imm;
+
+		if (isOverflowSignedAdd<uint32>(rs, imm, result))
+		{
+			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+		}
+		else
+		{
+			gpr.Write(instr.Rt(), (sint64)static_cast<sint32>(result));
+		}
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit ADDIU(Cpu& cpu, InstructionI instr)
+	{
+		auto&& gpr = cpu.GetGpr();
+
+		const uint32 rs = gpr.Read(instr.Rs());
+		const sint16 imm = static_cast<sint16>(instr.Imm());
+		const sint32 result = rs + imm;
+
+		gpr.Write(instr.Rt(), (sint64)(result));
+
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit SLL(Cpu& cpu, InstructionR instr) // possibly NOP
 	{
 		const sint32 result = cpu.GetGpr().Read(instr.Rt()) << instr.Sa();

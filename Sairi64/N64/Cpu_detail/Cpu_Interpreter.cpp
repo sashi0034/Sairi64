@@ -25,7 +25,7 @@ public:
 		case Opcode::BEQ:
 			break;
 		case Opcode::BNE:
-			break;
+			return Op::BNE(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
 			break;
 		case Opcode::BGTZ:
@@ -53,7 +53,7 @@ public:
 		case Opcode::BEQL:
 			break;
 		case Opcode::BNEL:
-			break;
+			return Op::BNEL(cpu, static_cast<InstructionI>(instr));;
 		case Opcode::BLEZL:
 			break;
 		case Opcode::BGTZL:

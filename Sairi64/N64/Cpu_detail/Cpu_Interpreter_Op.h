@@ -97,6 +97,28 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit BNE(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+
+		const bool condition = cpu.GetGpr().Read(instr.Rs()) != cpu.GetGpr().Read(instr.Rt());
+		branchOffset16(cpu, instr, condition);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BNEL(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+
+		const bool condition = cpu.GetGpr().Read(instr.Rs()) != cpu.GetGpr().Read(instr.Rt());
+		branchLikelyOffset16(cpu, instr, condition);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit SLL(Cpu& cpu, InstructionR instr) // possibly NOP
 	{
 		BEGIN_OP;
@@ -153,5 +175,54 @@ private:
 	static void throwException(Cpu& cpu, ExceptionCode code, int coprocessorError)
 	{
 		cpu.handleException(cpu.m_pc.Prev(), code, coprocessorError);
+	}
+
+	static void branchLikelyVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
+	{
+		// 分岐条件成立時のみ、遅延スロットの命令は実行される
+		cpu.m_delaySlot.Set();
+
+		if (condition)
+		{
+			cpu.m_pc.SetNext(vaddr);
+			N64_TRACE(U"branch accepted vaddr={:016X}"_fmt(vaddr));
+		}
+		else
+		{
+			cpu.m_pc.Change64(cpu.m_pc.Curr() + 4);
+			N64_TRACE(U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
+		}
+	}
+
+	static void branchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
+	{
+		// 常に遅延スロットの命令は実行される
+		cpu.m_delaySlot.Set();
+
+		if (condition)
+		{
+			cpu.m_pc.SetNext(vaddr);
+			N64_TRACE(U"branch accepted vaddr={:016X}"_fmt(vaddr));
+		}
+		else
+		{
+			N64_TRACE(U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
+		}
+	}
+
+	static void branchOffset16(Cpu& cpu, InstructionI instr, bool condition)
+	{
+		sint64 offset = static_cast<sint16>(instr.Imm());
+		offset *= 4; // left shift 2
+
+		branchVAddr64(cpu, cpu.m_pc.Curr() + offset, condition);
+	}
+
+	static void branchLikelyOffset16(Cpu& cpu, InstructionI instr, bool condition)
+	{
+		sint64 offset = static_cast<sint16>(instr.Imm());
+		offset *= 4; // left shift 2
+
+		branchLikelyVAddr64(cpu, cpu.m_pc.Curr() + offset, condition);
 	}
 };

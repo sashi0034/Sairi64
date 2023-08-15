@@ -13,6 +13,9 @@ namespace N64::Cpu_detail
 	{
 		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
+		// update delay slot
+		m_delaySlot.Step();
+
 		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(*this, m_pc.Curr());
 		if (paddrOfPc.has_value() == false)
 		{
@@ -20,9 +23,11 @@ namespace N64::Cpu_detail
 			N64Logger::Abort();
 		}
 
+		// instruction fetch
 		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
 		N64_TRACE(U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), m_pc.Curr()));
 
+		// execution
 		m_pc.Step();
 
 		Interpreter::InterpretInstruction(n64, *this, fetchedInstr);

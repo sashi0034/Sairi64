@@ -44,6 +44,25 @@ namespace N64::Cpu_detail
 		uint64 m_next{4};
 	};
 
+	class DelaySlot
+	{
+	public:
+		bool Prev() const { return m_prev; }
+		bool Curr() const { return m_curr; }
+
+		void Step()
+		{
+			m_prev = m_curr;
+			m_curr = false;
+		}
+
+		void Set() { m_curr = true; }
+
+	private:
+		bool m_prev{};
+		bool m_curr{};
+	};
+
 	// https://ultra64.ca/files/documentation/silicon-graphics/SGI_R4300_RISC_Processor_Specification_REV2.2.pdf
 
 	class Cpu
@@ -63,6 +82,7 @@ namespace N64::Cpu_detail
 		class Interpreter;
 
 		Pc m_pc{};
+		DelaySlot m_delaySlot{};
 		Gpr m_gpr{};
 		Cop0 m_cop0{};
 		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果

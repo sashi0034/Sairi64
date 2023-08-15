@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Cpu.h"
-#include "Types.h"
+#include "Forward.h"
 #include "Utils/Util.h"
 
 namespace N64

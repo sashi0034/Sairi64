@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "N64/Types.h"
+#include "N64\Forward.h"
 
 namespace N64::Mmio
 {

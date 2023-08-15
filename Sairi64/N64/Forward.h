@@ -9,8 +9,6 @@ namespace N64
 		constexpr explicit PAddr32(unsigned v): EnumValue(v) { return; }
 	};
 
-	// TODO: いらなかったら削除
-
 	namespace Cpu_detail
 	{
 		class Cpu;
@@ -24,13 +22,6 @@ namespace N64
 	}
 
 	using Memory = Memory_detail::Memory;
-
-	template <class N64>
-	concept I64System = requires(N64 n64)
-	{
-		{ n64.GetCpu() } -> std::same_as<Cpu&>;
-		{ n64.GetMemory() } -> std::same_as<Memory&>;
-	};
 
 	class N64System;
 }

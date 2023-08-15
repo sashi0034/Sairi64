@@ -132,6 +132,7 @@
     <ClCompile Include="N64\Cpu_detail\Instruction.cpp" />
     <ClCompile Include="N64\Memory_detail\Memory.cpp" />
     <ClCompile Include="N64\Memory_detail\Rom.cpp" />
+    <ClCompile Include="N64\Mmio\RI.cpp" />
     <ClCompile Include="N64\Mmio\SI.cpp" />
     <ClCompile Include="N64\Mmu.cpp" />
     <ClCompile Include="N64\N64Config.cpp" />
@@ -362,6 +363,7 @@
     <ClInclude Include="N64\Memory.h" />
     <ClInclude Include="N64\Memory_detail\Memory.h" />
     <ClInclude Include="N64\Memory_detail\Rom.h" />
+    <ClInclude Include="N64\Mmio\RI.h" />
     <ClInclude Include="N64\Mmio\SI.h" />
     <ClInclude Include="N64\Mmu.h" />
     <ClInclude Include="N64\N64Config.h" />

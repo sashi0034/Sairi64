@@ -1,7 +1,14 @@
 ﻿#pragma once
+#include "Utils/Util.h"
 
 namespace N64
 {
+	class PAddr32 : public Utils::EnumValue<uint32>
+	{
+	public:
+		constexpr explicit PAddr32(unsigned v): EnumValue(v) { return; }
+	};
+
 	// TODO: いらなかったら削除
 
 	namespace Cpu_detail

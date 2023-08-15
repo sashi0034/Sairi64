@@ -1,16 +1,11 @@
 ﻿#pragma once
 #include "Cpu.h"
+#include "Types.h"
 #include "Utils/Util.h"
 
 namespace N64
 {
 	using namespace Utils;
-
-	class PAddr32 : public EnumValue<uint32>
-	{
-	public:
-		constexpr explicit PAddr32(unsigned v): EnumValue(v) { return; }
-	};
 
 	namespace Mmu
 	{
@@ -35,6 +30,7 @@ namespace N64
 			constexpr AddressRange<uint32> RspRegisters{0x04040000, 0x040BFFFF};
 
 			constexpr AddressRange<uint32> PifRam{0x1FC007C0, 0x1FC007FF};
+			constexpr AddressRange<uint32> RI{0x04700000, 0x047FFFFF};
 		}
 
 		uint64 ReadPaddr64(N64System& n64, PAddr32 paddr);

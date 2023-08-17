@@ -19,6 +19,12 @@ namespace N64::Cpu_detail
 	{
 		return (((~(value1 ^ value2) & (value1 ^ result)) >> ((sizeof(T) * 8) - 1)) & 1);
 	}
+
+	template <typename T>
+	bool isOverflowSignedSub(T value1, T value2, T result)
+	{
+		return ((((value1 ^ value2) & (value1 ^ result)) >> ((sizeof(T) * 8) - 1)) & 1);
+	}
 }
 
 class N64::Cpu_detail::Cpu::Interpreter::Op
@@ -56,6 +62,90 @@ public:
 		const sint32 result = rs + rt;
 
 		gpr.Write(instr.Rd(), static_cast<sint64>(result));
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SUB(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const sint32 rs = gpr.Read(instr.Rs());
+		const sint32 rt = gpr.Read(instr.Rt());
+		const sint32 result = rs - rt;
+
+		if (isOverflowSignedSub(rs, rt, result))
+		{
+			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+		}
+		else
+		{
+			gpr.Write(instr.Rd(), static_cast<sint64>(result));
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SUBU(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const sint32 rs = gpr.Read(instr.Rs());
+		const sint32 rt = gpr.Read(instr.Rt());
+		const sint32 result = rs - rt;
+
+		gpr.Write(instr.Rd(), static_cast<sint64>(result));
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit AND(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 result = gpr.Read(instr.Rs()) & gpr.Read(instr.Rt());
+		gpr.Write(instr.Rd(), result);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit XOR(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 result = gpr.Read(instr.Rs()) ^ gpr.Read(instr.Rt());
+		gpr.Write(instr.Rd(), result);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit OR(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 result = gpr.Read(instr.Rs()) | gpr.Read(instr.Rt());
+		gpr.Write(instr.Rd(), result);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit NOR(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 result = ~(gpr.Read(instr.Rs()) | gpr.Read(instr.Rt()));
+		gpr.Write(instr.Rd(), result);
 
 		END_OP;
 	}

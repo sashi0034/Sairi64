@@ -148,17 +148,17 @@ private:
 		case OpSpecialFunct::ADDU:
 			return Op::ADDU(cpu, instr);
 		case OpSpecialFunct::SUB:
-			break;
+			return Op::SUB(cpu, instr);
 		case OpSpecialFunct::SUBU:
-			break;
+			return Op::SUBU(cpu, instr);
 		case OpSpecialFunct::AND:
-			break;
+			return Op::AND(cpu, instr);
 		case OpSpecialFunct::OR:
-			break;
+			return Op::OR(cpu, instr);
 		case OpSpecialFunct::XOR:
-			break;
+			return Op::XOR(cpu, instr);
 		case OpSpecialFunct::NOR:
-			break;
+			return Op::NOR(cpu, instr);
 		case OpSpecialFunct::SLT:
 			return Op::SLT(cpu, instr);
 		case OpSpecialFunct::SLTU:

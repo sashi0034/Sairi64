@@ -149,6 +149,8 @@ namespace N64::Cpu_detail
 		uint32 m_raw{};
 	};
 
+	static_assert(sizeof(Instruction) == sizeof(uint32));
+
 	class InstructionI : public Instruction
 	{
 	public:

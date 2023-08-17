@@ -61,6 +61,35 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit SLT(Cpu& cpu, InstructionR instr)
+	{
+		// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/mips_instructions.c#L962
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const sint64 rs = static_cast<sint64>(gpr.Read(instr.Rs()));
+		const sint64 rt = static_cast<sint64>(gpr.Read(instr.Rt()));
+
+		gpr.Write(instr.Rd(), rs < rt ? 1 : 0);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SLTU(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 rt = gpr.Read(instr.Rt());
+
+		gpr.Write(instr.Rd(), rs < rt ? 1 : 0);
+
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit ADDI(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;
@@ -168,6 +197,14 @@ public:
 		BEGIN_OP;
 		const uint32 rt = cpu.GetGpr().Read(instr.Rt());
 		cpu.GetCop0().Write32(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit CACHE(Instruction instr)
+	{
+		BEGIN_OP;
+		// for now, do nothing
 		END_OP;
 	}
 

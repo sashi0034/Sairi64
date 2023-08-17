@@ -144,6 +144,7 @@ namespace N64::Cpu_detail
 
 		String OpName() const;
 
+		String Stringify() const; // non-virtual
 	private:
 		uint32 m_raw{};
 	};

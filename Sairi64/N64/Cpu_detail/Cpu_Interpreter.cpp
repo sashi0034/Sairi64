@@ -89,7 +89,7 @@ public:
 		case Opcode::SDR:
 			break;
 		case Opcode::CACHE:
-			break;
+			return Op::CACHE(instr);
 		case Opcode::LL:
 			break;
 		case Opcode::LLD:
@@ -160,9 +160,9 @@ private:
 		case OpSpecialFunct::NOR:
 			break;
 		case OpSpecialFunct::SLT:
-			break;
+			return Op::SLT(cpu, instr);
 		case OpSpecialFunct::SLTU:
-			break;
+			return Op::SLTU(cpu, instr);;
 		case OpSpecialFunct::DADD:
 			break;
 		case OpSpecialFunct::DADDU:

@@ -13,6 +13,11 @@ namespace N64::Cpu_detail
 		return op.isEmpty() ? U"op:{:06b}"_fmt(static_cast<uint8>(Op())) : std::move(op);
 	}
 
+	String Instruction::Stringify() const
+	{
+		return U"{} ({:016X})"_fmt(OpName(), Raw());
+	}
+
 	String InstructionI::Stringify() const
 	{
 		return U"{} rs:{}, rt:{}, imm:{:08X}"_fmt(OpName(), GprNames[Rs()], GprNames[Rt()], Imm());

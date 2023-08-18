@@ -74,6 +74,14 @@ namespace N64::Mmu
 				return n64.GetRI().Read32(paddr);
 			}
 		}
+		else if (PMap::Rom.IsBetween(paddr)) // 0x10000000, 0x1FBFFFFF
+		{
+			if constexpr (wire32)
+			{
+				const uint64 offset = paddr - PMap::Rom.base;
+				return ReadBytes32(n64.GetMemory().GetRom().Data(), offset);
+			}
+		}
 
 		N64Logger::Abort(U"read unsupported paddr {}-bit: {:08X}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
@@ -117,6 +125,14 @@ namespace N64::Mmu
 			if constexpr (wire32)
 			{
 				return n64.GetRI().Write32(paddr, value);
+			}
+		}
+		else if (PMap::Rom.IsBetween(paddr)) // 0x10000000, 0x1FBFFFFF
+		{
+			if constexpr (wire32)
+			{
+				const uint64 offset = paddr - PMap::Rom.base;
+				return WriteBytes32(n64.GetMemory().GetRom().Data(), offset, value);
 			}
 		}
 

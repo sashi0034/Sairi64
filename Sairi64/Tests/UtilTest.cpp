@@ -1,8 +1,6 @@
 ﻿#include "stdafx.h"
 #include <Catch2/catch.hpp>
 
-#include "UtilTest.h"
-
 #include "Utils/Util.h"
 
 namespace Tests

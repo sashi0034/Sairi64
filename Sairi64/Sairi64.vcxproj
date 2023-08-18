@@ -143,6 +143,8 @@
     <ClCompile Include="N64\N64System.cpp" />
     <ClCompile Include="N64\Pif.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
+    <ClCompile Include="N64\Scheduler.cpp" />
+    <ClCompile Include="Tests\AnyTests.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
     <ClCompile Include="Ui\UiManager.cpp" />
     <ClCompile Include="Utils\Util.cpp" />
@@ -377,7 +379,7 @@
     <ClInclude Include="N64\Rsp.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp.h" />
     <ClInclude Include="N64\Forward.h" />
-    <ClInclude Include="Tests\UtilTest.h" />
+    <ClInclude Include="N64\Scheduler.h" />
     <ClInclude Include="Ui\UiManager.h" />
     <ClInclude Include="Utils\Util.h" />
     <ClInclude Include="stdafx.h" />

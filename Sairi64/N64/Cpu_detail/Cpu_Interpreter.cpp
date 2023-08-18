@@ -50,6 +50,10 @@ public:
 			return interpretCP0(n64, cpu, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:
 			break;
+		case Opcode::CP2:
+			break;
+		case Opcode::CP3:
+			break;
 		case Opcode::BEQL:
 			break;
 		case Opcode::BNEL:
@@ -66,9 +70,13 @@ public:
 			break;
 		case Opcode::LDR:
 			break;
+		case Opcode::RDHWR:
+			break;
 		case Opcode::LB:
 			break;
 		case Opcode::LH:
+			break;
+		case Opcode::LWL:
 			break;
 		case Opcode::LW:
 			return Op::LW(n64, cpu, static_cast<InstructionI>(instr));
@@ -76,11 +84,15 @@ public:
 			break;
 		case Opcode::LHU:
 			break;
+		case Opcode::LWR:
+			break;
 		case Opcode::LWU:
 			break;
 		case Opcode::SB:
 			break;
 		case Opcode::SH:
+			break;
+		case Opcode::SWL:
 			break;
 		case Opcode::SW:
 			return Op::SW(n64, cpu, static_cast<InstructionI>(instr));
@@ -88,17 +100,27 @@ public:
 			break;
 		case Opcode::SDR:
 			break;
+		case Opcode::SWR:
+			break;
 		case Opcode::CACHE:
 			return Op::CACHE(instr);
 		case Opcode::LL:
 			break;
+		case Opcode::LWC1:
+			break;
 		case Opcode::LLD:
+			break;
+		case Opcode::LDC1:
 			break;
 		case Opcode::LD:
 			break;
 		case Opcode::SC:
 			break;
+		case Opcode::SWC1:
+			break;
 		case Opcode::SCD:
+			break;
+		case Opcode::SDC1:
 			break;
 		case Opcode::SD:
 			break;
@@ -118,31 +140,53 @@ private:
 		case OpSpecialFunct::SLL:
 			return Op::SLL(cpu, instr);
 		case OpSpecialFunct::SRL:
-			break;
+			break; // return Op::SRL(cpu, instr);
 		case OpSpecialFunct::SRA:
-			break;
+			break; // return Op::SRA(cpu, instr);
 		case OpSpecialFunct::SLLV:
-			break;
+			break; // return Op::SLLV(cpu, instr);
 		case OpSpecialFunct::SRLV:
-			break;
+			break; // return Op::SRLV(cpu, instr);
 		case OpSpecialFunct::SRAV:
-			break;
+			break; // return Op::SRAV(cpu, instr);
 		case OpSpecialFunct::JR:
 			return Op::JR(cpu, instr);
 		case OpSpecialFunct::JALR:
-			break;
+			break; // return Op::JALR(cpu, instr);
+		case OpSpecialFunct::SYSCALL:
+			break; // return Op::SYSCALL(cpu, instr);
+		case OpSpecialFunct::SYNC:
+			break; // return Op::SYNC(cpu, instr);
 		case OpSpecialFunct::MFHI:
-			break;
+			return Op::MFHI(cpu, instr);
+		case OpSpecialFunct::MTHI:
+			return Op::MTHI(cpu, instr);
 		case OpSpecialFunct::MFLO:
-			break;
+			return Op::MFLO(cpu, instr);
+		case OpSpecialFunct::MTLO:
+			return Op::MTLO(cpu, instr);
+		case OpSpecialFunct::DSLLV:
+			break; // return Op::DSLLV(cpu, instr);
+		case OpSpecialFunct::DSRLV:
+			break; // return Op::DSRLV(cpu, instr);
+		case OpSpecialFunct::DSRAV:
+			break; // return Op::DSRAV(cpu, instr);
 		case OpSpecialFunct::MULT:
 			return Op::MULT(cpu, instr);
 		case OpSpecialFunct::MULTU:
 			return Op::MULTU(cpu, instr);
 		case OpSpecialFunct::DIV:
-			break;
+			break; // return Op::DIV(cpu, instr);
 		case OpSpecialFunct::DIVU:
-			break;
+			break; // return Op::DIVU(cpu, instr);
+		case OpSpecialFunct::DMULT:
+			break; // return Op::DMULT(cpu, instr);
+		case OpSpecialFunct::DMULTU:
+			break; // return Op::DMULTU(cpu, instr);
+		case OpSpecialFunct::DDIV:
+			break; // return Op::DDIV(cpu, instr);
+		case OpSpecialFunct::DDIVU:
+			break; // return Op::DDIVU(cpu, instr);
 		case OpSpecialFunct::ADD:
 			return Op::ADD(cpu, instr);
 		case OpSpecialFunct::ADDU:
@@ -162,39 +206,39 @@ private:
 		case OpSpecialFunct::SLT:
 			return Op::SLT(cpu, instr);
 		case OpSpecialFunct::SLTU:
-			return Op::SLTU(cpu, instr);;
+			return Op::SLTU(cpu, instr);
 		case OpSpecialFunct::DADD:
-			break;
+			break; // return Op::DADD(cpu, instr);
 		case OpSpecialFunct::DADDU:
-			break;
+			break; // return Op::DADDU(cpu, instr);
 		case OpSpecialFunct::DSUB:
-			break;
+			break; // return Op::DSUB(cpu, instr);
 		case OpSpecialFunct::DSUBU:
-			break;
+			break; // return Op::DSUBU(cpu, instr);
 		case OpSpecialFunct::TGE:
-			break;
+			break; // return Op::TGE(cpu, instr);
 		case OpSpecialFunct::TGEU:
-			break;
+			break; // return Op::TGEU(cpu, instr);
 		case OpSpecialFunct::TLT:
-			break;
+			break; // return Op::TLT(cpu, instr);
 		case OpSpecialFunct::TLTU:
-			break;
+			break; // return Op::TLTU(cpu, instr);
 		case OpSpecialFunct::TEQ:
-			break;
+			break; // return Op::TEQ(cpu, instr);
 		case OpSpecialFunct::TNE:
-			break;
+			break; // return Op::TNE(cpu, instr);
 		case OpSpecialFunct::DSLL:
-			break;
+			break; // return Op::DSLL(cpu, instr);
 		case OpSpecialFunct::DSRL:
-			break;
+			break; // return Op::DSRL(cpu, instr);
 		case OpSpecialFunct::DSRA:
-			break;
+			break; // return Op::DSRA(cpu, instr);
 		case OpSpecialFunct::DSLL32:
-			break;
+			break; // return Op::DSLL32(cpu, instr);
 		case OpSpecialFunct::DSRL32:
-			break;
+			break; // return Op::DSRL32(cpu, instr);
 		case OpSpecialFunct::DSRA32:
-			break;
+			break; // return Op::DSRA32(cpu, instr);
 		default: ;
 		}
 

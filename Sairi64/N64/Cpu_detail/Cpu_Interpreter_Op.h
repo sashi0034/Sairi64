@@ -7,6 +7,9 @@
 #define BEGIN_OP N64_TRACE(instr.Stringify())
 #define END_OP return {}
 
+// 命令ドキュメント
+// https://hack64.net/docs/VR43XX.pdf
+
 namespace N64::Cpu_detail
 {
 	struct OperatedUnit
@@ -187,6 +190,38 @@ public:
 
 		const uint64 rs = gpr.Read(instr.Rs());
 		branchVAddr64(cpu, rs, true);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit MFHI(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		cpu.GetGpr().Write(instr.Rd(), cpu.Hi());
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit MFLO(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		cpu.GetGpr().Write(instr.Rd(), cpu.Lo());
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit MTHI(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		cpu.SetHi(cpu.GetGpr().Read(instr.Rs()));
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit MTLO(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		cpu.SetLo(cpu.GetGpr().Read(instr.Rs()));
 		END_OP;
 	}
 

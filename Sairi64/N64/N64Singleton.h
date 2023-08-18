@@ -7,6 +7,8 @@ namespace N64
 	class N64Singleton
 	{
 	public:
+		static N64Singleton& Instance();
+
 		N64Singleton();
 		~N64Singleton();
 

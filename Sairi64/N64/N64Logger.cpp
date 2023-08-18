@@ -1,8 +1,36 @@
 ﻿#include "stdafx.h"
 #include "N64Logger.h"
 
+#include "N64Singleton.h"
+
 namespace N64
 {
+	class N64Logger::Impl
+	{
+	public:
+		static N64System& System() { return N64Singleton::Instance().GetSystem(); }
+		static N64Logger& Instance() { return N64Singleton::Instance().GetLogger(); }
+		bool isTraceEnabled{};
+
+		void UpdateTranceEnabled()
+		{
+#if 0
+			static int count = 0;
+			count++;
+			if (count > 100000) isTraceEnabled = true;
+#endif
+#if 1
+			if (System().GetCpu().GetPc().Curr() == 0xFFFFFFFF800000E8)
+				isTraceEnabled = true;
+#endif
+		}
+	};
+
+	N64Logger::N64Logger() :
+		m_impl(std::make_unique<Impl>())
+	{
+	}
+
 	void N64Logger::Trace(const String& message)
 	{
 		Console.writeln(U"[TRACE] {}"_fmt(message));
@@ -43,4 +71,12 @@ namespace N64
 	{
 		Abort(U"aborted!", location);
 	}
+
+	bool N64Logger::IsTraceEnabled()
+	{
+		Impl::Instance().m_impl->UpdateTranceEnabled();
+		return Impl::Instance().m_impl->isTraceEnabled;
+	}
+
+	N64Logger::ImplPtr::~ImplPtr() = default;
 }

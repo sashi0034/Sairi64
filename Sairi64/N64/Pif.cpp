@@ -293,7 +293,7 @@ namespace N64
 		n64.GetCpu().GetGpr().Write(22, (cicSeed >> 8) & 0xFF);
 		n64.GetCpu().GetPc().Change64(0xA4000040);
 
-		// COP0初期化
+		// COP0適応
 		n64.GetCpu().GetCop0().Reg().status = {0x34000000};
 		n64.GetCpu().GetCop0().Reg().prId = 0x00000B00;
 		n64.GetCpu().GetCop0().Reg().config = 0x0006E463;

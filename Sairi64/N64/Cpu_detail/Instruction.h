@@ -125,8 +125,15 @@ namespace N64::Cpu_detail
 		BGEZ = 0b00001,
 		BLTZL = 0b00010,
 		BGEZL = 0b00011,
+		TGEI = 0b01000,
+		TGEIU = 0b01001,
+		TLTI = 0b01010,
+		TLTIU = 0b01011,
+		TEQI = 0b01100,
+		TNEI = 0b01110,
 		BLTZAL = 0b10000,
 		BGEZAL = 0b10001,
+		BGEZALL = 0b10011,
 	};
 
 	enum class OpCopSub : uint8
@@ -188,14 +195,13 @@ namespace N64::Cpu_detail
 
 	class InstructionRegimm : public Instruction
 	{
-		OpRegimm Sub() const { return static_cast<OpRegimm>(GetBits<16, 20>(Raw())); }
-	};
-
-	class InstructionRegimmB : public InstructionRegimm
-	{
 	public:
-		uint32 Offset() const { return GetBits<0, 15>(Raw()); }
+		uint16 Imm() const { return GetBits<0, 15>(Raw()); }
+		uint32 Offset() const { return Imm(); }
+		OpRegimm Sub() const { return static_cast<OpRegimm>(GetBits<16, 20>(Raw())); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
+
+		String Stringify() const;
 	};
 
 	class InstructionJ : public Instruction
@@ -254,5 +260,11 @@ namespace N64::Cpu_detail
 		uint32 Offset() const { return GetBits<0, 15>(Raw()); }
 		uint32 Ft() const { return GetBits<16, 20>(Raw()); }
 		uint32 Base() const { return GetBits<21, 25>(Raw()); }
+	};
+
+	template <class T>
+	concept IInstructionImm16 = requires(T t)
+	{
+		{ t.Imm() } -> std::convertible_to<uint16>;
 	};
 }

@@ -33,6 +33,11 @@ namespace N64::Cpu_detail
 		return U"{} rs:{}, rt:{}, imm:{:08X}"_fmt(OpName(), GprNames[Rs()], GprNames[Rt()], Imm());
 	}
 
+	String InstructionRegimm::Stringify() const
+	{
+		return U"{} rs:{}, imm:{}"_fmt(StringifyEnum(Sub()), GprNames[Rs()], Imm());
+	}
+
 	StringView InstructionR::RdName() const
 	{
 		RETURN_GPR_NAME(Rd)

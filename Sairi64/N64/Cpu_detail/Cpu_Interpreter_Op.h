@@ -36,6 +36,8 @@ namespace N64::Cpu_detail
 		// 分岐条件成立時のみ、遅延スロットの命令は実行される
 		Likely,
 	};
+
+	constexpr uint8 gprRA_31 = 31; // Return Address GPR
 }
 
 class N64::Cpu_detail::Cpu::Interpreter::Op
@@ -479,6 +481,17 @@ public:
 		END_OP;
 	}
 
+	[[nodiscard]]
+	static OperatedUnit BGEZAL(Cpu& cpu, InstructionRegimm instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint64 rs = gpr.Read(instr.Rs());
+		branchOffset16<BranchType::Normal>(cpu, instr, rs >= 0);
+		linkRegister(cpu, gprRA_31);
+		END_OP;
+	}
+
 	// TODO: templateでMTC1も表現?
 	[[nodiscard]]
 	static OperatedUnit MTC0(Cpu& cpu, InstructionCopSub instr)
@@ -524,12 +537,17 @@ private:
 		}
 	}
 
-	template <BranchType branch>
-	static void branchOffset16(Cpu& cpu, InstructionI instr, bool condition)
+	template <BranchType branch, IInstructionImm16 Instr>
+	static void branchOffset16(Cpu& cpu, Instr instr, bool condition)
 	{
 		sint64 offset = static_cast<sint16>(instr.Imm());
 		offset *= 4; // left shift 2
 
-		branchVAddr64<branch>(cpu, cpu.m_pc.Curr() + offset, condition);
+		branchVAddr64<branch>(cpu, cpu.GetPc().Curr() + offset, condition);
+	}
+
+	static void linkRegister(Cpu& cpu, uint8 gprNumber)
+	{
+		cpu.GetGpr().Write(gprNumber, cpu.GetPc().Curr() + 4);
 	}
 };

@@ -17,7 +17,7 @@ public:
 		case Opcode::SPECIAL:
 			return interpretSPECIAL(n64, cpu, static_cast<InstructionR>(instr));
 		case Opcode::REGIMM:
-			break;
+			return interpretREGIMM(n64, cpu, static_cast<InstructionRegimm>(instr));
 		case Opcode::J:
 			break;
 		case Opcode::JAL:
@@ -239,6 +239,44 @@ private:
 			break; // return Op::DSRL32(cpu, instr);
 		case OpSpecialFunct::DSRA32:
 			break; // return Op::DSRA32(cpu, instr);
+		default: ;
+		}
+
+		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
+		return {};
+	}
+
+	[[nodiscard]]
+	static OperatedUnit interpretREGIMM(N64System& n64, Cpu& cpu, InstructionRegimm instr)
+	{
+		switch (instr.Sub())
+		{
+		case OpRegimm::BLTZ:
+			break;
+		case OpRegimm::BGEZ:
+			break;
+		case OpRegimm::BLTZL:
+			break;
+		case OpRegimm::BGEZL:
+			break;
+		case OpRegimm::TGEI:
+			break;
+		case OpRegimm::TGEIU:
+			break;
+		case OpRegimm::TLTI:
+			break;
+		case OpRegimm::TLTIU:
+			break;
+		case OpRegimm::TEQI:
+			break;
+		case OpRegimm::TNEI:
+			break;
+		case OpRegimm::BLTZAL:
+			break;
+		case OpRegimm::BGEZAL:
+			return Op::BGEZAL(cpu, instr);
+		case OpRegimm::BGEZALL:
+			break;
 		default: ;
 		}
 

@@ -136,9 +136,9 @@ private:
 		case OpSpecialFunct::MFLO:
 			break;
 		case OpSpecialFunct::MULT:
-			break;
+			return Op::MULT(cpu, instr);
 		case OpSpecialFunct::MULTU:
-			break;
+			return Op::MULTU(cpu, instr);
 		case OpSpecialFunct::DIV:
 			break;
 		case OpSpecialFunct::DIVU:

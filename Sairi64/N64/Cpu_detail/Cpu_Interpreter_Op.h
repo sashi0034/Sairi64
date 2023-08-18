@@ -191,6 +191,42 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit MULT(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint64 rs = (sint64)static_cast<sint32>(gpr.Read(instr.Rs()));
+		const sint64 rt = (sint64)static_cast<sint32>(gpr.Read(instr.Rt()));
+
+		const sint64 result = rs * rt;
+
+		const sint32 lo = result & 0xFFFF'FFFF;
+		const sint32 hi = (result >> 32) & 0xFFFF'FFFF;
+
+		cpu.SetLo(static_cast<sint64>(lo));
+		cpu.SetHi(static_cast<sint64>(hi));
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit MULTU(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint64 rs = gpr.Read(instr.Rs()) & 0xFFFF'FFFF;
+		const uint64 rt = gpr.Read(instr.Rt()) & 0xFFFF'FFFF;
+
+		const uint64 result = rs * rt;
+
+		const sint32 lo = result & 0xFFFF'FFFF;
+		const sint32 hi = (result >> 32) & 0xFFFF'FFFF;
+
+		cpu.SetLo(static_cast<sint64>(lo));
+		cpu.SetHi(static_cast<sint64>(hi));
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit ADDI(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;

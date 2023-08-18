@@ -57,5 +57,7 @@ namespace N64::Mmio
 		uint32 m_bsdDom2Pwd{};
 		uint32 m_bsdDom2Pgs{};
 		uint32 m_bsdDom2Rls{};
+
+		void dmaWrite(N64System& n64, uint32 wrLen);
 	};
 }

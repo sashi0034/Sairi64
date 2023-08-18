@@ -16,6 +16,7 @@ namespace N64
 	void emulateFrame(N64System& n64)
 	{
 		n64.GetCpu().Step(n64);
+		n64.GetScheduler().Step();
 	}
 
 	void N64Frame::RunOnConsole(N64System& n64)

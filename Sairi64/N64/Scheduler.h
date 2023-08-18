@@ -31,7 +31,7 @@ namespace N64
 		explicit Scheduler() = default;
 		explicit Scheduler(uint64 overflow) : m_overflowTime(overflow) { return; }
 
-		void EnqueueEvent(uint64 cycles, const std::function<void()>& event)
+		void ScheduleEvent(uint64 cycles, const std::function<void()>& event)
 		{
 			// イベントは発火時間昇順で挿入される
 			m_eventQueue.emplace(ScheduledEvent(m_currentTime + cycles, event));

@@ -2,6 +2,7 @@
 #include "PI.h"
 
 #include "N64/N64Logger.h"
+#include "N64/N64System.h"
 
 namespace N64::Mmio
 {
@@ -57,7 +58,8 @@ namespace N64::Mmio
 			break;
 		case PiAddress::WrLen_0x0460000C:
 			// TODO: DMA Write
-			break;
+			dmaWrite(n64, value);
+			return;;
 		case PiAddress::Status_0x04600010:
 			// TODO
 			break;
@@ -89,5 +91,36 @@ namespace N64::Mmio
 		}
 
 		N64Logger::Abort();
+	}
+
+	void PI::dmaWrite(N64System& n64, uint32 wrLen)
+	{
+		m_wrLen = wrLen;
+
+		const uint32 dramAddr = m_dramAddr & 0x7FFFFE;
+		const uint32 cartAddr = m_cartAddr;
+		const uint32 transferLength = (wrLen & 0x00FF'FFFF) + 1;
+
+		N64_TRACE(U"start PI DMA write: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr));
+
+		if (cartAddr < 0x1000'0000 || 0xFFFF'FFFF < cartAddr)
+			N64Logger::Abort(U"pi dma transfer card address is out of range: {}"_fmt(cartAddr));
+
+		const uint32 cartAddrOffset = cartAddr - 0x1000'0000;
+		for (uint32 i = 0; i < transferLength; ++i)
+		{
+			n64.GetMemory().Rdram()[dramAddr + i] = n64.GetMemory().GetRom().Data()[cartAddrOffset + i];
+		}
+		m_status.DmaBusy().Set(true);
+
+		n64.GetScheduler().ScheduleEvent(transferLength / 8, [&n64, this]()
+		{
+			N64_TRACE(U"completed PI DMA write");
+
+			m_status.DmaBusy().Set(false);
+			m_status.Interrupt().Set(true);
+
+			// TODO: MIと割り込みチェックをする
+		});
 	}
 }

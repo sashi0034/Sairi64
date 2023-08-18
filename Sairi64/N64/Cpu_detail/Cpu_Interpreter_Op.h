@@ -238,6 +238,58 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit SLTI(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint16 imm = instr.Imm();
+		const sint64 rs = gpr.Read(instr.Rs());
+		gpr.Write(instr.Rt(), rs < imm ? 1 : 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SLTIU(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint16 imm = instr.Imm();
+		const uint64 rs = gpr.Read(instr.Rs());
+		gpr.Write(instr.Rt(), rs < imm ? 1 : 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit ANDI(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint64 imm = instr.Imm();
+		gpr.Write(instr.Rt(), gpr.Read(instr.Rs()) & imm);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit ORI(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint64 imm = instr.Imm();
+		gpr.Write(instr.Rt(), gpr.Read(instr.Rs()) | imm);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit XORI(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint64 imm = instr.Imm();
+		gpr.Write(instr.Rt(), gpr.Read(instr.Rs()) ^ imm);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit BNEL(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;

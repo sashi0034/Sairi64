@@ -35,15 +35,15 @@ public:
 		case Opcode::ADDIU:
 			return Op::ADDIU(cpu, static_cast<InstructionI>(instr));
 		case Opcode::SLTI:
-			break;
+			return Op::SLTI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::SLTIU:
-			break;
+			return Op::SLTIU(cpu, static_cast<InstructionI>(instr));
 		case Opcode::ANDI:
-			break;
+			return Op::ANDI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::ORI:
-			break;
+			return Op::ORI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::XORI:
-			break;
+			return Op::XORI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::LUI:
 			return Op::LUI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::CP0:

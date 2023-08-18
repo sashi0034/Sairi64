@@ -6,7 +6,7 @@ namespace N64
 	class PAddr32 : public Utils::EnumValue<uint32>
 	{
 	public:
-		constexpr explicit PAddr32(unsigned v): EnumValue(v) { return; }
+		constexpr explicit PAddr32(uint32 addr): EnumValue(addr) { return; }
 	};
 
 	namespace Cpu_detail

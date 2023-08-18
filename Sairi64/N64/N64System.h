@@ -2,6 +2,7 @@
 #include "Cpu.h"
 #include "Memory.h"
 #include "Rsp.h"
+#include "Mmio/PI.h"
 #include "Mmio/RI.h"
 #include "Mmio/SI.h"
 
@@ -15,6 +16,7 @@ namespace N64
 		Memory& GetMemory() { return m_memory; }
 		Mmio::SI& GetSI() { return m_si; }
 		Mmio::RI& GetRI() { return m_ri; }
+		Mmio::PI& GetPI() { return m_pi; }
 
 	private:
 		Cpu m_cpu{};
@@ -22,5 +24,6 @@ namespace N64
 		Memory m_memory{};
 		Mmio::SI m_si{};
 		Mmio::RI m_ri{};
+		Mmio::PI m_pi{};
 	};
 }

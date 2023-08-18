@@ -180,6 +180,17 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit JR(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		branchVAddr64(cpu, rs, true);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit ADDI(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;

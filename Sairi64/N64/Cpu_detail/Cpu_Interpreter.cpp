@@ -128,7 +128,7 @@ private:
 		case OpSpecialFunct::SRAV:
 			break;
 		case OpSpecialFunct::JR:
-			break;
+			return Op::JR(cpu, instr);
 		case OpSpecialFunct::JALR:
 			break;
 		case OpSpecialFunct::MFHI:

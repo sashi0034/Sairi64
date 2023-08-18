@@ -154,12 +154,12 @@ namespace N64::Cpu_detail
 	class InstructionI : public Instruction
 	{
 	public:
-		uint32 Imm() const { return GetBits<0, 15>(Raw()); }
+		uint16 Imm() const { return GetBits<0, 15>(Raw()); }
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
 
-		StringView RdName() const;
 		StringView RtName() const;
+		StringView RsName() const;
 
 		String Stringify() const;
 	};

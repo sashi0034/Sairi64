@@ -265,7 +265,7 @@ public:
 		// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/mips_instructions.c#L317
 		auto&& gpr = cpu.GetGpr();
 
-		const uint16 offset = instr.Imm();
+		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
 		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
@@ -276,6 +276,28 @@ public:
 		else
 		{
 			throwException(cpu, ExceptionKinds::AddressErrorLoad, 0);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SW(N64System& n64, Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/mips_instructions.c#L382
+		auto&& gpr = cpu.GetGpr();
+
+		const sint16 offset = static_cast<sint16>(instr.Imm());
+		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
+
+		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		{
+			const uint32 word = gpr.Read(instr.Rt());
+			Mmu::WritePaddr32(n64, paddr.value(), word);
+		}
+		else
+		{
+			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
 		}
 		END_OP;
 	}

@@ -83,7 +83,7 @@ public:
 		case Opcode::SH:
 			break;
 		case Opcode::SW:
-			break;
+			return Op::SW(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SDL:
 			break;
 		case Opcode::SDR:

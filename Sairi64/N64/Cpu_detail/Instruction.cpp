@@ -18,6 +18,16 @@ namespace N64::Cpu_detail
 		return U"{} ({:016X})"_fmt(OpName(), Raw());
 	}
 
+	StringView InstructionI::RtName() const
+	{
+		RETURN_GPR_NAME(Rt);
+	}
+
+	StringView InstructionI::RsName() const
+	{
+		RETURN_GPR_NAME(Rs);
+	}
+
 	String InstructionI::Stringify() const
 	{
 		return U"{} rs:{}, rt:{}, imm:{:08X}"_fmt(OpName(), GprNames[Rs()], GprNames[Rt()], Imm());

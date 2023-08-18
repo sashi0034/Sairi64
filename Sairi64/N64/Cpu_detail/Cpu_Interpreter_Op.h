@@ -399,7 +399,28 @@ public:
 		BEGIN_OP;
 		const sint32 result = cpu.GetGpr().Read(instr.Rt()) << instr.Sa();
 		cpu.GetGpr().Write(instr.Rd(), result);
+		END_OP;
+	}
 
+	[[nodiscard]]
+	static OperatedUnit SLLV(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint32 rt = gpr.Read(instr.Rt());
+		const sint32 result = rt << (cpu.GetGpr().Read(instr.Rs()) & 0b11111);
+		cpu.GetGpr().Write(instr.Rd(), result);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SRLV(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint32 rt = gpr.Read(instr.Rt());
+		const sint32 result = rt >> (cpu.GetGpr().Read(instr.Rs()) & 0b11111);
+		cpu.GetGpr().Write(instr.Rd(), result);
 		END_OP;
 	}
 

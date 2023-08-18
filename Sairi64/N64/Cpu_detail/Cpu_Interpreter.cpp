@@ -144,9 +144,9 @@ private:
 		case OpSpecialFunct::SRA:
 			break; // return Op::SRA(cpu, instr);
 		case OpSpecialFunct::SLLV:
-			break; // return Op::SLLV(cpu, instr);
+			return Op::SLLV(cpu, instr);
 		case OpSpecialFunct::SRLV:
-			break; // return Op::SRLV(cpu, instr);
+			return Op::SRLV(cpu, instr);
 		case OpSpecialFunct::SRAV:
 			break; // return Op::SRAV(cpu, instr);
 		case OpSpecialFunct::JR:

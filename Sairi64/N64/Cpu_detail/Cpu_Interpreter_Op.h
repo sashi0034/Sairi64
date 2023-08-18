@@ -28,6 +28,14 @@ namespace N64::Cpu_detail
 	{
 		return ((((value1 ^ value2) & (value1 ^ result)) >> ((sizeof(T) * 8) - 1)) & 1);
 	}
+
+	enum class BranchType
+	{
+		// 常に遅延スロットの命令は実行される
+		Normal,
+		// 分岐条件成立時のみ、遅延スロットの命令は実行される
+		Likely,
+	};
 }
 
 class N64::Cpu_detail::Cpu::Interpreter::Op
@@ -189,7 +197,7 @@ public:
 		auto&& gpr = cpu.GetGpr();
 
 		const uint64 rs = gpr.Read(instr.Rs());
-		branchVAddr64(cpu, rs, true);
+		branchVAddr64<BranchType::Normal>(cpu, rs, true);
 		END_OP;
 	}
 
@@ -298,13 +306,29 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit BEQ(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		const bool condition = cpu.GetGpr().Read(instr.Rs()) == cpu.GetGpr().Read(instr.Rt());
+		branchOffset16<BranchType::Normal>(cpu, instr, condition);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BEQL(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		const bool condition = cpu.GetGpr().Read(instr.Rs()) == cpu.GetGpr().Read(instr.Rt());
+		branchOffset16<BranchType::Likely>(cpu, instr, condition);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit BNE(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;
-
 		const bool condition = cpu.GetGpr().Read(instr.Rs()) != cpu.GetGpr().Read(instr.Rt());
-		branchOffset16(cpu, instr, condition);
-
+		branchOffset16<BranchType::Normal>(cpu, instr, condition);
 		END_OP;
 	}
 
@@ -364,10 +388,8 @@ public:
 	static OperatedUnit BNEL(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;
-
 		const bool condition = cpu.GetGpr().Read(instr.Rs()) != cpu.GetGpr().Read(instr.Rt());
-		branchLikelyOffset16(cpu, instr, condition);
-
+		branchOffset16<BranchType::Likely>(cpu, instr, condition);
 		END_OP;
 	}
 
@@ -460,26 +482,9 @@ private:
 		cpu.handleException(cpu.m_pc.Prev(), code, coprocessorError);
 	}
 
-	static void branchLikelyVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
-	{
-		// 分岐条件成立時のみ、遅延スロットの命令は実行される
-		cpu.m_delaySlot.Set();
-
-		if (condition)
-		{
-			cpu.m_pc.SetNext(vaddr);
-			N64_TRACE(U"branch accepted vaddr={:016X}"_fmt(vaddr));
-		}
-		else
-		{
-			cpu.m_pc.Change64(cpu.m_pc.Curr() + 4);
-			N64_TRACE(U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
-		}
-	}
-
+	template <BranchType branch>
 	static void branchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
 	{
-		// 常に遅延スロットの命令は実行される
 		cpu.m_delaySlot.Set();
 
 		if (condition)
@@ -489,23 +494,21 @@ private:
 		}
 		else
 		{
+			if constexpr (branch == BranchType::Likely)
+			{
+				// likelyのときは、遅延スロットを実行しないようにする
+				cpu.m_pc.Change64(cpu.m_pc.Curr() + 4);
+			}
 			N64_TRACE(U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
 		}
 	}
 
+	template <BranchType branch>
 	static void branchOffset16(Cpu& cpu, InstructionI instr, bool condition)
 	{
 		sint64 offset = static_cast<sint16>(instr.Imm());
 		offset *= 4; // left shift 2
 
-		branchVAddr64(cpu, cpu.m_pc.Curr() + offset, condition);
-	}
-
-	static void branchLikelyOffset16(Cpu& cpu, InstructionI instr, bool condition)
-	{
-		sint64 offset = static_cast<sint16>(instr.Imm());
-		offset *= 4; // left shift 2
-
-		branchLikelyVAddr64(cpu, cpu.m_pc.Curr() + offset, condition);
+		branchVAddr64<branch>(cpu, cpu.m_pc.Curr() + offset, condition);
 	}
 };

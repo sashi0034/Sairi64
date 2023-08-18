@@ -23,7 +23,7 @@ public:
 		case Opcode::JAL:
 			break;
 		case Opcode::BEQ:
-			break;
+			return Op::BEQ(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BNE:
 			return Op::BNE(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
@@ -55,7 +55,7 @@ public:
 		case Opcode::CP3:
 			break;
 		case Opcode::BEQL:
-			break;
+			return Op::BEQL(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BNEL:
 			return Op::BNEL(cpu, static_cast<InstructionI>(instr));;
 		case Opcode::BLEZL:

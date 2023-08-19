@@ -12,10 +12,13 @@ namespace N64::Mmio
 	{
 	public:
 		PifRam& Ram() { return m_ram; }
+		void ProcessCommands();
 
 		static void ExecuteRom(N64System& n64);
 
 	private:
+		class Impl;
+
 		PifRam m_ram{};
 	};
 }

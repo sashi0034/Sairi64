@@ -46,5 +46,17 @@ namespace N64::Mmio
 		uint32 m_dramAddr{};
 		uint32 m_pifAddr{};
 		SiStatus32 m_status{};
+		int m_dmaRunning{};
+
+		bool dmaBusy() const { return m_dmaRunning > 0; }
+
+		enum class DmaType
+		{
+			DramToPif,
+			PifToDram,
+		};
+
+		template <DmaType dma> void startDma(N64System& n64, uint32 pifAddr);
+		template <DmaType dma> void achieveDma(N64System& n64, uint32 pifAddr);
 	};
 }

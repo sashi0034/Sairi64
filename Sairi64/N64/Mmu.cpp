@@ -81,6 +81,13 @@ namespace N64::Mmu
 				return n64.GetRI().Read32(paddr);
 			}
 		}
+		else if (PMap::SI.IsBetween(paddr)) // 0x04800000, 0x048FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetSI().Read32(n64, paddr);
+			}
+		}
 		else if (PMap::Rom.IsBetween(paddr)) // 0x10000000, 0x1FBFFFFF
 		{
 			if constexpr (wire32)
@@ -134,12 +141,18 @@ namespace N64::Mmu
 				return n64.GetPI().Write32(n64, paddr, value);
 			}
 		}
-
 		else if (PMap::RI.IsBetween(paddr)) // 0x04700000, 0x047FFFFF
 		{
 			if constexpr (wire32)
 			{
 				return n64.GetRI().Write32(paddr, value);
+			}
+		}
+		else if (PMap::SI.IsBetween(paddr)) // 0x04800000, 0x048FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetSI().Write32(n64, paddr, value);
 			}
 		}
 		else if (PMap::Rom.IsBetween(paddr)) // 0x10000000, 0x1FBFFFFF

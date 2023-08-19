@@ -8,6 +8,98 @@
 
 namespace N64::Mmio
 {
+	// 1コマンドの内訳 (多分)
+	// [0] = コマンド入力長
+	// [1] = コマンド出力長
+	// [2:2+コマンド入力長-1] = コマンド入力本体
+	// [2+コマンド入力長:2+コマンド入力長+コマンド出力長-1] = コマンド出力本体
+
+	class PifCmdArgs
+	{
+	public:
+		PifCmdArgs(Pif& pif, int cursor) : m_cmdPtr(&pif.Ram()[cursor]) { return; }
+		uint8 Length() const { return m_cmdPtr[0] & 0x3F; }
+		bool IsEndOfCommands() const { return m_cmdPtr[1] == 0xFE; }
+		uint8 ResultLength() const { return m_cmdPtr[1] & 0x3F; }
+		uint8 Index() const { return m_cmdPtr[2]; }
+
+	private:
+		uint8* m_cmdPtr{};
+	};
+
+	class PifCmdResult
+	{
+	public:
+		PifCmdResult(Pif& pif, int cursor) : m_resultPtr(&pif.Ram()[cursor]) { return; }
+		uint8 Length() const { return m_resultPtr[0] & 0x3F; }
+
+	private:
+		uint8* m_resultPtr{};
+	};
+
+	class Pif::Impl
+	{
+	public:
+		// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/backend/core/mmio/PIF.cpp#L155
+		// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/mem/pif.c#L593
+		static void ProcessCommands_1(Pif& pif)
+		{
+			int channel = 0;
+
+			int cursor = 0;
+			while (cursor < 63)
+			{
+				const auto cmd = PifCmdArgs(pif, cursor);
+				const uint8 cmdLength = cmd.Length();
+				cursor++;
+
+				if (cmdLength == 0 || cmdLength == 0x3D)
+				{
+					// 0xFD in PIF RAM = send reset signal to this pif channel
+					channel++;
+					continue;
+				}
+				if (cmdLength == 0x3E) break; // 0xFE in PIF RAM = end of commands
+				if (cmdLength == 0x3F) continue;
+
+				if (cmd.IsEndOfCommands()) break;
+				const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
+				cursor += 1 + cmdLength + result.Length();
+
+				switch (cmd.Index())
+				{
+				default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
+				}
+			}
+		}
+	};
+
+	// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/backend/core/mmio/PIF.cpp#L155
+	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/mem/pif.c#L593
+	void Pif::ProcessCommands()
+	{
+		N64_TRACE(U"pif control write");
+
+		const uint8 control = m_ram[63];
+		if (control & 1)
+		{
+			Impl::ProcessCommands_1(*this);
+		}
+		if (control & 0x02)
+		{
+			// TODO: CIC Challenge?
+			m_ram[63] &= ~2;
+		}
+		if (control & 0x08)
+		{
+			m_ram[63] &= ~8;
+		}
+		if (control & 0x30)
+		{
+			m_ram[63] = 0x80;
+		}
+	}
+
 	void Pif::ExecuteRom(N64System& n64)
 	{
 		switch (n64.GetMemory().GetRom().Cic())

@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "N64Frame.h"
 
-#include "Pif.h"
+#include "Mmio/Pif.h"
 #include "Includes/imgui/imgui.h"
 
 namespace N64
@@ -10,7 +10,7 @@ namespace N64
 	{
 		n64.GetMemory().GetRom().LoadFile(arg.filePath);
 
-		Pif::ExecutePifRom(n64);
+		Mmio::Pif::ExecuteRom(n64);
 	}
 
 	void emulateFrame(N64System& n64)

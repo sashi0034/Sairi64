@@ -1,13 +1,11 @@
-﻿#include "stdafx.h"
-#include "Pif.h"
+#pragma once
+#include "N64/Mmu.h"
+#include "N64/N64Logger.h"
+#include "N64/N64System.h"
 
-#include "Mmu.h"
-#include "N64System.h"
-#include "N64Logger.h"
-
-namespace N64
+namespace N64::Mmio
 {
-	void executePifRomHle_switchCic(N64System& n64, bool pal, CicType cic)
+	static void Pif_executeRomHle_switchCic(N64System& n64, bool pal, CicType cic)
 	{
 		auto&& cpu = n64.GetCpu();
 		auto&& gpr = cpu.GetGpr();
@@ -278,7 +276,7 @@ namespace N64
 		}
 	}
 
-	void executePifRomHle(N64System& n64)
+	static void Pif_executeRomHle(N64System& n64)
 	{
 		const bool pal = false; // TODO
 
@@ -287,7 +285,7 @@ namespace N64
 		Mmu::WritePaddr32(n64, PAddr32(Mmu::PMap::PifRam.base + 0x24), cicSeed);
 
 		// CICごとに処理を分岐
-		executePifRomHle_switchCic(n64, pal, rom.Cic());
+		Pif_executeRomHle_switchCic(n64, pal, rom.Cic());
 
 		// CPU適用
 		n64.GetCpu().GetGpr().Write(22, (cicSeed >> 8) & 0xFF);
@@ -303,28 +301,5 @@ namespace N64
 
 		// ROMの最初0x1000バイトをSP DMEMにコピー
 		std::copy_n(rom.Data().begin(), 0x1000, n64.GetRsp().Dmem().begin());
-	}
-
-	void Pif::ExecutePifRom(N64System& n64)
-	{
-		switch (n64.GetMemory().GetRom().Cic())
-		{
-		case CicType::CIC_UNKNOWN:
-			N64Logger::Abort();
-			break;
-		case CicType::CIC_NUS_6101:
-		case CicType::CIC_NUS_7102:
-		case CicType::CIC_NUS_6102_7101:
-		case CicType::CIC_NUS_6103_7103:
-			Mmu::WritePaddr32(n64, PAddr32(0x318), RdramSize_0x00800000);
-			break;
-		case CicType::CIC_NUS_6105_7105:
-			Mmu::WritePaddr32(n64, PAddr32(0x3F0), RdramSize_0x00800000);
-			break;
-		case CicType::CIC_NUS_6106_7106:
-			break;
-		default: ;
-		}
-		executePifRomHle(n64);
 	}
 }

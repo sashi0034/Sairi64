@@ -6,6 +6,7 @@ namespace N64
 	class N64System;
 
 	constexpr uint32 RdramSize_0x00800000 = 0x00800000;
+	constexpr uint32 RdramSizeMask_0x007FFFFF = RdramSize_0x00800000 - 1;
 }
 
 namespace N64::Memory_detail

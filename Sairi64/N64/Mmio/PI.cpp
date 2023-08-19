@@ -57,9 +57,8 @@ namespace N64::Mmio
 			// TODO: DMA Read
 			break;
 		case PiAddress::WrLen_0x0460000C:
-			// TODO: DMA Write
 			dmaWrite(n64, value);
-			return;;
+			return;
 		case PiAddress::Status_0x04600010:
 			// TODO
 			break;

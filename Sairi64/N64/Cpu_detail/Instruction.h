@@ -263,7 +263,7 @@ namespace N64::Cpu_detail
 	};
 
 	template <class T>
-	concept IInstructionImm16 = requires(T t)
+	concept HasImm16 = requires(T t)
 	{
 		{ t.Imm() } -> std::convertible_to<uint16>;
 	};

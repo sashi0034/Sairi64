@@ -19,9 +19,9 @@ public:
 		case Opcode::REGIMM:
 			return interpretREGIMM(n64, cpu, static_cast<InstructionRegimm>(instr));
 		case Opcode::J:
-			break;
+			return Op::J(cpu, static_cast<InstructionJ>(instr));
 		case Opcode::JAL:
-			break;
+			return Op::JAL(cpu, static_cast<InstructionJ>(instr));
 		case Opcode::BEQ:
 			return Op::BEQ(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BNE:

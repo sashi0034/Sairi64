@@ -308,6 +308,32 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit J(Cpu& cpu, InstructionJ instr)
+	{
+		BEGIN_OP;
+		uint64 target = instr.Target();
+		target <<= 2;
+		target |= ((cpu.GetPc().Curr() - 4) & 0xFFFFFFFF'F0000000); // PC is now 4 ahead
+
+		branchVAddr64<BranchType::Normal>(cpu, target, true);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit JAL(Cpu& cpu, InstructionJ instr)
+	{
+		BEGIN_OP;
+		linkRegister(cpu, gprRA_31);
+
+		uint64 target = instr.Target();
+		target <<= 2;
+		target |= ((cpu.GetPc().Curr() - 4) & 0xFFFFFFFF'F0000000); // PC is now 4 ahead
+
+		branchVAddr64<BranchType::Normal>(cpu, target, true);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit BEQ(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;
@@ -537,7 +563,7 @@ private:
 		}
 	}
 
-	template <BranchType branch, IInstructionImm16 Instr>
+	template <BranchType branch, HasImm16 Instr>
 	static void branchOffset16(Cpu& cpu, Instr instr, bool condition)
 	{
 		sint64 offset = static_cast<sint16>(instr.Imm());

@@ -60,7 +60,7 @@ namespace N64::Mmio
 			dmaWrite(n64, value);
 			return;
 		case PiAddress::Status_0x04600010:
-			// TODO
+			if (value & 2) InterruptLower<Interruption::PI>(n64);
 			break;
 		case PiAddress::BsdDom1Lat_0x04600014:
 			m_bsdDom1Lat = value & 0xFF;
@@ -119,7 +119,7 @@ namespace N64::Mmio
 			m_status.DmaBusy().Set(false);
 			m_status.Interrupt().Set(true);
 
-			// TODO: MIと割り込みチェックをする
+			InterruptRaise<Interruption::PI>(n64);
 		});
 	}
 }

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "N64/Forward.h"
+#include "N64/Interrupt.h"
 
 namespace N64::Mmio
 {
@@ -69,8 +70,12 @@ namespace N64::Mmio
 	class MI
 	{
 	public:
-		uint32 Read32(PAddr32 paddr);
+		uint32 Read32(PAddr32 paddr) const;
 		void Write32(N64System& n64, PAddr32 paddr, uint32 value);
+
+		template <Interruption interrupt, bool flag> void ChangeInterrupt();
+		MiInterrupt32 GetInterrupt() const { return m_interrupt; }
+		MiInterrupt32 GetInterruptMask() const { return m_interruptMask; }
 
 	private:
 		MiMode32 m_mode{};
@@ -78,6 +83,27 @@ namespace N64::Mmio
 		MiInterrupt32 m_interruptMask{};
 
 		void writeMode(N64System& n64, MiModeWrite32 write);
-		void writeInterruptMask(uint32 write);
+		void writeInterruptMask(N64System& n64, uint32 write);
 	};
+
+	template <Interruption interrupt, bool flag>
+	void MI::ChangeInterrupt()
+	{
+		if constexpr (interrupt == Interruption::VI)
+			m_interrupt.Vi().Set(flag);
+		else if constexpr (interrupt == Interruption::SI)
+			m_interrupt.Si().Set(flag);
+		else if constexpr (interrupt == Interruption::PI)
+			m_interrupt.Pi().Set(flag);
+		else if constexpr (interrupt == Interruption::AI)
+			m_interrupt.Ai().Set(flag);
+		else if constexpr (interrupt == Interruption::DP)
+			m_interrupt.Dp().Set(flag);
+		else if constexpr (interrupt == Interruption::SP)
+			m_interrupt.Sp().Set(flag);
+		else
+		{
+			static_assert(InterruptionFalse<interrupt>);
+		}
+	}
 }

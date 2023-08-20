@@ -7,7 +7,7 @@ namespace N64::Mmio
 {
 	constexpr uint32 miVersion_0x02020102 = 0x02020102;
 
-	uint32 MI::Read32(PAddr32 paddr)
+	uint32 MI::Read32(PAddr32 paddr) const
 	{
 		switch (paddr)
 		{
@@ -32,13 +32,13 @@ namespace N64::Mmio
 		{
 		case MiAddress::Mode_0x04300000:
 			writeMode(n64, {value});
-			return;;
+			return;
 		case MiAddress::Version_0x04300004:
 			break;
 		case MiAddress::Interrupt_0x04300008:
 			break;
 		case MiAddress::InterruptMask_0x0430000C:
-			writeInterruptMask(value);
+			writeInterruptMask(n64, value);
 			return;
 		default: break;
 		}
@@ -59,14 +59,14 @@ namespace N64::Mmio
 		if (write.ClearDpInterrupt())
 		{
 			m_interrupt.Dp().Set(false);
-			// TODO: 割り込み
+			InterruptLower<Interruption::DP>(n64);
 		}
 
 		if (write.ClearRdramRegisterMode()) m_mode.RdramRegisterMode().Set(false);
 		if (write.SetRdramRegisterMode()) m_mode.RdramRegisterMode().Set(true);
 	}
 
-	void MI::writeInterruptMask(uint32 write)
+	void MI::writeInterruptMask(N64System& n64, uint32 write)
 	{
 		if (write & (1 << 0)) m_interruptMask.Sp().Set(false);
 		if (write & (1 << 1)) m_interruptMask.Sp().Set(true);
@@ -80,5 +80,7 @@ namespace N64::Mmio
 		if (write & (1 << 9)) m_interruptMask.Pi().Set(true);
 		if (write & (1 << 10)) m_interruptMask.Dp().Set(false);
 		if (write & (1 << 11)) m_interruptMask.Dp().Set(true);
+
+		UpdateInterrupt(n64);
 	}
 }

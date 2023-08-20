@@ -14,9 +14,11 @@ namespace N64::Mmio
 		case SiAddress::PifAddrWr64B_0x04800010:
 			return m_pifAddr;
 		case SiAddress::Status_0x04800018:
-			// uint32 status{};
-			// TODO: MIが必要
-			break;
+			return uint32()
+				| SiStatus32(m_status).DmaBusy()
+				| (0 << 1)
+				| (0 << 3)
+				| (n64.GetMI().GetInterrupt().Si() << 12);
 		default: break;
 		}
 
@@ -38,9 +40,8 @@ namespace N64::Mmio
 			startDma<DmaType::DramToPif>(n64, value);
 			return;
 		case SiAddress::Status_0x04800018:
-			// TODO: MIを作ってから
 			m_status.Interrupt().Set(false);
-		// TODO: 割り込み部分
+			InterruptLower<Interruption::SI>(n64);
 			return;
 		default: break;
 		}
@@ -92,6 +93,7 @@ namespace N64::Mmio
 				m_pif.Ram()[i] = n64.GetMemory().Rdram()[m_dramAddr + i];
 			m_pif.ProcessCommands();
 		}
-		// TODO: 割り込み挿入
+
+		InterruptRaise<Interruption::SI>(n64);
 	}
 }

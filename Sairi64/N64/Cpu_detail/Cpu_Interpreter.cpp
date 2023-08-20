@@ -152,7 +152,7 @@ private:
 		case OpSpecialFunct::JR:
 			return Op::JR(cpu, instr);
 		case OpSpecialFunct::JALR:
-			break; // return Op::JALR(cpu, instr);
+			return Op::JALR(cpu, instr);
 		case OpSpecialFunct::SYSCALL:
 			break; // return Op::SYSCALL(cpu, instr);
 		case OpSpecialFunct::SYNC:

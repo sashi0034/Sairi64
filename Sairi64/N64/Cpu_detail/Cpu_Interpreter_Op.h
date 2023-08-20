@@ -204,6 +204,18 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit JALR(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		branchVAddr64<BranchType::Normal>(cpu, rs, true);
+		linkRegister(cpu, instr.Rd());
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit MFHI(Cpu& cpu, InstructionR instr)
 	{
 		BEGIN_OP;

@@ -290,13 +290,13 @@ private:
 		switch (instr.Sub())
 		{
 		case OpCopSub::MFC:
-			break;
+			return Op::MFC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMFC:
-			break;
+			return Op::DMFC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MTC:
 			return Op::MTC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMTC:
-			break;
+			return Op::DMTC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::CFC:
 			break;
 		case OpCopSub::CTC:

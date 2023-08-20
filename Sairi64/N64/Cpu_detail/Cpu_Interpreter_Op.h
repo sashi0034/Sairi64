@@ -668,13 +668,39 @@ public:
 		END_OP;
 	}
 
-	// TODO: templateでMTC1も表現?
+	[[nodiscard]]
+	static OperatedUnit MFC0(Cpu& cpu, InstructionCopSub instr)
+	{
+		BEGIN_OP;
+		const sint32 value = cpu.GetCop0().Read32(instr.Rd());
+		cpu.GetGpr().Write(instr.Rt(), (sint64)value);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DMFC0(Cpu& cpu, InstructionCopSub instr)
+	{
+		BEGIN_OP;
+		const uint64 value = cpu.GetCop0().Read64(instr.Rd());
+		cpu.GetGpr().Write(instr.Rt(), value);
+		END_OP;
+	}
+
 	[[nodiscard]]
 	static OperatedUnit MTC0(Cpu& cpu, InstructionCopSub instr)
 	{
 		BEGIN_OP;
 		const uint32 rt = cpu.GetGpr().Read(instr.Rt());
 		cpu.GetCop0().Write32(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DMTC0(Cpu& cpu, InstructionCopSub instr)
+	{
+		BEGIN_OP;
+		const uint64 rt = cpu.GetGpr().Read(instr.Rt());
+		cpu.GetCop0().Write64(instr.Rd(), rt);
 		END_OP;
 	}
 

@@ -32,12 +32,11 @@ namespace N64::Mmio
 			m_dramAddr = value & RdramSizeMask_0x007FFFFF;
 			return;
 		case SiAddress::PifAdRd64B_0x04800004:
-			m_pifAddr = value & 0x1FFFFFFF;
-		// TODO: DMA
-			break;
+			startDma<DmaType::PifToDram>(n64, value);
+			return;
 		case SiAddress::PifAddrWr64B_0x04800010:
-			// TODO: DMA
-			break;
+			startDma<DmaType::DramToPif>(n64, value);
+			return;
 		case SiAddress::Status_0x04800018:
 			// TODO: MIを作ってから
 			m_status.Interrupt().Set(false);

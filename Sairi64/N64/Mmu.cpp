@@ -49,6 +49,13 @@ namespace N64::Mmu
 			const uint32 offset = paddr - PMap::RdramMemory.base;
 			return ReadBytes<Wire>(n64.GetMemory().Rdram(), offset);
 		}
+		else if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetRsp().ReadPAddr32(paddr);
+			}
+		}
 		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
 			const uint32 offset = paddr - PMap::SpDmem.base;
@@ -115,6 +122,13 @@ namespace N64::Mmu
 		{
 			const uint32 offset = paddr - PMap::RdramMemory.base;
 			return WriteBytes<Wire>(n64.GetMemory().Rdram(), offset, value);
+		}
+		else if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetRsp().WritePAddr32(n64, paddr, value);
+			}
 		}
 		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{

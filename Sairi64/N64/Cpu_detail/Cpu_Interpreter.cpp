@@ -27,9 +27,9 @@ public:
 		case Opcode::BNE:
 			return Op::BNE(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
-			break;
+			return Op::BLEZ(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BGTZ:
-			break;
+			return Op::BGTZ(cpu, static_cast<InstructionI>(instr));
 		case Opcode::ADDI:
 			return Op::ADDI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::ADDIU:
@@ -59,9 +59,9 @@ public:
 		case Opcode::BNEL:
 			return Op::BNEL(cpu, static_cast<InstructionI>(instr));;
 		case Opcode::BLEZL:
-			break;
+			return Op::BLEZL(cpu, static_cast<InstructionI>(instr));
 		case Opcode::BGTZL:
-			break;
+			return Op::BGTZL(cpu, static_cast<InstructionI>(instr));
 		case Opcode::DADDI:
 			break;
 		case Opcode::DADDIU:

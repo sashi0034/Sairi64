@@ -334,6 +334,42 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit BLEZ(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = static_cast<sint64>(cpu.GetGpr().Read(instr.Rs()));
+		branchOffset16<BranchType::Normal>(cpu, instr, rs <= 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BLEZL(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = static_cast<sint64>(cpu.GetGpr().Read(instr.Rs()));
+		branchOffset16<BranchType::Likely>(cpu, instr, rs <= 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BGTZ(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = static_cast<sint64>(cpu.GetGpr().Read(instr.Rs()));
+		branchOffset16<BranchType::Normal>(cpu, instr, rs > 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BGTZL(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = static_cast<sint64>(cpu.GetGpr().Read(instr.Rs()));
+		branchOffset16<BranchType::Likely>(cpu, instr, rs > 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit BEQ(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;

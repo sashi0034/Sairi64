@@ -509,6 +509,13 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
+		if (checkAddressError<0b11>(cpu, vaddr))
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, ExceptionKinds::AddressErrorLoad, 0);
+			END_OP;
+		}
+
 		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const sint32 word = Mmu::ReadPaddr32(n64, paddr.value());
@@ -531,7 +538,12 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		// TODO: アドレスエラーチェック?
+		if (checkAddressError<0b11>(cpu, vaddr))
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
+			END_OP;
+		}
 
 		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
@@ -541,7 +553,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
+			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}
@@ -555,8 +567,12 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		// TODO: アドレスエラーチェック?
-		// https://github.com/SimoneN64/Kaizen/blob/d0bccfc7e7c0d6eaa3662e8286b9d2bf5888b74f/src/backend/core/interpreter/instructions.cpp#L237
+		if (checkAddressError<0b11>(cpu, vaddr))
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
+			END_OP;
+		}
 
 		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
@@ -639,5 +655,12 @@ private:
 	static void linkRegister(Cpu& cpu, uint8 gprNumber)
 	{
 		cpu.GetGpr().Write(gprNumber, cpu.GetPc().Curr() + 4);
+	}
+
+	template <uint64 mask> static bool checkAddressError(Cpu& cpu, uint64 vaddr)
+	{
+		// TODO
+		// https://github.com/SimoneN64/Kaizen/blob/d0bccfc7e7c0d6eaa3662e8286b9d2bf5888b74f/src/backend/core/interpreter/instructions.cpp#L3-L4
+		return false;
 	}
 };

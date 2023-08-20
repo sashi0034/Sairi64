@@ -323,6 +323,8 @@ namespace N64::Cpu_detail
 	// https://github.com/Dillonb/n64/blob/744d8ed6558eec63331d4a2558dadc57ac7a70b7/src/cpu/r4300i.c#L746
 	void Cop0::HandleTlbException(uint64 vaddr)
 	{
+		N64_TRACE(U"tlb exception handling vaddr={:016X}"_fmt(vaddr));
+
 		const uint64 vpn2 = (vaddr >> 13) & 0x7FFFF;
 		const uint64 xvpn2 = (vaddr >> 13) & 0x7FFFFFF;
 		m_reg.badVAddr = vaddr;

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "N64/Forward.h"
 #include "Utils/Util.h"
 
 namespace N64::Cpu_detail
@@ -139,6 +140,48 @@ namespace N64::Cpu_detail
 		uint32 m_raw{};
 	};
 
+	class Cop0Context64
+	{
+	public:
+		Cop0Context64(uint64 raw = 0): m_raw(raw) { return; }
+		operator uint64() const { return m_raw; }
+
+		// [0, 3]
+		auto BadVpn2() { return BitAccess<4, 22>(m_raw); } // 19
+		auto PteBase() { return BitAccess<23, 63>(m_raw); } // 41
+	private:
+		uint64 m_raw{};
+	};
+
+	class Cop0XContext64
+	{
+	public:
+		Cop0XContext64(uint64 raw = 0): m_raw(raw) { return; }
+		operator uint64() const { return m_raw; }
+
+		// [0, 3]
+		auto BadVpn2() { return BitAccess<4, 30>(m_raw); } // 27
+		auto R() { return BitAccess<31, 32>(m_raw); } // 2
+		auto PteBase() { return BitAccess<33, 63>(m_raw); } // 31
+	private:
+		uint64 m_raw{};
+	};
+
+	class Cop0EntryHi64
+	{
+	public:
+		Cop0EntryHi64(uint64 raw = 0): m_raw(raw) { return; }
+		operator uint64() const { return m_raw; }
+
+		auto Asid() { return BitAccess<0, 7>(m_raw); } // 8
+		// [8, 12] 5
+		auto Vpn2() { return BitAccess<13, 39>(m_raw); } // 27
+		auto Fill() { return BitAccess<40, 61>(m_raw); } // 22
+		auto R() { return BitAccess<62, 63>(m_raw); } // 2
+	private:
+		uint64 m_raw{};
+	};
+
 	// https://n64.readthedocs.io/#:~:text=for%20what%20purposes.-,COP0%20Registers,-Register%20Number
 	struct Cop0Reg
 	{
@@ -146,13 +189,13 @@ namespace N64::Cpu_detail
 		// (1) random
 		uint32 entryLo0; // TODO: refine type?
 		uint32 entryLo1; // TODO: refine type?
-		uint32 context; // TODO: refine type?
+		Cop0Context64 context;
 		uint32 pageMask; // TODO: refine type?
 		uint32 wired;
 		// (7)
-		uint32 badVAddr;
-		uint32 count;
-		uint64 entryHi; // 64bit TODO: refine type?
+		uint64 badVAddr;
+		uint64 count;
+		Cop0EntryHi64 entryHi;
 		uint32 compare;
 		Cop0Status32 status;
 		Cop0Cause32 cause;
@@ -162,7 +205,7 @@ namespace N64::Cpu_detail
 		uint32 llAddr;
 		uint32 watchLo; // TODO: refine type?
 		uint32 watchHi;
-		uint64 xContext; // TODO: refine type?
+		Cop0XContext64 xContext;
 		// (21)
 		// (22)
 		// (23)
@@ -176,6 +219,15 @@ namespace N64::Cpu_detail
 		// (31)
 	};
 
+	enum class TlbError : uint8
+	{
+		None,
+		Miss,
+		Invalid,
+		Modification,
+		DisallowedAddress
+	};
+
 	class Cop0
 	{
 	public:
@@ -187,10 +239,17 @@ namespace N64::Cpu_detail
 		void Write64(uint8 number, uint64 value);
 		void Write32(uint8 number, uint32 value);
 
+		void HandleTlbException(uint64 vaddr);
+		template <BusAccess access> ExceptionCode GetTlbExceptionCode() const;
+
 	private:
 		template <typename Wire> Wire readInternal(uint8 number) const;
 		template <typename Wire> void writeInternal(uint8 number, Wire value);
 		Cop0Reg m_reg{};
+		TlbError m_tlbError{};
 		bool m_llBit{};
 	};
+
+	template ExceptionCode Cop0::GetTlbExceptionCode<BusAccess::Load>() const;
+	template ExceptionCode Cop0::GetTlbExceptionCode<BusAccess::Store>() const;
 }

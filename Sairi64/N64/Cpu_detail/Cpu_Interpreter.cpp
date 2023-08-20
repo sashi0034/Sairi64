@@ -123,7 +123,7 @@ public:
 		case Opcode::SDC1:
 			break;
 		case Opcode::SD:
-			break;
+			return Op::SD(n64, cpu, static_cast<InstructionI>(instr));
 		default: ;
 		}
 

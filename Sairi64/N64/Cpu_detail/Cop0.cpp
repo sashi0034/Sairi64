@@ -319,4 +319,38 @@ namespace N64::Cpu_detail
 	{
 		writeInternal<uint32>(number, value);
 	}
+
+	// https://github.com/Dillonb/n64/blob/744d8ed6558eec63331d4a2558dadc57ac7a70b7/src/cpu/r4300i.c#L746
+	void Cop0::HandleTlbException(uint64 vaddr)
+	{
+		const uint64 vpn2 = (vaddr >> 13) & 0x7FFFF;
+		const uint64 xvpn2 = (vaddr >> 13) & 0x7FFFFFF;
+		m_reg.badVAddr = vaddr;
+		m_reg.context.BadVpn2().Set(vpn2);
+		m_reg.xContext.BadVpn2().Set(xvpn2);
+		m_reg.xContext.R().Set((vaddr >> 62) & 0b11);
+		m_reg.entryHi.Vpn2().Set(xvpn2);
+		m_reg.entryHi.R().Set((vaddr >> 62) & 0b11);
+	}
+
+	template <BusAccess access> ExceptionCode Cop0::GetTlbExceptionCode() const
+	{
+		switch (m_tlbError)
+		{
+		case TlbError::None:
+			N64Logger::Abort(U"no tlb exception code with none");
+			break;
+		case TlbError::Miss: // fallthrough
+		case TlbError::Invalid:
+			return access == BusAccess::Load ? ExceptionKinds::TLBMissLoad : ExceptionKinds::TLBMissStore;
+		case TlbError::Modification:
+			return ExceptionKinds::TLBModification;
+		case TlbError::DisallowedAddress:
+			return access == BusAccess::Load ? ExceptionKinds::AddressErrorLoad : ExceptionKinds::AddressErrorStore;
+		default: break;
+		}
+
+		N64Logger::Abort();
+		return ExceptionCode(0);
+	}
 }

@@ -531,6 +531,8 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
+		// TODO: アドレスエラーチェック?
+
 		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint32 word = gpr.Read(instr.Rt());
@@ -538,7 +540,33 @@ public:
 		}
 		else
 		{
+			cpu.GetCop0().HandleTlbException(vaddr);
 			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SD(N64System& n64, Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const sint16 offset = static_cast<sint16>(instr.Imm());
+		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
+
+		// TODO: アドレスエラーチェック?
+		// https://github.com/SimoneN64/Kaizen/blob/d0bccfc7e7c0d6eaa3662e8286b9d2bf5888b74f/src/backend/core/interpreter/instructions.cpp#L237
+
+		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		{
+			const uint64 rt = gpr.Read(instr.Rt());
+			Mmu::WritePaddr64(n64, paddr.value(), rt);
+		}
+		else
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}

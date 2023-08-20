@@ -22,6 +22,12 @@ namespace N64
 		constexpr explicit PAddr32(uint32 addr): EnumValue(addr) { return; }
 	};
 
+	enum class BusAccess
+	{
+		Load,
+		Store,
+	};
+
 	namespace Cpu_detail
 	{
 		class Cpu;

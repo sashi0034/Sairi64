@@ -113,7 +113,7 @@ public:
 		case Opcode::LDC1:
 			break;
 		case Opcode::LD:
-			break;
+			return Op::LD(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SC:
 			break;
 		case Opcode::SWC1:

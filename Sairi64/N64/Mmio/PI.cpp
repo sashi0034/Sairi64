@@ -61,7 +61,7 @@ namespace N64::Mmio
 			return;
 		case PiAddress::Status_0x04600010:
 			if (value & 2) InterruptLower<Interruption::PI>(n64);
-			break;
+			return;
 		case PiAddress::BsdDom1Lat_0x04600014:
 			m_bsdDom1Lat = value & 0xFF;
 			return;

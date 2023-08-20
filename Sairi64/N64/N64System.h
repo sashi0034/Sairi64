@@ -3,6 +3,7 @@
 #include "Memory.h"
 #include "Rsp.h"
 #include "Scheduler.h"
+#include "Mmio/AI.h"
 #include "Mmio/MI.h"
 #include "Mmio/PI.h"
 #include "Mmio/RI.h"
@@ -20,6 +21,7 @@ namespace N64
 		Mmio::RI& GetRI() { return m_ri; }
 		Mmio::PI& GetPI() { return m_pi; }
 		Mmio::MI& GetMI() { return m_mi; }
+		Mmio::AI& GetAI() { return m_ai; }
 		Scheduler& GetScheduler() { return m_scheduler; }
 
 		N64System& operator=(const N64System&) = delete;
@@ -33,6 +35,7 @@ namespace N64
 		Mmio::RI m_ri{};
 		Mmio::PI m_pi{};
 		Mmio::MI m_mi{};
+		Mmio::AI m_ai{};
 
 		Scheduler m_scheduler{};
 	};

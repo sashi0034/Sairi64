@@ -133,6 +133,7 @@
     <ClCompile Include="N64\Interrupt.cpp" />
     <ClCompile Include="N64\Memory_detail\Memory.cpp" />
     <ClCompile Include="N64\Memory_detail\Rom.cpp" />
+    <ClCompile Include="N64\Mmio\AI.cpp" />
     <ClCompile Include="N64\Mmio\MI.cpp" />
     <ClCompile Include="N64\Mmio\PI.cpp" />
     <ClCompile Include="N64\Mmio\Pif.cpp">
@@ -447,6 +448,7 @@
     <ClInclude Include="N64\Memory.h" />
     <ClInclude Include="N64\Memory_detail\Memory.h" />
     <ClInclude Include="N64\Memory_detail\Rom.h" />
+    <ClInclude Include="N64\Mmio\AI.h" />
     <ClInclude Include="N64\Mmio\MI.h" />
     <ClInclude Include="N64\Mmio\PI.h" />
     <ClInclude Include="N64\Mmio\Pif.h" />

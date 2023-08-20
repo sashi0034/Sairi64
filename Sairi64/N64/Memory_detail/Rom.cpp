@@ -96,6 +96,14 @@ namespace N64::Memory_detail
 		N64Logger::Info(U"imageName: \"{}\""_fmt(Unicode::Widen(m_header.imageName)));
 		N64Logger::Info(U"CIC: {}"_fmt(Utils::StringifyEnum(m_cic)));
 
+		// PAL check
+		// https://github.com/SimoneN64/Kaizen/blob/d0bccfc7e7c0d6eaa3662e8286b9d2bf5888b74f/src/backend/core/Mem.hpp#L198
+		constexpr std::array palCodes = {'D', 'F', 'I', 'P', 'S', 'U', 'X', 'Y'};
+		m_isPal = std::ranges::any_of(palCodes, [this](const char c)
+		{
+			return m_rom[0x3d] == c;
+		});
+
 		return true;
 	}
 

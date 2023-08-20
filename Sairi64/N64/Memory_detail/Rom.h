@@ -47,10 +47,12 @@ namespace N64::Memory_detail
 		Array<uint8>& Data() { return m_rom; }
 		CicType Cic() const { return m_cic; }
 		uint32 CicSeed() const;
+		bool IsPal() const { return m_isPal; }
 
 	private:
 		Array<uint8> m_rom{};
 		RomHeader m_header{};
 		CicType m_cic{};
+		bool m_isPal{};
 	};
 }

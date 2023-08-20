@@ -631,12 +631,39 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit BGEZ(Cpu& cpu, InstructionRegimm instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
+		branchOffset16<BranchType::Normal>(cpu, instr, rs >= 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BGEZL(Cpu& cpu, InstructionRegimm instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
+		branchOffset16<BranchType::Likely>(cpu, instr, rs >= 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit BGEZAL(Cpu& cpu, InstructionRegimm instr)
 	{
 		BEGIN_OP;
-		auto&& gpr = cpu.GetGpr();
-		const sint64 rs = gpr.Read(instr.Rs());
+		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
 		branchOffset16<BranchType::Normal>(cpu, instr, rs >= 0);
+		linkRegister(cpu, gprRA_31);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BGEZALL(Cpu& cpu, InstructionRegimm instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
+		branchOffset16<BranchType::Likely>(cpu, instr, rs >= 0);
 		linkRegister(cpu, gprRA_31);
 		END_OP;
 	}

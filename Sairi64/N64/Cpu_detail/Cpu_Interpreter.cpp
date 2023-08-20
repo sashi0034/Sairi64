@@ -254,11 +254,11 @@ private:
 		case OpRegimm::BLTZ:
 			break;
 		case OpRegimm::BGEZ:
-			break;
+			return Op::BGEZ(cpu, instr);
 		case OpRegimm::BLTZL:
 			break;
 		case OpRegimm::BGEZL:
-			break;
+			return Op::BGEZL(cpu, instr);
 		case OpRegimm::TGEI:
 			break;
 		case OpRegimm::TGEIU:
@@ -276,7 +276,7 @@ private:
 		case OpRegimm::BGEZAL:
 			return Op::BGEZAL(cpu, instr);
 		case OpRegimm::BGEZALL:
-			break;
+			return Op::BGEZALL(cpu, instr);
 		default: ;
 		}
 

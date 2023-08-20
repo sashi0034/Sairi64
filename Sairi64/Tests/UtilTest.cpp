@@ -41,8 +41,12 @@ namespace Tests
 
 		auto&& access4_5 = BitAccess<4, 5>(bit);
 		REQUIRE(access4_5.Get() == 0b11);
+
 		access4_5.Set(0b00);
 		REQUIRE(access4_5.Get() == 0b00);
-		REQUIRE(bit == 0b0101'0000'1100'0011);
+
+		access4_5.Set(0b10'01);
+		REQUIRE(access4_5.Get() == 0b01);
+		REQUIRE(bit == 0b0101'0000'1101'0011);
 	}
 }

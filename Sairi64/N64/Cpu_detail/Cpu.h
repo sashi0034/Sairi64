@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Cop0.h"
+#include "Cop1.h"
 #include "Gpr.h"
 
 namespace N64
@@ -72,6 +73,7 @@ namespace N64::Cpu_detail
 		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
 		Cop0& GetCop0() { return m_cop0; }
+		Cop1& GetCop1() { return m_cop1; }
 
 		uint64 Lo() const { return m_lo; }
 		uint64 Hi() const { return m_hi; }
@@ -85,6 +87,8 @@ namespace N64::Cpu_detail
 		DelaySlot m_delaySlot{};
 		Gpr m_gpr{};
 		Cop0 m_cop0{};
+		Cop1 m_cop1{};
+
 		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果
 		uint64 m_hi{}; // 64ビットの整数乗算/除算レジスタの下位結果
 

@@ -126,6 +126,7 @@
     <ClCompile Include="Includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cop0.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Cop1.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp" />
     <ClCompile Include="N64\Cpu_detail\Gpr.cpp" />
@@ -439,6 +440,7 @@
     <ClInclude Include="Includes\nameof\nameof.hpp" />
     <ClInclude Include="N64\Cpu.h" />
     <ClInclude Include="N64\Cpu_detail\Cop0.h" />
+    <ClInclude Include="N64\Cpu_detail\Cop1.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op.h" />

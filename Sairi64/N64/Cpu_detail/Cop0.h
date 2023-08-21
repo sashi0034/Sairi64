@@ -233,6 +233,7 @@ namespace N64::Cpu_detail
 	public:
 		Cop0();
 		Cop0Reg& Reg() { return m_reg; }
+		const Cop0Reg& Reg() const { return m_reg; }
 
 		uint64 Read64(uint8 number) const;
 		uint32 Read32(uint8 number) const;

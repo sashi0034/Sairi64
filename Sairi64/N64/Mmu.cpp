@@ -156,6 +156,7 @@ namespace N64::Mmu
 			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
 			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpDmem.base;
+			// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる?
 			return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF

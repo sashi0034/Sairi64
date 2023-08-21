@@ -89,7 +89,7 @@ public:
 		case Opcode::LWU:
 			break;
 		case Opcode::SB:
-			break;
+			return Op::SB(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SH:
 			break;
 		case Opcode::SWL:

@@ -47,7 +47,7 @@ namespace N64::Mmu
 		if (PMap::RdramMemory.IsBetween(paddr)) // 0x00000000, 0x007FFFFF
 		{
 			const uint32 offset = paddr - PMap::RdramMemory.base;
-			return ReadBytes<Wire>(n64.GetMemory().Rdram(), offset);
+			return ReadBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset));
 		}
 		else if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
 		{
@@ -59,12 +59,12 @@ namespace N64::Mmu
 		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
 			const uint32 offset = paddr - PMap::SpDmem.base;
-			return n64.GetRsp().ReadDmem<Wire>(offset);
+			return Utils::ReadBytes<Wire>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset));
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
 		{
 			const uint32 offset = paddr - PMap::SpImem.base;
-			return n64.GetRsp().ReadImem<Wire>(offset);
+			return Utils::ReadBytes<Wire>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset));
 		}
 		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
 		{
@@ -123,19 +123,23 @@ namespace N64::Mmu
 		return 0;
 	}
 
-	template <typename Wire>
-	void writePaddr(N64System& n64, PAddr32 paddr, Wire value)
+	template <typename Wire, typename Value>
+	void writePaddr(N64System& n64, PAddr32 paddr, Value value)
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
 		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
 		constexpr bool wire16 = std::is_same<Wire, uint16_t>::value;
 		constexpr bool wire8 = std::is_same<Wire, uint8_t>::value;
-		static_assert(wire64 || wire32 || wire16 || wire8);
+		static_assert(
+			(wire8 && std::is_same<Value, uint32>::value) ||
+			(wire16 && std::is_same<Value, uint32>::value) ||
+			(wire32 && std::is_same<Value, uint32>::value) ||
+			(wire64 && std::is_same<Value, uint64>::value)); // Valueは32bit以上
 
 		if (PMap::RdramMemory.IsBetween(paddr)) // 0x00000000, 0x007FFFFF
 		{
 			const uint32 offset = paddr - PMap::RdramMemory.base;
-			return WriteBytes<Wire>(n64.GetMemory().Rdram(), offset, value);
+			return WriteBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
 		{
@@ -146,13 +150,19 @@ namespace N64::Mmu
 		}
 		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
+			if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
+			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
+			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpDmem.base;
-			return n64.GetRsp().WriteDmem<Wire>(offset, value);
+			return Utils::WriteBytes<Wire>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
 		{
+			if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
+			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
+			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpImem.base;
-			return n64.GetRsp().WriteImem<Wire>(offset, value);
+			return Utils::WriteBytes<Wire>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
 		{
@@ -230,23 +240,23 @@ namespace N64::Mmu
 		return readPaddr<uint8>(n64, paddr);
 	}
 
-	void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value)
+	void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value64)
 	{
-		writePaddr<uint64>(n64, paddr, value);
+		writePaddr<uint64>(n64, paddr, value64);
 	}
 
-	void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value)
+	void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value32)
 	{
-		writePaddr<uint32>(n64, paddr, value);
+		writePaddr<uint32>(n64, paddr, value32);
 	}
 
-	void WritePaddr16(N64System& n64, PAddr32 paddr, uint16 value)
+	void WritePaddr16(N64System& n64, PAddr32 paddr, uint32 value32)
 	{
-		writePaddr<uint16>(n64, paddr, value);
+		writePaddr<uint16>(n64, paddr, value32);
 	}
 
-	void WritePaddr8(N64System& n64, PAddr32 paddr, uint8 value)
+	void WritePaddr8(N64System& n64, PAddr32 paddr, uint32 value32)
 	{
-		writePaddr<uint8>(n64, paddr, value);
+		writePaddr<uint8>(n64, paddr, value32);
 	}
 }

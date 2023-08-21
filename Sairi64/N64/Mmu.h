@@ -45,9 +45,9 @@ namespace N64
 		uint16 ReadPaddr16(N64System& n64, PAddr32 paddr);
 		uint8 ReadPaddr8(N64System& n64, PAddr32 paddr);
 
-		void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value);
-		void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value);
-		void WritePaddr16(N64System& n64, PAddr32 paddr, uint16 value);
-		void WritePaddr8(N64System& n64, PAddr32 paddr, uint8 value);
+		void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value64);
+		void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value32);
+		void WritePaddr16(N64System& n64, PAddr32 paddr, uint32 value32);
+		void WritePaddr8(N64System& n64, PAddr32 paddr, uint32 value32);
 	}
 }

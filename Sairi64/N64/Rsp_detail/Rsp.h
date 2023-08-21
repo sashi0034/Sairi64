@@ -121,19 +121,9 @@ namespace N64::Rsp_detail
 		void WritePAddr32(N64System& n64, PAddr32 paddr, uint32 value);
 
 		SpDmem& Dmem() { return m_dmem; }
+		SpImem& Imem() { return m_imem; }
+
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
-
-		template <typename Wire> void WriteDmem(uint32 addr, Wire value)
-		{
-			return Utils::WriteBytes<Wire>(m_dmem, addr, value);
-		}
-
-		template <typename Wire> Wire ReadImem(uint32 addr) { return Utils::ReadBytes<Wire>(m_imem, addr); }
-
-		template <typename Wire> void WriteImem(uint32 addr, Wire value)
-		{
-			return Utils::WriteBytes<Wire>(m_imem, addr, value);
-		}
 
 	private:
 		SpDmem m_dmem{};

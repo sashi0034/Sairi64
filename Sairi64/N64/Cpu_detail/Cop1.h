@@ -44,6 +44,12 @@ namespace N64::Cpu_detail
 		uint32 m_raw{};
 	};
 
+	struct Cop1Fcr
+	{
+		uint32 fcr0;
+		Fcsr32 fcr31;
+	};
+
 	// Floating-point General Register
 	class Fgr64
 	{
@@ -76,9 +82,11 @@ namespace N64::Cpu_detail
 		uint32 GetFgr32(const Cop0& cop0, uint8 index) const;
 		uint64 GetFgr64(const Cop0& cop0, uint8 index) const;
 
+		Cop1Fcr& Fcr() { return m_fcr; }
+		const Cop1Fcr& Fcr() const { return m_fcr; }
+
 	private:
-		uint32 m_fcr0{};
-		Fcsr32 m_fcr31{};
+		Cop1Fcr m_fcr{};
 		std::array<Fgr64, FgrCount_32> m_fgr{};
 	};
 }

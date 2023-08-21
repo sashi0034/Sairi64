@@ -77,6 +77,11 @@ namespace N64::Cpu_detail
 
 	String InstructionCopSub::Stringify() const
 	{
-		return U"{} rt:{}, rd:{}"_fmt(StringifyEnum(Sub()), RtName(), RdName());
+		return U"{}{} rt:{}, rd:{}"_fmt(StringifyEnum(Sub()), CopNumber(), RtName(), RdName());
+	}
+
+	String InstructionCop1Sub::Stringify() const
+	{
+		return U"{}{} rt:{}, fs:{}"_fmt(StringifyEnum(Sub()), CopNumber(), RtName(), Fs());
 	}
 }

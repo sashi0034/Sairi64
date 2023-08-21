@@ -756,6 +756,49 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit CFC1(Cpu& cpu, InstructionCop1Sub instr)
+	{
+		BEGIN_OP;
+		auto&& cop1 = cpu.GetCop1();
+		sint32 value;
+		switch (uint8 fs = instr.Fs())
+		{
+		case 0:
+			value = cop1.Fcr().fcr0;
+			break;
+		case 31:
+			value = cop1.Fcr().fcr31;
+			break;
+		default:
+			N64Logger::Abort(U"undefined cfc1 fs={}"_fmt(fs));
+			value = 0;
+			break;
+		}
+		cpu.GetGpr().Write(instr.Rt(), (sint64)value);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit CTC1(Cpu& cpu, InstructionCop1Sub instr)
+	{
+		BEGIN_OP;
+		uint32 rt = instr.Rt();
+		switch (uint8 fs = instr.Fs())
+		{
+		case 0:
+			break; // fcr0 is read-only
+		case 31:
+			rt &= 0X183FFFF; // mask out bits held 0
+			cpu.GetCop1().Fcr().fcr31 = {rt};
+			break;
+		default:
+			N64Logger::Abort(U"undefined ctc1 fs={}"_fmt(fs));
+			break;
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit CACHE(Instruction instr)
 	{
 		BEGIN_OP;

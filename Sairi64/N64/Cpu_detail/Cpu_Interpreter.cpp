@@ -49,7 +49,7 @@ public:
 		case Opcode::CP0:
 			return interpretCP0(n64, cpu, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:
-			break;
+			return interpretCP1(n64, cpu, static_cast<InstructionCop>(instr));
 		case Opcode::CP2:
 			break;
 		case Opcode::CP3:
@@ -301,6 +301,37 @@ private:
 			break;
 		case OpCopSub::CTC:
 			break;
+		// @formatter:off
+		case OpCopSub::CO_0x10: case OpCopSub::CO_0x11: case OpCopSub::CO_0x12: case OpCopSub::CO_0x13:
+		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
+		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
+		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
+			// TODO
+			break;
+		default: ;
+		}
+
+		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
+		return {};
+	}
+
+	[[nodiscard]]
+	static OperatedUnit interpretCP1(N64System& n64, Cpu& cpu, InstructionCop instr)
+	{
+		switch (const auto sub = static_cast<InstructionCopSub>(instr); instr.Sub())
+		{
+		case OpCopSub::MFC:
+			break;
+		case OpCopSub::DMFC:
+			break;
+		case OpCopSub::MTC:
+			break;
+		case OpCopSub::DMTC:
+			break;
+		case OpCopSub::CFC:
+			return Op::CFC1(cpu, static_cast<InstructionCop1Sub>(sub));
+		case OpCopSub::CTC:
+			return Op::CTC1(cpu, static_cast<InstructionCop1Sub>(sub));
 		// @formatter:off
 		case OpCopSub::CO_0x10: case OpCopSub::CO_0x11: case OpCopSub::CO_0x12: case OpCopSub::CO_0x13:
 		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:

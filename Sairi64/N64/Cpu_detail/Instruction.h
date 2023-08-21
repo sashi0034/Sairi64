@@ -230,6 +230,7 @@ namespace N64::Cpu_detail
 	{
 	public:
 		OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
+		uint8 CopNumber() const { return GetBits<26, 27>(Raw()); }
 		String Stringify() const;
 	};
 
@@ -239,11 +240,17 @@ namespace N64::Cpu_detail
 		uint32 ShouldBeZero() const { return GetBits<0, 10>(Raw()); }
 		uint32 Rd() const { return GetBits<11, 15>(Raw()); }
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
-		// OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
 
 		StringView RdName() const;
 		StringView RtName() const;
 
+		String Stringify() const;
+	};
+
+	class InstructionCop1Sub : public InstructionCopSub
+	{
+	public:
+		uint32 Fs() const { return Rd(); }
 		String Stringify() const;
 	};
 

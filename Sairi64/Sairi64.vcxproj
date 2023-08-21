@@ -218,6 +218,7 @@
     </ClCompile>
     <ClCompile Include="N64\Mmio\RI.cpp" />
     <ClCompile Include="N64\Mmio\SI.cpp" />
+    <ClCompile Include="N64\Mmio\VI.cpp" />
     <ClCompile Include="N64\Mmu.cpp" />
     <ClCompile Include="N64\N64Config.cpp" />
     <ClCompile Include="N64\N64Frame.cpp" />
@@ -457,6 +458,7 @@
     <ClInclude Include="N64\Mmio\Pif_executeRomHle.h" />
     <ClInclude Include="N64\Mmio\RI.h" />
     <ClInclude Include="N64\Mmio\SI.h" />
+    <ClInclude Include="N64\Mmio\VI.h" />
     <ClInclude Include="N64\Mmu.h" />
     <ClInclude Include="N64\N64Config.h" />
     <ClInclude Include="N64\N64Frame.h" />

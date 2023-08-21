@@ -22,7 +22,7 @@ namespace N64
 		if constexpr (std::is_same<Data, uint8>::value)
 			return address ^ 0b11;
 		else if constexpr (std::is_same<Data, uint16>::value)
-			return address ^ 0b10;
+			return address ^ 0b10; // (address & (~0b1)) ^ 0b10
 		else if constexpr (std::is_same<Data, uint32>::value || std::is_same<Data, uint64>::value)
 			return address;
 		else

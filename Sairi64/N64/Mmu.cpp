@@ -136,6 +136,8 @@ namespace N64::Mmu
 			(wire32 && std::is_same<Value, uint32>::value) ||
 			(wire64 && std::is_same<Value, uint64>::value)); // Valueは32bit以上
 
+		// 8ビットアクセスでも、32ビット書き込みとなるような状況もあるので注意
+
 		if (PMap::RdramMemory.IsBetween(paddr)) // 0x00000000, 0x007FFFFF
 		{
 			const uint32 offset = paddr - PMap::RdramMemory.base;
@@ -154,7 +156,7 @@ namespace N64::Mmu
 			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
 			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpDmem.base;
-			return Utils::WriteBytes<Wire>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
+			return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
 		{
@@ -162,7 +164,7 @@ namespace N64::Mmu
 			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
 			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpImem.base;
-			return Utils::WriteBytes<Wire>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
+			return Utils::WriteBytes<Value>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
 		{

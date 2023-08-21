@@ -85,12 +85,13 @@ namespace N64::Mmio
 		{
 			m_pif.ProcessCommands();
 			for (int i = 0; i < 64; ++i)
-				n64.GetMemory().Rdram()[m_dramAddr + i] = m_pif.Ram()[i]; // もしかしたらSI_PIF_ADDRレジスタを利用?
+				// もしかしたらSI_PIF_ADDRレジスタを利用?
+				n64.GetMemory().Rdram()[EndianAddress<uint8>(m_dramAddr + i)] = m_pif.Ram()[i];
 		}
 		else if constexpr (dma == DmaType::DramToPif)
 		{
 			for (int i = 0; i < 64; ++i)
-				m_pif.Ram()[i] = n64.GetMemory().Rdram()[m_dramAddr + i];
+				m_pif.Ram()[i] = n64.GetMemory().Rdram()[EndianAddress<uint8>(m_dramAddr + i)];
 			m_pif.ProcessCommands();
 		}
 

@@ -264,9 +264,11 @@ namespace N64::Cpu_detail
 	class InstructionFi : public Instruction
 	{
 	public:
-		uint32 Offset() const { return GetBits<0, 15>(Raw()); }
-		uint32 Ft() const { return GetBits<16, 20>(Raw()); }
+		uint16 Offset() const { return GetBits<0, 15>(Raw()); }
+		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
+		uint32 Ft() const { return Rt(); }
 		uint32 Base() const { return GetBits<21, 25>(Raw()); }
+		String Stringify() const;
 	};
 
 	template <class T>

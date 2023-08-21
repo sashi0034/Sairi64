@@ -67,9 +67,9 @@ public:
 		case Opcode::DADDIU:
 			break;
 		case Opcode::LDL:
-			break;
+			return Op::LDL(n64, cpu, static_cast<InstructionFi>(instr));
 		case Opcode::LDR:
-			break;
+			return Op::LDR(n64, cpu, static_cast<InstructionFi>(instr));
 		case Opcode::RDHWR:
 			break;
 		case Opcode::LB:

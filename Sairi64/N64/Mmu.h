@@ -20,6 +20,7 @@ namespace N64
 			constexpr AddressRange<uint32> KSEG3{0xE0000000, 0xFFFFFFFF};
 		}
 
+		[[nodiscard]]
 		Optional<PAddr32> ResolveVAddr(Cpu& cpu, uint64 vaddr);
 
 		namespace PMap

@@ -611,6 +611,52 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit LDL(N64System& n64, Cpu& cpu, InstructionFi instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint16 offset = static_cast<sint16>(instr.Offset());
+		const uint64 vaddr = gpr.Read(instr.Base()) + offset;
+		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		{
+			const sint32 shift = 8 * ((vaddr ^ 0) & 7);
+			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF << shift;
+			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
+			const uint64 oldRt = gpr.Read(instr.Rt());
+			gpr.Write(instr.Rt(), (oldRt & ~mask) | (data << shift));
+		}
+		else
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit LDR(N64System& n64, Cpu& cpu, InstructionFi instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint16 offset = static_cast<sint16>(instr.Offset());
+		const uint64 vaddr = gpr.Read(instr.Base()) + offset;
+		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		{
+			const sint32 shift = 8 * ((vaddr ^ 7) & 7);
+			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF << shift;
+			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
+			const uint64 oldRt = gpr.Read(instr.Rt());
+			gpr.Write(instr.Rt(), (oldRt & ~mask) | (data >> shift));
+		}
+		else
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit LW(N64System& n64, Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;

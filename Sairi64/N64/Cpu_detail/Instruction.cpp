@@ -30,12 +30,12 @@ namespace N64::Cpu_detail
 
 	String InstructionI::Stringify() const
 	{
-		return U"{} rs:{}, rt:{}, imm:{:08X}"_fmt(OpName(), GprNames[Rs()], GprNames[Rt()], Imm());
+		return U"{} rs:{}, rt:{}, imm:{:04X}"_fmt(OpName(), GprNames[Rs()], GprNames[Rt()], Imm());
 	}
 
 	String InstructionRegimm::Stringify() const
 	{
-		return U"{} rs:{}, imm:{}"_fmt(StringifyEnum(Sub()), GprNames[Rs()], Imm());
+		return U"{} rs:{}, imm:{:04X}"_fmt(StringifyEnum(Sub()), GprNames[Rs()], Imm());
 	}
 
 	StringView InstructionR::RdName() const
@@ -83,5 +83,10 @@ namespace N64::Cpu_detail
 	String InstructionCop1Sub::Stringify() const
 	{
 		return U"{}{} rt:{}, fs:{}"_fmt(StringifyEnum(Sub()), CopNumber(), RtName(), Fs());
+	}
+
+	String InstructionFi::Stringify() const
+	{
+		return U"{} ft:{}, offset:{:04X}, base:{}"_fmt(OpName(), GprNames[Ft()], Offset(), GprNames[Base()]);
 	}
 }

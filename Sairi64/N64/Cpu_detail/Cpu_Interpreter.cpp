@@ -228,17 +228,17 @@ private:
 		case OpSpecialFunct::TNE:
 			break; // return Op::TNE(cpu, instr);
 		case OpSpecialFunct::DSLL:
-			break; // return Op::DSLL(cpu, instr);
+			return Op::DSLL(cpu, instr);
 		case OpSpecialFunct::DSRL:
-			break; // return Op::DSRL(cpu, instr);
+			return Op::DSRL(cpu, instr);
 		case OpSpecialFunct::DSRA:
-			break; // return Op::DSRA(cpu, instr);
+			return Op::DSRA(cpu, instr);
 		case OpSpecialFunct::DSLL32:
-			break; // return Op::DSLL32(cpu, instr);
+			return Op::DSLL32(cpu, instr);
 		case OpSpecialFunct::DSRL32:
-			break; // return Op::DSRL32(cpu, instr);
+			return Op::DSRL32(cpu, instr);
 		case OpSpecialFunct::DSRA32:
-			break; // return Op::DSRA32(cpu, instr);
+			return Op::DSRA32(cpu, instr);
 		default: ;
 		}
 

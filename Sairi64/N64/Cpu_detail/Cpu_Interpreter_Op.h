@@ -193,6 +193,72 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit DSLL(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		uint64 rt = gpr.Read(instr.Rt());
+		rt <<= instr.Sa();
+		gpr.Write(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSRL(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		uint64 rt = gpr.Read(instr.Rt());
+		rt >>= instr.Sa();
+		gpr.Write(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSRA(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		sint64 rt = gpr.Read(instr.Rt());
+		rt >>= instr.Sa();
+		gpr.Write(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSLL32(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		uint64 rt = gpr.Read(instr.Rt());
+		rt <<= (instr.Sa() + 32);
+		gpr.Write(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSRL32(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		uint64 rt = gpr.Read(instr.Rt());
+		rt >>= (instr.Sa() + 32);
+		gpr.Write(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSRA32(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		sint64 rt = gpr.Read(instr.Rt());
+		rt >>= (instr.Sa() + 32);
+		gpr.Write(instr.Rd(), rt);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit JR(Cpu& cpu, InstructionR instr)
 	{
 		BEGIN_OP;

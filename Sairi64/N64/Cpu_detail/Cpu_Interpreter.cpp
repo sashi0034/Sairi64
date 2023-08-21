@@ -97,9 +97,9 @@ public:
 		case Opcode::SW:
 			return Op::SW(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SDL:
-			break;
+			return Op::SDL(n64, cpu, static_cast<InstructionFi>(instr));
 		case Opcode::SDR:
-			break;
+			return Op::SDR(n64, cpu, static_cast<InstructionFi>(instr));
 		case Opcode::SWR:
 			break;
 		case Opcode::CACHE:

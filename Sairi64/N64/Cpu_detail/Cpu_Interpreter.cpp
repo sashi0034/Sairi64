@@ -252,11 +252,11 @@ private:
 		switch (instr.Sub())
 		{
 		case OpRegimm::BLTZ:
-			break;
+			return Op::BLTZ(cpu, instr);
 		case OpRegimm::BGEZ:
 			return Op::BGEZ(cpu, instr);
 		case OpRegimm::BLTZL:
-			break;
+			return Op::BLTZL(cpu, instr);
 		case OpRegimm::BGEZL:
 			return Op::BGEZL(cpu, instr);
 		case OpRegimm::TGEI:

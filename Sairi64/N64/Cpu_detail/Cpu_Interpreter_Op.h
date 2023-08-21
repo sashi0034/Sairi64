@@ -664,6 +664,24 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit BLTZ(Cpu& cpu, InstructionRegimm instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
+		branchOffset16<BranchType::Normal>(cpu, instr, rs < 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit BLTZL(Cpu& cpu, InstructionRegimm instr)
+	{
+		BEGIN_OP;
+		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
+		branchOffset16<BranchType::Likely>(cpu, instr, rs < 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit BGEZ(Cpu& cpu, InstructionRegimm instr)
 	{
 		BEGIN_OP;

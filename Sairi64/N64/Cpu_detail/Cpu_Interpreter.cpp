@@ -73,7 +73,7 @@ public:
 		case Opcode::RDHWR:
 			break;
 		case Opcode::LB:
-			break;
+			return Op::LB(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::LH:
 			break;
 		case Opcode::LWL:
@@ -81,7 +81,7 @@ public:
 		case Opcode::LW:
 			return Op::LW(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
-			break;
+			return Op::LBU(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::LHU:
 			break;
 		case Opcode::LWR:

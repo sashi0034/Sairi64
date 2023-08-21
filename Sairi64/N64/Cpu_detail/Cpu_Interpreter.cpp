@@ -140,15 +140,15 @@ private:
 		case OpSpecialFunct::SLL:
 			return Op::SLL(cpu, instr);
 		case OpSpecialFunct::SRL:
-			break; // return Op::SRL(cpu, instr);
+			return Op::SRL(cpu, instr);
 		case OpSpecialFunct::SRA:
-			break; // return Op::SRA(cpu, instr);
+			return Op::SRA(cpu, instr);
 		case OpSpecialFunct::SLLV:
 			return Op::SLLV(cpu, instr);
 		case OpSpecialFunct::SRLV:
 			return Op::SRLV(cpu, instr);
 		case OpSpecialFunct::SRAV:
-			break; // return Op::SRAV(cpu, instr);
+			return Op::SRAV(cpu, instr);
 		case OpSpecialFunct::JR:
 			return Op::JR(cpu, instr);
 		case OpSpecialFunct::JALR:

@@ -484,8 +484,41 @@ public:
 		BEGIN_OP;
 		auto&& gpr = cpu.GetGpr();
 		const uint32 rt = gpr.Read(instr.Rt());
-		const sint32 result = rt << (cpu.GetGpr().Read(instr.Rs()) & 0b11111);
-		cpu.GetGpr().Write(instr.Rd(), result);
+		const sint32 result = rt << (gpr.Read(instr.Rs()) & 0b11111);
+		gpr.Write(instr.Rd(), result);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SRL(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint32 rt = gpr.Read(instr.Rt());
+		const sint32 result = rt >> instr.Sa();
+		gpr.Write(instr.Rd(), (sint64)result);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SRA(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint64 rt = gpr.Read(instr.Rt());
+		const sint32 result = (sint64)(rt >> static_cast<uint64>(instr.Sa()));
+		gpr.Write(instr.Rd(), (sint64)result);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit SRAV(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint64 rt = gpr.Read(instr.Rt());
+		const sint32 result = (sint64)(rt >> (gpr.Read(instr.Rs()) & 0b11111));
+		gpr.Write(instr.Rd(), (sint64)result);
 		END_OP;
 	}
 

@@ -104,10 +104,4 @@ namespace N64::Mmio
 
 		N64Logger::Abort(U"unsupported vi write: paddr={:08X}"_fmt(static_cast<uint32>(paddr)));
 	}
-
-	void VI::SetVCurrent(N64System& n64, uint32 value)
-	{
-		m_vCurrent = value;
-		if ((m_vCurrent & 0x3FE) == m_vInterrupt) InterruptRaise<Interruption::VI>(n64);
-	}
 }

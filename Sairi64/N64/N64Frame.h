@@ -8,6 +8,11 @@ namespace N64
 		String filePath;
 	};
 
+	struct N64FrameInternalState
+	{
+		int rspConsumableCycles;
+	};
+
 	class N64Frame
 	{
 	public:
@@ -17,5 +22,7 @@ namespace N64
 
 	private:
 		double m_fragmentTime{};
+
+		N64FrameInternalState m_internalState{};
 	};
 }

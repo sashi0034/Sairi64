@@ -5,6 +5,11 @@ namespace N64
 {
 	constexpr uint32 CpuFreq_93750000 = 93750000;
 
+	inline uint32 GetFps_60_50(bool pal)
+	{
+		return pal ? 50 : 60;
+	}
+
 	// https://github.com/SimoneN64/Kaizen/blob/d0bccfc7e7c0d6eaa3662e8286b9d2bf5888b74f/src/common.hpp#L22
 	inline uint32 GetCpuCyclesPerFrame_1562500(bool pal)
 	{

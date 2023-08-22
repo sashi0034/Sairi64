@@ -51,12 +51,15 @@ void Main()
 	n64Frame.Init(n64System, {debugConfig.rom.filePath});
 
 	// N64コンソール実行
-	n64Frame.RunOnConsole(n64System);
+	// n64Frame.RunOnConsole(n64System);
 
 	setupWindow();
 
 	while (System::Update())
 	{
+		// N64更新制御
+		n64Frame.ControlFrame(n64System);
+
 		uiManager.Update();
 	}
 }

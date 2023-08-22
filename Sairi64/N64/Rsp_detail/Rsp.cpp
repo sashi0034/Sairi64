@@ -10,6 +10,13 @@ namespace N64::Rsp_detail
 		m_status.Halt().Set(true);
 	}
 
+	void Rsp::Step(N64System& n64)
+	{
+		if (m_status.Halt()) return;
+
+		// TODO
+	}
+
 	uint32 Rsp::ReadPAddr32(PAddr32 paddr)
 	{
 		switch (paddr)

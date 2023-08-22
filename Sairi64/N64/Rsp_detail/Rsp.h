@@ -117,6 +117,9 @@ namespace N64::Rsp_detail
 	{
 	public:
 		Rsp();
+
+		void Step(N64System& n64);
+
 		uint32 ReadPAddr32(PAddr32 paddr);
 		void WritePAddr32(N64System& n64, PAddr32 paddr, uint32 value);
 

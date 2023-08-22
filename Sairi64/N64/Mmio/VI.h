@@ -65,7 +65,7 @@ namespace N64::Mmio
 		uint32 XScale() const { return m_xScale; }
 		uint32 YScale() const { return m_yScale; }
 
-		void SetVCurrent(N64System& n64, uint32 value);
+		void SetVCurrent(uint32 value) { m_vCurrent = value; }
 
 		uint32 Swaps() const { return m_swaps; }
 		uint32 NumHalfLines() const { return m_numHalfLines; }

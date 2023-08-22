@@ -259,6 +259,28 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit TEQ(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 rt = gpr.Read(instr.Rt());
+		if (rs == rt) throwException(cpu, ExceptionKinds::Trap, 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit TNE(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 rt = gpr.Read(instr.Rt());
+		if (rs != rt) throwException(cpu, ExceptionKinds::Trap, 0);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit JR(Cpu& cpu, InstructionR instr)
 	{
 		BEGIN_OP;

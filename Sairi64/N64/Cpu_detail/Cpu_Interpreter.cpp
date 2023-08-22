@@ -224,9 +224,9 @@ private:
 		case OpSpecialFunct::TLTU:
 			break; // return Op::TLTU(cpu, instr);
 		case OpSpecialFunct::TEQ:
-			break; // return Op::TEQ(cpu, instr);
+			return Op::TEQ(cpu, instr);
 		case OpSpecialFunct::TNE:
-			break; // return Op::TNE(cpu, instr);
+			return Op::TNE(cpu, instr);
 		case OpSpecialFunct::DSLL:
 			return Op::DSLL(cpu, instr);
 		case OpSpecialFunct::DSRL:

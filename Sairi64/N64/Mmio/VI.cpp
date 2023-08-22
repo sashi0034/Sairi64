@@ -1,7 +1,9 @@
 ﻿#include "stdafx.h"
 #include "VI.h"
 
+#include "N64/Interrupt.h"
 #include "N64/N64Logger.h"
+#include "N64/N64System.h"
 
 namespace N64::Mmio
 {
@@ -9,34 +11,34 @@ namespace N64::Mmio
 	{
 		switch (paddr)
 		{
-		case ViAddress::Status_0x04400000:
-			break;
+		case ViAddress::Control_0x04400000:
+			return m_control;
 		case ViAddress::Origin_0x04400004:
-			break;
+			return m_origin;
 		case ViAddress::Width_0x04400008:
-			break;
+			return m_width;
 		case ViAddress::VInterrupt_0x0440000C:
-			break;
+			return m_vInterrupt;
 		case ViAddress::VCurrent_0x04400010:
-			break;
+			return m_vCurrent << 1;
 		case ViAddress::Burst_0x04400014:
-			break;
+			return m_burst;
 		case ViAddress::VSync_0x04400018:
-			break;
+			return m_vSync;
 		case ViAddress::HSync_0x0440001C:
-			break;
+			return m_hSync;
 		case ViAddress::HSyncLeap_0x04400020:
-			break;
+			return m_hSyncLeap;
 		case ViAddress::HVideo_0x04400024:
-			break;
+			return m_hVideo;
 		case ViAddress::VVideo_0x04400028:
-			break;
+			return m_vVideo;
 		case ViAddress::VBurst_0x0440002C:
-			break;
+			return m_vBurst;
 		case ViAddress::XScale_0x04400030:
-			break;
+			return m_xScale;
 		case ViAddress::YScale_0x04400034:
-			break;
+			return m_yScale;
 		default: break;
 		}
 
@@ -48,37 +50,64 @@ namespace N64::Mmio
 	{
 		switch (paddr)
 		{
-		case ViAddress::Status_0x04400000:
-			break;
-		case ViAddress::Origin_0x04400004:
-			break;
+		case ViAddress::Control_0x04400000:
+			m_control = {value};
+			m_numFields = m_control.Serrate() ? 2 : 1;
+			return;
+		case ViAddress::Origin_0x04400004: {
+			const uint32 masked = value & 0xFFFFFF;
+			if (m_origin != masked) m_swaps++;
+			m_origin = masked;
+			return;
+		}
 		case ViAddress::Width_0x04400008:
-			break;
+			m_width = value & 0x7FF;
+			return;
 		case ViAddress::VInterrupt_0x0440000C:
-			break;
+			// When VCurrent reaches this half-line number, a VI Interrupt is triggered
+			m_vInterrupt = value & 0x3FF;
+			return;
 		case ViAddress::VCurrent_0x04400010:
-			break;
+			InterruptLower<Interruption::VI>(n64);
+			return;
 		case ViAddress::Burst_0x04400014:
-			break;
+			m_vBurst = value;
+			return;
 		case ViAddress::VSync_0x04400018:
-			break;
+			m_vSync = value & 0x3FF;
+			m_numHalfLines = m_vSync >> 1;
+			m_cyclesPerHalfLine = GetCpuCyclesPerFrame_1562500(n64.GetMemory().IsRomPal()) / m_numHalfLines;
+			return;
 		case ViAddress::HSync_0x0440001C:
-			break;
+			m_hSync = value & 0x3FF;
+			return;
 		case ViAddress::HSyncLeap_0x04400020:
-			break;
+			m_hSync = value;
+			return;
 		case ViAddress::HVideo_0x04400024:
-			break;
+			m_hVideo = value;
+			return;
 		case ViAddress::VVideo_0x04400028:
-			break;
+			m_vVideo = value;
+			return;
 		case ViAddress::VBurst_0x0440002C:
-			break;
+			m_vBurst = value;
+			return;
 		case ViAddress::XScale_0x04400030:
-			break;
+			m_xScale = value;
+			return;
 		case ViAddress::YScale_0x04400034:
-			break;
+			m_yScale = value;
+			return;
 		default: break;
 		}
 
 		N64Logger::Abort(U"unsupported vi write: paddr={:08X}"_fmt(static_cast<uint32>(paddr)));
+	}
+
+	void VI::SetVCurrent(N64System& n64, uint32 value)
+	{
+		m_vCurrent = value;
+		if ((m_vCurrent & 0x3FE) == m_vInterrupt) InterruptRaise<Interruption::VI>(n64);
 	}
 }

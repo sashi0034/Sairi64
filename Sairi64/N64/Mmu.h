@@ -32,6 +32,7 @@ namespace N64
 
 			constexpr AddressRange<uint32> PifRam{0x1FC007C0, 0x1FC007FF};
 			constexpr AddressRange<uint32> MI{0x04300000, 0x043FFFFF};
+			constexpr AddressRange<uint32> VI{0x04400000, 0x044FFFFF};
 			constexpr AddressRange<uint32> AI{0x04500000, 0x045FFFFF};
 			constexpr AddressRange<uint32> PI{0x04600000, 0x046FFFFF};
 			constexpr AddressRange<uint32> RI{0x04700000, 0x047FFFFF};

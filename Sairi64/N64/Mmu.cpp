@@ -81,6 +81,13 @@ namespace N64::Mmu
 				return n64.GetMI().Read32(paddr);
 			}
 		}
+		else if (PMap::VI.IsBetween(paddr)) // 0x04400000, 0x044FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetVI().Read32(paddr);
+			}
+		}
 		else if (PMap::AI.IsBetween(paddr)) // 0x04500000, 0x045FFFFF
 		{
 			if constexpr (wire32)
@@ -156,7 +163,7 @@ namespace N64::Mmu
 			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
 			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpDmem.base;
-			// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる?
+			// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる? 書き込み量はWire?
 			return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
@@ -180,6 +187,13 @@ namespace N64::Mmu
 			if constexpr (wire32)
 			{
 				return n64.GetMI().Write32(n64, paddr, value);
+			}
+		}
+		else if (PMap::VI.IsBetween(paddr)) // 0x04400000, 0x044FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetVI().Write32(n64, paddr, value);
 			}
 		}
 		else if (PMap::AI.IsBetween(paddr)) // 0x04500000, 0x045FFFFF

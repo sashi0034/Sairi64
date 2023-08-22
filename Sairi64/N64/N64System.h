@@ -8,6 +8,7 @@
 #include "Mmio/PI.h"
 #include "Mmio/RI.h"
 #include "Mmio/SI.h"
+#include "Mmio/VI.h"
 
 namespace N64
 {
@@ -22,6 +23,7 @@ namespace N64
 		Mmio::PI& GetPI() { return m_pi; }
 		Mmio::MI& GetMI() { return m_mi; }
 		Mmio::AI& GetAI() { return m_ai; }
+		Mmio::VI& GetVI() { return m_vi; }
 		Scheduler& GetScheduler() { return m_scheduler; }
 
 		N64System& operator=(const N64System&) = delete;
@@ -36,6 +38,7 @@ namespace N64
 		Mmio::PI m_pi{};
 		Mmio::MI m_mi{};
 		Mmio::AI m_ai{};
+		Mmio::VI m_vi{};
 
 		Scheduler m_scheduler{};
 	};

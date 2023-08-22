@@ -176,9 +176,9 @@ private:
 		case OpSpecialFunct::MULTU:
 			return Op::MULTU(cpu, instr);
 		case OpSpecialFunct::DIV:
-			break; // return Op::DIV(cpu, instr);
+			return Op::DIV(cpu, instr);
 		case OpSpecialFunct::DIVU:
-			break; // return Op::DIVU(cpu, instr);
+			return Op::DIVU(cpu, instr);
 		case OpSpecialFunct::DMULT:
 			break; // return Op::DMULT(cpu, instr);
 		case OpSpecialFunct::DMULTU:

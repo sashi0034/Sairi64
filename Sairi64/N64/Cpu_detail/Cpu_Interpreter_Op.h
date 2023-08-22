@@ -350,6 +350,54 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit DIV(Cpu& cpu, InstructionR instr)
+	{
+		// // https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/mips_instructions.c#L809
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const sint64 divined = static_cast<sint32>(gpr.Read(instr.Rs()));
+		const sint64 divisor = static_cast<sint32>(gpr.Read(instr.Rt()));
+
+		if (divisor == 0)
+		{
+			cpu.SetHi(divined);
+			cpu.SetLo(divined >= 0 ? (sint64)-1 : (sint64)1);
+		}
+		else
+		{
+			const sint32 quotient = static_cast<sint32>(divined / divisor);
+			const sint32 remainder = static_cast<sint32>(divined % divisor);
+			cpu.SetLo(quotient);
+			cpu.SetHi(remainder);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DIVU(Cpu& cpu, InstructionR instr)
+	{
+		// // https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/mips_instructions.c#L809
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+		const uint32 divined = gpr.Read(instr.Rs());
+		const uint32 divisor = gpr.Read(instr.Rt());
+
+		if (divisor == 0)
+		{
+			cpu.SetLo(0xFFFFFFFFFFFFFFFF);
+			cpu.SetHi(static_cast<sint32>(divined));
+		}
+		else
+		{
+			const sint32 quotient = static_cast<sint32>(divined / divisor);
+			const sint32 remainder = static_cast<sint32>(divined % divisor);
+			cpu.SetLo(quotient);
+			cpu.SetHi(remainder);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit ADDI(Cpu& cpu, InstructionI instr)
 	{
 		BEGIN_OP;

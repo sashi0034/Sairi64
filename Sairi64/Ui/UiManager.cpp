@@ -23,5 +23,11 @@ namespace Ui
 		// ImGui::Begin("Fixed test", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 		// ImGui::Text("This window cannot be moved!");
 		// ImGui::End();
+
+		ImGui::Begin("FPS (debug)");
+		std::stringstream ss{};
+		ss << "FPS: " << Profiler::FPS();
+		ImGui::Text(ss.str().c_str());
+		ImGui::End();
 	}
 }

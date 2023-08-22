@@ -26,7 +26,9 @@ namespace N64
 	};
 }
 
+#if _DEBUG
 #define N64LOGGER_TRACE_ENABLE
+#endif
 
 #ifdef N64LOGGER_TRACE_ENABLE
 #define N64_TRACE(message) if (N64Logger::IsTraceEnabled()) N64Logger::Trace(message)

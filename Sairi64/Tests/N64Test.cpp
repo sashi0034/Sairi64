@@ -48,25 +48,34 @@ namespace Tests
 		return expected_minus1 == -1;
 	}
 
-#if 0 // passed tests
-	TEST_CASE("N64Test and_simpleboot")
+	TEST_CASE("N64Test_Dillon64Test")
 	{
-		REQUIRE(Dillon64Test(U"and_simpleboot.z64"));
-	}
-#endif
-	TEST_CASE("N64Test basic_simpleboot")
-	{
+		REQUIRE(Dillon64Test(U"addiu_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"addu_simpleboot.z64")); // OK
+		// REQUIRE(Dillon64Test(U"and_simpleboot.z64")); // OK
+		REQUIRE(Dillon64Test(U"andi_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"basic_simpleboot.z64"));
-	}
-
-	TEST_CASE("N64Test andi_simpleboot")
-	{
-		// REQUIRE(Dillon64Test(U"andi_simpleboot.z64"));
-	}
-
-	TEST_CASE("N64Test addiu_simpleboot")
-	{
-		// REQUIRE(Dillon64Test(U"addiu_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"daddiu_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"dsll32_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"dsll_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"dsllv_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"dsra32_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"nor_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"or_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"ori_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"sll_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"sllv_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"slt_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"slti_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"sltiu_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"sltu_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"sra_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"srav_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"srl_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"srlv_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"subu_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"xor_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"xori_simpleboot.z64"));
 	}
 }
 #endif

@@ -485,6 +485,34 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App\asset\rom\.gitignore" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\addiu_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\addu_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\andi_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\and_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\basic.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\basic_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\daddiu_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\dsll32_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\dsllv_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\dsll_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\dsra32_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\nor_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\ori_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\or_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\README.md" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\sllv_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\sll_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\sltiu_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\slti_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\sltu_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\slt_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\srav_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\sra_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\srlv_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\srl_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\subu_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\xori_simpleboot.z64" />
+    <Content Include="App\asset\rom\dillonb-n64-tests\xor_simpleboot.z64" />
     <Content Include="DearImGuiAddon\credit.txt" />
     <Content Include="Includes\nameof\LICENSE" />
   </ItemGroup>

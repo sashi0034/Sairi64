@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Rsp.h"
 
+#include "N64/Interrupt.h"
 #include "N64/N64Logger.h"
 
 namespace N64::Rsp_detail
@@ -94,11 +95,11 @@ namespace N64::Rsp_detail
 		const bool setInterrupt = write.SetInterrupt();
 		if (clearInterrupt && setInterrupt == false)
 		{
-			// TODO: MIと割り込み
+			InterruptLower<Interruption::SP>(n64);
 		}
 		if (clearInterrupt == false && setInterrupt)
 		{
-			// TODO: MIと割り込み
+			InterruptRaise<Interruption::SP>(n64);
 		}
 
 		bitClearSet(m_status.SingleStep(), write.ClearSStep(), write.SetSStep());

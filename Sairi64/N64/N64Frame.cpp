@@ -12,7 +12,7 @@ namespace N64
 		if (arg.executePifRom) Mmio::Pif::ExecuteRom(n64);
 	}
 
-	template <bool hasBreakPoint = false>
+	template <bool hasBreakPoint>
 	[[nodiscard]] inline bool emulateFrame_stepCyclesPerHalfLine(
 		N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
@@ -40,7 +40,7 @@ namespace N64
 	}
 
 	template <bool hasBreakPoint = false>
-	void emulateFrame(N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
+	bool emulateFrame(N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
 		auto&& vi = n64.GetVI();
 
@@ -59,12 +59,12 @@ namespace N64
 				if (hasBreakPoint)
 				{
 					// ブレイクポイントに引っかかったら終了 (デバッグ用)
-					if (emulateFrame_stepCyclesPerHalfLine(n64, state, breakPoint)) return;
+					if (emulateFrame_stepCyclesPerHalfLine<hasBreakPoint>(n64, state, breakPoint)) return true;
 				}
 				else
 				{
 					// 通常
-					(void)emulateFrame_stepCyclesPerHalfLine(n64, state);
+					(void)emulateFrame_stepCyclesPerHalfLine<hasBreakPoint>(n64, state);
 				}
 			}
 
@@ -75,13 +75,15 @@ namespace N64
 			// 画面更新
 			n64.GetRdp().UpdateDisplay(n64);
 		}
+		return false;
 	}
 
 	void N64Frame::RunOnConsole(N64System& n64, const std::function<bool()>& breakPoint)
 	{
 		while (true)
 		{
-			emulateFrame<true>(n64, m_internalState, breakPoint);
+			const bool breaking = emulateFrame<true>(n64, m_internalState, breakPoint);
+			if (breaking) return;
 		}
 	}
 

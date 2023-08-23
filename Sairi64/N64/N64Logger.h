@@ -28,6 +28,9 @@ namespace N64
 
 #if _DEBUG
 #define N64LOGGER_TRACE_ENABLE
+#else
+// TODO: リリースビルドでトレースしたくないときはコメントアウト
+#define N64LOGGER_TRACE_ENABLE
 #endif
 
 #ifdef N64LOGGER_TRACE_ENABLE

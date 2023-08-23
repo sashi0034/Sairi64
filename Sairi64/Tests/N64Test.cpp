@@ -11,7 +11,8 @@
 #if 1
 namespace Tests
 {
-	bool Dillon64Test(const String& filePath)
+	// https://github.com/Dillonb/n64-tests
+	bool Dillon64Test(const String& fileName)
 	{
 		using namespace N64;
 
@@ -21,7 +22,7 @@ namespace Tests
 
 		// テスト用の初期化
 		n64Frame.Init(n64System, {
-			              .filePath = filePath,
+			              .filePath = U"asset/rom/dillonb-n64-tests/{}"_fmt(fileName),
 			              .executePifRom = false
 		              });
 		for (uint32 i = 0; i < 0x100000; i += 4)
@@ -38,21 +39,34 @@ namespace Tests
 			return n64System.GetCpu().GetGpr().Read(targetR30) != 0;
 		});
 
+		const sint32 expected_minus1 = n64System.GetCpu().GetGpr().Read(targetR30);
+
 		// キー入力待機
+		Console.writeln(U"end test rom: {}\ngpr[31]={:08X}"_fmt(fileName, static_cast<uint32>(expected_minus1)));
 		Utils::WaitAnyKeyOnConsole();
 
-		const int expected_minus1 = n64System.GetCpu().GetGpr().Read(targetR30);
 		return expected_minus1 == -1;
 	}
 
+#if 0 // passed tests
+	TEST_CASE("N64Test and_simpleboot")
+	{
+		REQUIRE(Dillon64Test(U"and_simpleboot.z64"));
+	}
+#endif
 	TEST_CASE("N64Test basic_simpleboot")
 	{
-		// REQUIRE(Dillon64Test(U"asset/rom/dillonb-n64-tests/basic_simpleboot.z64"));
+		REQUIRE(Dillon64Test(U"basic_simpleboot.z64"));
+	}
+
+	TEST_CASE("N64Test andi_simpleboot")
+	{
+		// REQUIRE(Dillon64Test(U"andi_simpleboot.z64"));
 	}
 
 	TEST_CASE("N64Test addiu_simpleboot")
 	{
-		REQUIRE(Dillon64Test(U"asset/rom/dillonb-n64-tests/addiu_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"addiu_simpleboot.z64"));
 	}
 }
 #endif

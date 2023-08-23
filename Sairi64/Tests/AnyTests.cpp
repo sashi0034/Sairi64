@@ -18,7 +18,8 @@ namespace Tests
 		REQUIRE(test == 15);
 
 		scheduler.ScheduleEvent(50, [&test]() { test *= 10; });
-		scheduler.ScheduleEvent(40, [&test]() { test -= 5; });
+		scheduler.ScheduleEvent(0, [&test]() { test *= 2; });
+		scheduler.ScheduleEvent(40, [&test]() { test -= 20; });
 
 		for (int i = 0; i < 100; ++i) scheduler.Step();
 		REQUIRE(test == 100);

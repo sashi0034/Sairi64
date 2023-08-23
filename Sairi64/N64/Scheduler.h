@@ -34,7 +34,7 @@ namespace N64
 		void ScheduleEvent(uint64 cycles, const std::function<void()>& event)
 		{
 			// イベントは発火時間昇順で挿入される
-			m_eventQueue.emplace(ScheduledEvent(m_currentTime + cycles, event));
+			m_eventQueue.emplace(ScheduledEvent(m_currentTime + cycles + 1, event));
 		}
 
 		void Step();

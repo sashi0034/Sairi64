@@ -80,6 +80,41 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit DADD(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 rt = gpr.Read(instr.Rt());
+		const uint64 result = rs + rt;
+
+		if (isOverflowSignedAdd(rs, rt, result))
+		{
+			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+		}
+		else
+		{
+			gpr.Write(instr.Rd(), result);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DADDU(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 rt = gpr.Read(instr.Rt());
+		const uint64 result = rs + rt;
+
+		gpr.Write(instr.Rd(), result);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit SUB(Cpu& cpu, InstructionR instr)
 	{
 		BEGIN_OP;
@@ -112,6 +147,41 @@ public:
 
 		gpr.Write(instr.Rd(), static_cast<sint64>(result));
 
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSUB(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const sint64 rs = gpr.Read(instr.Rs());
+		const sint64 rt = gpr.Read(instr.Rt());
+		const sint64 result = rs - rt;
+
+		if (isOverflowSignedSub(rs, rt, result))
+		{
+			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+		}
+		else
+		{
+			gpr.Write(instr.Rd(), static_cast<sint64>(result));
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DSUBU(Cpu& cpu, InstructionR instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 rt = gpr.Read(instr.Rt());
+		const uint64 result = rs - rt;
+
+		gpr.Write(instr.Rd(), static_cast<sint64>(result));
 		END_OP;
 	}
 

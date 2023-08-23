@@ -208,13 +208,13 @@ private:
 		case OpSpecialFunct::SLTU:
 			return Op::SLTU(cpu, instr);
 		case OpSpecialFunct::DADD:
-			break; // return Op::DADD(cpu, instr);
+			return Op::DADD(cpu, instr);
 		case OpSpecialFunct::DADDU:
-			break; // return Op::DADDU(cpu, instr);
+			return Op::DADDU(cpu, instr);
 		case OpSpecialFunct::DSUB:
-			break; // return Op::DSUB(cpu, instr);
+			return Op::DSUB(cpu, instr);
 		case OpSpecialFunct::DSUBU:
-			break; // return Op::DSUBU(cpu, instr);
+			return Op::DSUBU(cpu, instr);
 		case OpSpecialFunct::TGE:
 			break; // return Op::TGE(cpu, instr);
 		case OpSpecialFunct::TGEU:

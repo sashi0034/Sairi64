@@ -456,6 +456,41 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit DADDI(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 imm = static_cast<sint32>(static_cast<sint16>(instr.Imm()));
+		const uint64 result = rs + imm;
+
+		if (isOverflowSignedAdd<uint64>(rs, imm, result))
+		{
+			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+		}
+		else
+		{
+			gpr.Write(instr.Rt(), result);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit DADDIU(Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const uint64 rs = gpr.Read(instr.Rs());
+		const uint64 imm = static_cast<sint32>(static_cast<sint16>(instr.Imm()));
+		const uint64 result = rs + imm;
+
+		gpr.Write(instr.Rt(), result);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit J(Cpu& cpu, InstructionJ instr)
 	{
 		BEGIN_OP;
@@ -903,6 +938,35 @@ public:
 		{
 			const sint32 word = Mmu::ReadPaddr32(n64, paddr.value());
 			gpr.Write(instr.Rt(), (sint64)word);
+		}
+		else
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+		}
+		END_OP;
+	}
+
+	[[nodiscard]]
+	static OperatedUnit LWU(N64System& n64, Cpu& cpu, InstructionI instr)
+	{
+		BEGIN_OP;
+		auto&& gpr = cpu.GetGpr();
+
+		const sint16 offset = static_cast<sint16>(instr.Imm());
+		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
+
+		if (checkAddressError<0b11>(cpu, vaddr))
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			throwException(cpu, ExceptionKinds::AddressErrorLoad, 0);
+			END_OP;
+		}
+
+		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		{
+			const uint32 word = Mmu::ReadPaddr32(n64, paddr.value());
+			gpr.Write(instr.Rt(), word);
 		}
 		else
 		{

@@ -63,9 +63,9 @@ public:
 		case Opcode::BGTZL:
 			return Op::BGTZL(cpu, static_cast<InstructionI>(instr));
 		case Opcode::DADDI:
-			break;
+			return Op::DADDI(cpu, static_cast<InstructionI>(instr));
 		case Opcode::DADDIU:
-			break;
+			return Op::DADDIU(cpu, static_cast<InstructionI>(instr));
 		case Opcode::LDL:
 			return Op::LDL(n64, cpu, static_cast<InstructionFi>(instr));
 		case Opcode::LDR:
@@ -87,7 +87,7 @@ public:
 		case Opcode::LWR:
 			break;
 		case Opcode::LWU:
-			break;
+			return Op::LWU(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SB:
 			return Op::SB(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SH:

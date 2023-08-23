@@ -9,10 +9,12 @@ namespace N64
 	{
 		n64.GetMemory().GetRom().LoadFile(arg.filePath);
 
-		Mmio::Pif::ExecuteRom(n64);
+		if (arg.executePifRom) Mmio::Pif::ExecuteRom(n64);
 	}
 
-	void emulateFrame_stepCyclesPerHalfLine(N64System& n64, N64FrameInternalState& state)
+	template <bool hasBreakPoint = false>
+	[[nodiscard]] inline bool emulateFrame_stepCyclesPerHalfLine(
+		N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
 		for (int i = 0; i < n64.GetVI().CyclesPerHalfLine(); ++i)
 		{
@@ -28,10 +30,17 @@ namespace N64
 
 			// スケジューラステップ
 			n64.GetScheduler().Step();
+
+			if constexpr (hasBreakPoint)
+			{
+				if (breakPoint()) return true;
+			}
 		}
+		return false;
 	}
 
-	void emulateFrame(N64System& n64, N64FrameInternalState& state)
+	template <bool hasBreakPoint = false>
+	void emulateFrame(N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
 		auto&& vi = n64.GetVI();
 
@@ -47,7 +56,16 @@ namespace N64
 					InterruptRaise<Interruption::VI>(n64);
 
 				// CPUやRSPなど実行
-				emulateFrame_stepCyclesPerHalfLine(n64, state);
+				if (hasBreakPoint)
+				{
+					// ブレイクポイントに引っかかったら終了 (デバッグ用)
+					if (emulateFrame_stepCyclesPerHalfLine(n64, state, breakPoint)) return;
+				}
+				else
+				{
+					// 通常
+					(void)emulateFrame_stepCyclesPerHalfLine(n64, state);
+				}
 			}
 
 			// 全/半ライン描画完了時にも割り込みチェック (?)
@@ -59,11 +77,11 @@ namespace N64
 		}
 	}
 
-	void N64Frame::RunOnConsole(N64System& n64)
+	void N64Frame::RunOnConsole(N64System& n64, const std::function<bool()>& breakPoint)
 	{
 		while (true)
 		{
-			emulateFrame(n64, m_internalState);
+			emulateFrame<true>(n64, m_internalState, breakPoint);
 		}
 	}
 

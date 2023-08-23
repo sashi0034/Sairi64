@@ -48,7 +48,10 @@ void Main()
 
 	Ui::UiManager uiManager{};
 
-	n64Frame.Init(n64System, {debugConfig.rom.filePath});
+	n64Frame.Init(n64System, {
+		              .filePath = debugConfig.rom.filePath,
+		              .executePifRom = true
+	              });
 
 	// N64コンソール実行
 	// n64Frame.RunOnConsole(n64System);

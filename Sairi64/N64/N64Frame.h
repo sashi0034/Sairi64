@@ -6,6 +6,7 @@ namespace N64
 	struct N64InitArgs
 	{
 		String filePath;
+		bool executePifRom = true;
 	};
 
 	struct N64FrameInternalState
@@ -17,7 +18,7 @@ namespace N64
 	{
 	public:
 		void Init(N64System& n64, const N64InitArgs& arg);
-		void RunOnConsole(N64System& n64);
+		void RunOnConsole(N64System& n64, const std::function<bool()>& breakPoint);
 		void ControlFrame(N64System& n64);
 
 	private:

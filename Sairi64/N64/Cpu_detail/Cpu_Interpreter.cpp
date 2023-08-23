@@ -91,7 +91,7 @@ public:
 		case Opcode::SB:
 			return Op::SB(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SH:
-			break;
+			return Op::SH(n64, cpu, static_cast<InstructionI>(instr));
 		case Opcode::SWL:
 			break;
 		case Opcode::SW:

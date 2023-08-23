@@ -85,10 +85,10 @@ namespace N64::Mmio
 			m_hSync = value;
 			return;
 		case ViAddress::HVideo_0x04400024:
-			m_hVideo = value;
+			m_hVideo = {value};
 			return;
 		case ViAddress::VVideo_0x04400028:
-			m_vVideo = value;
+			m_vVideo = {value};
 			return;
 		case ViAddress::VBurst_0x0440002C:
 			m_vBurst = value;

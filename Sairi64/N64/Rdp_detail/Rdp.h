@@ -7,7 +7,7 @@ namespace N64::Rdp_detail
 	{
 	public:
 		void UpdateDisplay(N64System& n64);
-		void Render(const Point& point) const;
+		void RenderReal(const Point& point) const;
 
 	private:
 		Display m_display{};

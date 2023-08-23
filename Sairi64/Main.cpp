@@ -59,7 +59,7 @@ void Main()
 	{
 		// N64更新制御
 		n64Frame.ControlFrame(n64System);
-		n64System.GetRdp().Render({0, 0});
+		n64System.GetRdp().RenderReal({32, 32});
 
 		uiManager.Update(n64System);
 	}

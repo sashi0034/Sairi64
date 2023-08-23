@@ -46,6 +46,16 @@ namespace N64
 		Store,
 	};
 
+	enum class ViType4
+	{
+		Blank = 0,
+		Reserved = 1,
+		// 16-bit
+		R5G5B5A1 = 2,
+		// 32-bit
+		R8G8B8A8 = 3,
+	};
+
 	namespace Cpu_detail
 	{
 		class Cpu;

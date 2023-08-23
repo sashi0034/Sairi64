@@ -38,6 +38,37 @@ namespace N64::Mmio
 		auto Reserved_DiagnosticsOnly() { return BitAccess<7>(m_raw); } // 1
 		auto AntialiasMode() { return BitAccess<8, 10>(m_raw); } // 3
 		// [11, 31] 21
+
+		ViType4 GetType() const { return static_cast<ViType4>(ViControl32(*this).Type().Get()); }
+
+	private:
+		uint32 m_raw{};
+	};
+
+	class ViAxisVideo32
+	{
+	public:
+		ViAxisVideo32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
+
+		auto End() { return BitAccess<0, 9>(m_raw); } // 10
+		// [10, 15] 6
+		auto Start() { return BitAccess<16, 25>(m_raw); } // 10
+		// [26, 31] 6
+
+	private:
+		uint32 m_raw{};
+	};
+
+	class ViAxisScale32
+	{
+	public:
+		ViAxisScale32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
+
+		auto Scale() { return BitAccess<0, 11>(m_raw); } // 12
+		auto Offset() { return BitAccess<16, 27>(m_raw); } // 12
+
 	private:
 		uint32 m_raw{};
 	};
@@ -59,11 +90,11 @@ namespace N64::Mmio
 		uint32 VSync() const { return m_vSync; }
 		uint32 HSync() const { return m_hSync; }
 		uint32 HSyncLeap() const { return m_hSyncLeap; }
-		uint32 HVideo() const { return m_hVideo; }
-		uint32 VVideo() const { return m_vVideo; }
+		ViAxisVideo32 HVideo() const { return m_hVideo; }
+		ViAxisVideo32 VVideo() const { return m_vVideo; }
 		uint32 VBurst() const { return m_vBurst; }
-		uint32 XScale() const { return m_xScale; }
-		uint32 YScale() const { return m_yScale; }
+		ViAxisScale32 XScale() const { return m_xScale; }
+		ViAxisScale32 YScale() const { return m_yScale; }
 
 		void SetVCurrent(uint32 value) { m_vCurrent = value; }
 
@@ -82,11 +113,11 @@ namespace N64::Mmio
 		uint32 m_vSync{};
 		uint32 m_hSync{};
 		uint32 m_hSyncLeap{};
-		uint32 m_hVideo{};
-		uint32 m_vVideo{};
+		ViAxisVideo32 m_hVideo{};
+		ViAxisVideo32 m_vVideo{};
 		uint32 m_vBurst{};
-		uint32 m_xScale{};
-		uint32 m_yScale{};
+		ViAxisScale32 m_xScale{};
+		ViAxisScale32 m_yScale{};
 
 		uint32 m_swaps{};
 		uint32 m_numHalfLines{262};

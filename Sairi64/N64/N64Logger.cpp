@@ -19,7 +19,7 @@ namespace N64
 			count++;
 			if (count > 100000) isTraceEnabled = true;
 #endif
-#if 1
+#if 0
 			if (System().GetCpu().GetPc().Curr() == 0xffffffff800004d4)
 				isTraceEnabled = true;
 #endif

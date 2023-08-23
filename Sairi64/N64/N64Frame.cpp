@@ -54,6 +54,9 @@ namespace N64
 			// 全/半ライン描画完了時にも割り込みチェック (?)
 			if (vi.VCurrent() & 0x3FE == vi.VInterrupt())
 				InterruptRaise<Interruption::VI>(n64);
+
+			// 画面更新
+			n64.GetRdp().UpdateDisplay(n64);
 		}
 	}
 

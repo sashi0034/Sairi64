@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Cpu.h"
 #include "Memory.h"
+#include "Rdp.h"
 #include "Rsp.h"
 #include "Scheduler.h"
 #include "Mmio/AI.h"
@@ -17,6 +18,7 @@ namespace N64
 	public:
 		Cpu& GetCpu() { return m_cpu; }
 		Rsp& GetRsp() { return m_rsp; }
+		Rdp& GetRdp() { return m_rdp; }
 		Memory& GetMemory() { return m_memory; }
 		Mmio::SI& GetSI() { return m_si; }
 		Mmio::RI& GetRI() { return m_ri; }
@@ -31,6 +33,7 @@ namespace N64
 	private:
 		Cpu m_cpu{};
 		Rsp m_rsp{};
+		Rdp m_rdp{};
 		Memory m_memory{};
 
 		Mmio::SI m_si{};

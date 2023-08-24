@@ -10,13 +10,14 @@
 
 namespace N64::Cpu_detail
 {
-	void checkCompareInterrupt(N64System& n64, Cpu& cpu)
+	void updateCountAndCheckCompareInterrupt(N64System& n64, Cpu& cpu)
 	{
 		auto&& cop0Reg = cpu.GetCop0().Reg();
 		cop0Reg.count += 1;
 		cop0Reg.count &= 0x1FFFFFFFF;
 		if (cop0Reg.count == static_cast<uint64>(cop0Reg.compare) << 1)
 		{
+			// 割り込み発生
 			cop0Reg.cause.Ip7().Set(true);
 			UpdateInterrupt(n64);
 		}
@@ -40,8 +41,8 @@ namespace N64::Cpu_detail
 	{
 		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
-		// compare interrupt
-		checkCompareInterrupt(n64, *this);
+		// check compare interrupt
+		updateCountAndCheckCompareInterrupt(n64, *this);
 
 		// update delay slot
 		m_delaySlot.Step();

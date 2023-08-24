@@ -2,6 +2,7 @@
 #include <Catch2/catch.hpp>
 
 #include "N64/Scheduler.h"
+#include "N64/Cpu_detail/Instruction.h"
 
 namespace Tests
 {
@@ -23,5 +24,13 @@ namespace Tests
 
 		for (int i = 0; i < 100; ++i) scheduler.Step();
 		REQUIRE(test == 100);
+	}
+
+	TEST_CASE("N64Test_Instruction")
+	{
+		using namespace N64::Cpu_detail;
+		const InstructionI instr1 = {0x3C'04'BF'C0};
+		const sint32 instr1_imm = static_cast<sint16>(instr1.Imm());
+		REQUIRE(instr1_imm == 0xFF'FF'BF'C0);
 	}
 }

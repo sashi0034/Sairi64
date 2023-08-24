@@ -15,13 +15,20 @@ def compare_files(file1_path, file2_path):
 
             count = count + 1
             if count > max_show:
-                print("there are more lines...")
+                print("There are more lines...")
                 return
 
             # when line1 != line2
             print(f"Line {line_number} does not match.")
             print(f"> {line1.strip()}")
             print(f"> {line2.strip()}\n")
+
+        if len(f1.readlines()) != len(f2.readlines()):
+            print(
+                "The two files are a matched so far, but the number of lines is different  "
+            )
+        else:
+            print("The two files are a perfect match")
 
 
 if __name__ == "__main__":

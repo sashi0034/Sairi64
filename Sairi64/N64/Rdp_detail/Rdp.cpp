@@ -26,8 +26,8 @@ namespace N64::Rdp_detail
 		}
 	}
 
-	void Rdp::RenderReal(const Point& point) const
+	void Rdp::RenderReal(const RenderConfig& config) const
 	{
-		m_display.Render(point);
+		m_display.Render(config);
 	}
 }

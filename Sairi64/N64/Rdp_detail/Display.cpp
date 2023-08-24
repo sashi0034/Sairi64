@@ -13,12 +13,10 @@ namespace N64::Rdp_detail
 		{
 			// テクスチャの再作成をチェック
 			auto&& vi = n64.GetVI();
-			const float yScale = static_cast<float>(vi.YScale().Scale()) / 1024.0f;
-			const float xScale = static_cast<float>(vi.XScale().Scale()) / 1024.0f;
 
-			// shift操作いるかも?
-			const int newHeight = ceilf(static_cast<float>((vi.VVideo().End() - vi.VVideo().Start())) * yScale);
-			const int newWidth = ceilf(static_cast<float>((vi.HVideo().End() - vi.HVideo().Start())) * xScale);
+			// shift操作いるかも? 1.0じゃなくてscale?
+			const int newHeight = ceilf(static_cast<float>((vi.VVideo().End() - vi.VVideo().Start())) * 1.0);
+			const int newWidth = ceilf(static_cast<float>((vi.HVideo().End() - vi.HVideo().Start())) * 1.0);
 
 			const bool shouldRecreateTexture =
 				display.m_pixelBuffer.size() != Size(newWidth, newHeight) ||
@@ -29,6 +27,10 @@ namespace N64::Rdp_detail
 				display.m_pixelBuffer = Image(newWidth, newHeight, Palette::Black);
 				display.m_texture = DynamicTexture(display.m_pixelBuffer, TexturePixelFormat::R8G8B8A8_Unorm);
 				display.m_viTypeBefore = vi.Control().GetType();
+
+				const float yScale = static_cast<float>(vi.YScale().Scale()) / 1024.0f;
+				const float xScale = static_cast<float>(vi.XScale().Scale()) / 1024.0f;
+				display.m_videoScale = {xScale, yScale};
 			}
 		}
 	};
@@ -66,8 +68,8 @@ namespace N64::Rdp_detail
 		m_texture.fill(m_pixelBuffer);
 	}
 
-	void Display::Render(const Point& point) const
+	void Display::Render(const RenderConfig& config) const
 	{
-		(void)m_texture.draw(point);
+		(void)m_texture.scaled(config.scale * m_videoScale).draw(config.startPoint);
 	}
 }

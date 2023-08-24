@@ -14,7 +14,7 @@
 void setupWindow()
 {
 	// ウィンドウ、シーン設定など
-	Window::SetTitle(U"GBEmu");
+	Window::SetTitle(U"Sairi64");
 	Window::SetStyle(WindowStyle::Sizable);
 	Scene::SetResizeMode(ResizeMode::Keep);
 	constexpr Size sceneSize = {1920, 1080};
@@ -61,7 +61,9 @@ void Main()
 	{
 		// N64更新制御
 		n64Frame.ControlFrame(n64System);
-		n64System.GetRdp().RenderReal({32, 32});
+		n64System.GetRdp().RenderReal({
+			.startPoint = {32, 32}, .scale = 2.0
+		});
 
 		uiManager.Update(n64System);
 	}

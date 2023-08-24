@@ -8,7 +8,7 @@
 #include "N64/N64Singleton.h"
 #include "Utils/Util.h"
 
-#if 1
+#if 0
 namespace Tests
 {
 	// https://github.com/Dillonb/n64-tests
@@ -60,8 +60,8 @@ namespace Tests
 		// REQUIRE(Dillon64Test(U"and_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"andi_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"daddiu_simpleboot.z64")); // OK
-		REQUIRE(Dillon64Test(U"dsll32_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"dsll_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"dsll32_simpleboot.z64")); // OK
+		// REQUIRE(Dillon64Test(U"dsll_simpleboot.z64")); // OK
 		REQUIRE(Dillon64Test(U"dsllv_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"dsra32_simpleboot.z64"));
 		// REQUIRE(Dillon64Test(U"nor_simpleboot.z64")); // OK

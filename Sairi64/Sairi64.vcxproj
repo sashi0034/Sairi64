@@ -486,7 +486,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App\asset\data\.gitignore" />
-    <Content Include="App\asset\data\dsll32_read_expected.txt" />
+    <Content Include="App\asset\data\dsll32_read_paddr_expected.txt" />
     <Content Include="App\asset\rom\.gitignore" />
     <Content Include="App\asset\rom\dillonb-n64-tests\addiu_simpleboot.z64" />
     <Content Include="App\asset\rom\dillonb-n64-tests\addu_simpleboot.z64" />

@@ -191,7 +191,7 @@ namespace Utils
 		return stream.str();
 	}
 
-	static void WriteStdStrToFile(const std::string& str, const std::string& fileName)
+	static void WriteStdStrToFile(const std::string& fileName, const std::string& str)
 	{
 		std::ofstream outputFile(fileName);
 		if (outputFile.is_open())

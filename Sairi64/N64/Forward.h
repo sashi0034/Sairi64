@@ -26,15 +26,16 @@ namespace N64
 
 	template <typename Data, typename Addr> inline Addr EndianAddress(Addr address)
 	{
-		static_assert(std::is_convertible<Addr, uint32>::value || std::is_convertible<Addr, uint64>::value);
-		if constexpr (std::is_same<Data, uint8>::value)
-			return address ^ 0b11;
-		else if constexpr (std::is_same<Data, uint16>::value)
-			return address ^ 0b10; // (address & (~0b1)) ^ 0b10
-		else if constexpr (std::is_same<Data, uint32>::value || std::is_same<Data, uint64>::value)
-			return address;
-		else
-			static_assert(Utils::AlwaysFalse<Data>);
+		return address;
+		// static_assert(std::is_convertible<Addr, uint32>::value || std::is_convertible<Addr, uint64>::value);
+		// if constexpr (std::is_same<Data, uint8>::value)
+		// 	return address ^ 0b11;
+		// else if constexpr (std::is_same<Data, uint16>::value)
+		// 	return address ^ 0b10; // (address & (~0b1)) ^ 0b10
+		// else if constexpr (std::is_same<Data, uint32>::value || std::is_same<Data, uint64>::value)
+		// 	return address;
+		// else
+		// 	static_assert(Utils::AlwaysFalse<Data>);
 	}
 
 	class PAddr32 : public Utils::EnumValue<uint32>

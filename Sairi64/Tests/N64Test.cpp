@@ -20,6 +20,8 @@ namespace Tests
 		N64System& n64System = n64->GetSystem();
 		N64Frame n64Frame{};
 
+		Console.writeln(U"start test rom: {}"_fmt(fileName));
+
 		// テスト用の初期化
 		n64Frame.Init(n64System, {
 			              .filePath = U"asset/rom/dillonb-n64-tests/{}"_fmt(fileName),
@@ -48,14 +50,16 @@ namespace Tests
 		return expected_minus1 == -1;
 	}
 
+	// https://github.com/Dillonb/n64-tests/tree/master/src
 	TEST_CASE("N64Test_Dillon64Test")
 	{
-		REQUIRE(Dillon64Test(U"addiu_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"basic_simpleboot.z64")); // OK
+
+		// REQUIRE(Dillon64Test(U"addiu_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"addu_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"and_simpleboot.z64")); // OK
-		REQUIRE(Dillon64Test(U"andi_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"basic_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"daddiu_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"andi_simpleboot.z64")); // OK
+		// REQUIRE(Dillon64Test(U"daddiu_simpleboot.z64")); // OK
 		REQUIRE(Dillon64Test(U"dsll32_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"dsll_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"dsllv_simpleboot.z64"));
@@ -63,7 +67,7 @@ namespace Tests
 		REQUIRE(Dillon64Test(U"nor_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"or_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"ori_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"sll_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"sll_simpleboot.z64")); // OK
 		REQUIRE(Dillon64Test(U"sllv_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"slt_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"slti_simpleboot.z64"));

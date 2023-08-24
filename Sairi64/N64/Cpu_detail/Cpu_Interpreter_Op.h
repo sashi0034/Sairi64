@@ -1087,7 +1087,7 @@ public:
 
 		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
-			const sint64 dword = Mmu::ReadPaddr64(n64, paddr.value());
+			const uint64 dword = Mmu::ReadPaddr64(n64, paddr.value());
 			gpr.Write(instr.Rt(), dword);
 		}
 		else

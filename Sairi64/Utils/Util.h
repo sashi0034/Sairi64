@@ -184,7 +184,15 @@ namespace Utils
 	}
 
 	template <int digit>
-	inline std::string HexStdStr(uint64 value)
+	inline std::string DecimalStdStr(uint64_t value)
+	{
+		std::stringstream stream{};
+		stream << std::setfill('0') << std::setw(digit) << std::hex << value;
+		return stream.str();
+	}
+
+	template <int digit>
+	inline std::string HexStdStr(uint64_t value)
 	{
 		std::stringstream stream{};
 		stream << "0x" << std::uppercase << std::setfill('0') << std::setw(digit) << std::hex << value;
@@ -206,7 +214,7 @@ namespace Utils
 	using sint8 = std::int8_t;
 	using sint16 = std::int16_t;
 	using sint32 = std::int32_t;
-	using sint64 = std::int32_t;
+	using sint64 = std::int64_t;
 }
 
 using Utils::sint8;

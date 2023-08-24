@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <source_location>
+#include "Forward.h"
 
 namespace N64
 {
@@ -26,11 +27,12 @@ namespace N64
 	};
 }
 
-#if _DEBUG
+#ifdef _DEBUG // debug
 #define N64LOGGER_TRACE_ENABLE
-#else
-// TODO: リリースビルドでトレースしたくないときはコメントアウト
+#else // release
+#ifndef N64_RELEASE
 #define N64LOGGER_TRACE_ENABLE
+#endif
 #endif
 
 #ifdef N64LOGGER_TRACE_ENABLE

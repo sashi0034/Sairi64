@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "Utils/Util.h"
 
+// デバッグ無しのリリースビルド
+// #define N64_RELEASE
+
 namespace N64
 {
 	constexpr uint32 CpuFreq_93750000 = 93750000;

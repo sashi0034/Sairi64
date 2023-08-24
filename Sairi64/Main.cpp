@@ -32,12 +32,14 @@ void Main()
 {
 	Addon::Register<DearImGuiAddon>(U"ImGui");
 
+#ifndef N64_RELEASE
 	// テスト実行
 	const bool isPassedTests = Catch::Session().run() == 0;
 	if (!isPassedTests)
 	{
 		Utils::WaitAnyKeyOnConsole();
 	}
+#endif
 
 	// コンソール起動
 	Console.open();
@@ -52,9 +54,6 @@ void Main()
 		              .filePath = debugConfig.rom.filePath,
 		              .executePifRom = true
 	              });
-
-	// N64コンソール実行
-	// n64Frame.RunOnConsole(n64System);
 
 	setupWindow();
 

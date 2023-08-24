@@ -68,16 +68,16 @@ namespace Tests
 		// REQUIRE(Dillon64Test(U"or_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"ori_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"sll_simpleboot.z64")); // OK
-		REQUIRE(Dillon64Test(U"sllv_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"sllv_simpleboot.z64")); // OK
 		REQUIRE(Dillon64Test(U"slt_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"slti_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"sltiu_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"slti_simpleboot.z64")); // OK
+		// REQUIRE(Dillon64Test(U"sltiu_simpleboot.z64")); // OK
 		REQUIRE(Dillon64Test(U"sltu_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"sra_simpleboot.z64"));
 		REQUIRE(Dillon64Test(U"srav_simpleboot.z64"));
 		// REQUIRE(Dillon64Test(U"srl_simpleboot.z64")); // OK
-		REQUIRE(Dillon64Test(U"srlv_simpleboot.z64"));
-		REQUIRE(Dillon64Test(U"subu_simpleboot.z64"));
+		// REQUIRE(Dillon64Test(U"srlv_simpleboot.z64")); // OK
+		// REQUIRE(Dillon64Test(U"subu_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"xor_simpleboot.z64")); // OK
 		// REQUIRE(Dillon64Test(U"xori_simpleboot.z64")); // OK
 	}

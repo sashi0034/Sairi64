@@ -183,6 +183,26 @@ namespace Utils
 		return Unicode::Widen(enumName);
 	}
 
+	template <int digit>
+	inline std::string HexStdStr(uint64 value)
+	{
+		std::stringstream stream{};
+		stream << "0x" << std::uppercase << std::setfill('0') << std::setw(digit) << std::hex << value;
+		return stream.str();
+	}
+
+	static void WriteStdStrToFile(const std::string& str, const std::string& fileName)
+	{
+		std::ofstream outputFile(fileName);
+		if (outputFile.is_open())
+		{
+			outputFile << str;
+			outputFile.close();
+		}
+		else
+			throw std::runtime_error("could not open file: " + fileName);
+	}
+
 	using sint8 = std::int8_t;
 	using sint16 = std::int16_t;
 	using sint32 = std::int32_t;

@@ -35,8 +35,61 @@ namespace N64::Mmu
 		return paddr;
 	}
 
+#ifndef N64_RELEASE
+	// #define MMU_ACCESS_LOG_READ
+	// #define MMU_ACCESS_LOG_WRITE
+#if defined(MMU_ACCESS_LOG_READ) || defined(MMU_ACCESS_LOG_WRITE)
+	// デバッグ用アクセスログ
+	const std::string accessLogFile = "asset/data/mini_paddr_0.txt";
+
+	static struct
+	{
+		std::string log;
+		bool wrote;
+		uint64 count;
+	} s_accessLog{};
+
+	bool accessLogStart()
+	{
+		auto&& log = s_accessLog;
+		if (log.wrote) return false;
+		const uint64_t count = log.count;
+		log.count++;
+		return count >= 300'0000;
+	}
+
+	void accessLogEnd()
+	{
+		auto&& log = s_accessLog;
+		if (log.count > 650'0000)
+		{
+			WriteStdStrToFile(accessLogFile, log.log);
+			log.wrote = true;
+		}
+	}
+#endif
+#ifdef MMU_ACCESS_LOG_READ
+	// デバッグ用読み取りログ
+	void readPaddr_log(int wire, uint32_t paddr, uint64_t value)
+	{
+		if (accessLogStart() == false) return;
+		s_accessLog.log += DecimalStdStr<2>(wire) + " " + HexStdStr<8>(paddr) + "->" + HexStdStr<16>(value) += "\n";
+		accessLogEnd();
+	}
+#endif
+#ifdef MMU_ACCESS_LOG_WRITE
+	// デバッグ用書き込みログ
+	void writePaddr_log(int wire, uint32_t paddr, uint64_t value)
+	{
+		if (accessLogStart() == false) return;
+		s_accessLog.log += DecimalStdStr<2>(wire) + " " + HexStdStr<8>(paddr) + "<-" + HexStdStr<16>(value) += "\n";
+		accessLogEnd();
+	}
+#endif
+#endif
+
 	template <typename Wire>
-	Wire readPaddr(N64System& n64, PAddr32 paddr)
+	Wire readPaddr_internal(N64System& n64, PAddr32 paddr)
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
 		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
@@ -130,8 +183,18 @@ namespace N64::Mmu
 		return 0;
 	}
 
+	template <typename Wire>
+	inline Wire readPaddr(N64System& n64, PAddr32 paddr)
+	{
+		const Wire value = readPaddr_internal<Wire>(n64, paddr);
+#ifdef MMU_ACCESS_LOG_READ
+		readPaddr_log(sizeof(Wire) * 8, paddr, value);
+#endif
+		return value;
+	}
+
 	template <typename Wire, typename Value>
-	void writePaddr(N64System& n64, PAddr32 paddr, Value value)
+	void writePaddr_internal(N64System& n64, PAddr32 paddr, Value value)
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
 		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
@@ -235,6 +298,15 @@ namespace N64::Mmu
 
 		N64Logger::Abort(U"write unsupported paddr {}-bit: {:08X}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
+	}
+
+	template <typename Wire, typename Value>
+	inline void writePaddr(N64System& n64, PAddr32 paddr, Value value)
+	{
+#ifdef MMU_ACCESS_LOG_WRITE
+		writePaddr_log(sizeof(Wire) * 8, paddr, value);
+#endif
+		writePaddr_internal<Wire, Value>(n64, paddr, value);
 	}
 
 	uint64 ReadPaddr64(N64System& n64, PAddr32 paddr)

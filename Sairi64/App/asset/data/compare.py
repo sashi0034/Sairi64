@@ -15,7 +15,7 @@ def compare_files(file1_path, file2_path):
 
             count = count + 1
             if count > max_show:
-                print("There are more lines...")
+                print("And there are more different lines...")
                 return
 
             # when line1 != line2

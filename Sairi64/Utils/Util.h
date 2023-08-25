@@ -187,7 +187,7 @@ namespace Utils
 	inline std::string DecimalStdStr(uint64_t value)
 	{
 		std::stringstream stream{};
-		stream << std::setfill('0') << std::setw(digit) << std::hex << value;
+		stream << std::setfill('0') << std::setw(digit) << value;
 		return stream.str();
 	}
 

@@ -1,7 +1,8 @@
 ﻿#include "stdafx.h"
 #include "Cpu_Interpreter.h"
 
-#include "Cpu_Interpreter_Op.h"
+#define CPU_INTERPRETER_INTERNAL
+#include "Cpu_Interpreter_Op_Cop.h"
 #include "N64/N64Logger.h"
 
 using namespace N64::Cpu_detail;
@@ -290,13 +291,13 @@ private:
 		switch (instr.Sub())
 		{
 		case OpCopSub::MFC:
-			return Op::MFC0(cpu, static_cast<InstructionCopSub>(instr));
+			return Op::Cop::MFC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMFC:
-			return Op::DMFC0(cpu, static_cast<InstructionCopSub>(instr));
+			return Op::Cop::DMFC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MTC:
-			return Op::MTC0(cpu, static_cast<InstructionCopSub>(instr));
+			return Op::Cop::MTC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMTC:
-			return Op::DMTC0(cpu, static_cast<InstructionCopSub>(instr));
+			return Op::Cop::DMTC0(cpu, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::CFC:
 			break;
 		case OpCopSub::CTC:
@@ -328,7 +329,7 @@ private:
 		case OpCop0CoFunct::TLBP:
 			break;
 		case OpCop0CoFunct::ERET:
-			return Op::ERET(cpu, instr);
+			return Op::Cop::ERET(cpu, instr);
 		default: break;
 		}
 
@@ -350,9 +351,9 @@ private:
 		case OpCopSub::DMTC:
 			break;
 		case OpCopSub::CFC:
-			return Op::CFC1(cpu, static_cast<InstructionCop1Sub>(sub));
+			return Op::Cop::CFC1(cpu, static_cast<InstructionCop1Sub>(sub));
 		case OpCopSub::CTC:
-			return Op::CTC1(cpu, static_cast<InstructionCop1Sub>(sub));
+			return Op::Cop::CTC1(cpu, static_cast<InstructionCop1Sub>(sub));
 		// @formatter:off
 		case OpCopSub::CO_0x10: case OpCopSub::CO_0x11: case OpCopSub::CO_0x12: case OpCopSub::CO_0x13:
 		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:

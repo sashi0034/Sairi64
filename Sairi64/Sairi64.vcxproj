@@ -371,6 +371,7 @@
     <ClInclude Include="N64\Cpu_detail\Cpu.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op.h" />
+    <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op_Cop.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Instruction.h" />
     <ClInclude Include="N64\Interrupt.h" />

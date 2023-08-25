@@ -14,16 +14,15 @@ namespace N64
 
 		void UpdateTranceEnabled()
 		{
-#if 1
+#if 0
 			isTraceEnabled = true;
 #endif
 #if 0
 			static int count = 0;
 			count++;
-			if (count > 100000) isTraceEnabled = true;
+			if (count > 25212800) isTraceEnabled = true; // SDR登場付近
 #endif
 #if 0
-			if (System().GetCpu().GetPc().Curr() == 0xffffffff80010164)
 			if (System().GetCpu().GetPc().Curr() == 0xFFFFFFFF80010CDC) // VI_XScale_0x04400030 書き込み付近
 				isTraceEnabled = true;
 #endif

@@ -55,11 +55,17 @@ namespace N64::Mmu
 		if (log.wrote) return false;
 		const uint64_t count = log.count;
 		log.count++;
+#if 0
+		return false;
+#endif
 		return count >= 300'0000;
 	}
 
 	void accessLogEnd()
 	{
+#if 0
+		return;
+#endif
 		auto&& log = s_accessLog;
 		if (log.count > 650'0000)
 		{

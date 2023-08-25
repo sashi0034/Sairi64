@@ -4,7 +4,7 @@
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 
-#define BEGIN_OP N64_TRACE(instr.Stringify())
+#define BEGIN_OP N64_TRACE(U"# " + instr.Stringify())
 #define END_OP return {}
 
 // 命令ドキュメント
@@ -818,7 +818,7 @@ public:
 		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const sint32 shift = 8 * ((vaddr ^ 7) & 7);
-			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF << shift;
+			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF >> shift;
 			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
 			const uint64 oldRt = gpr.Read(instr.Rt());
 			gpr.Write(instr.Rt(), (oldRt & ~mask) | (data >> shift));

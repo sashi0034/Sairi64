@@ -52,7 +52,7 @@ namespace N64
 				// VCurrent=VInterruptのとき割り込み発生
 				const int actualLine = (line << 1) | field; // 現在の描画対象のライン
 				vi.SetVCurrent(actualLine);
-				if (vi.VCurrent() & 0x3FE == vi.VInterrupt())
+				if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
 					InterruptRaise<Interruption::VI>(n64);
 
 				// CPUやRSPなど実行
@@ -69,7 +69,7 @@ namespace N64
 			}
 
 			// 全/半ライン描画完了時にも割り込みチェック (?)
-			if (vi.VCurrent() & 0x3FE == vi.VInterrupt())
+			if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
 				InterruptRaise<Interruption::VI>(n64);
 
 			// 画面更新

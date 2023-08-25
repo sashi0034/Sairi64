@@ -20,7 +20,7 @@ namespace N64
 #if 0
 			static int count = 0;
 			count++;
-			if (count > 25212800) isTraceEnabled = true; // SDR登場付近
+			// if (count > 23772368) isTraceEnabled = true; // SI_STATUS登場付近
 #endif
 #if 0
 			if (System().GetCpu().GetPc().Curr() == 0xFFFFFFFF80010CDC) // VI_XScale_0x04400030 書き込み付近

@@ -87,7 +87,7 @@ namespace N64::Cpu_detail
 		auto Ux() { return BitAccess<5>(m_raw); } // 1
 		auto Sx() { return BitAccess<6>(m_raw); } // 1
 		auto Kx() { return BitAccess<7>(m_raw); } // 1
-		auto Im() { return BitAccess<8, 15>(m_raw); } // 8
+		auto Im() { return BitAccess<8, 15>(m_raw); } // 8 Interrupt Mask
 		auto Ds() { return BitAccess<16, 24>(m_raw); } // 9
 		auto Re() { return BitAccess<25>(m_raw); } // 1
 		auto Fr() { return BitAccess<26>(m_raw); } // 1

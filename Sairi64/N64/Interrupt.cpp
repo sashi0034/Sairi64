@@ -20,7 +20,9 @@ namespace N64
 
 	void UpdateInterrupt(N64System& n64)
 	{
-		const bool interrupt = n64.GetMI().GetInterrupt() & static_cast<uint32>(n64.GetMI().GetInterruptMask());
+		const bool interrupt =
+			static_cast<uint32>(n64.GetMI().GetInterrupt()) &
+			static_cast<uint32>(n64.GetMI().GetInterruptMask());
 		n64.GetCpu().GetCop0().Reg().cause.Ip2().Set(interrupt);
 	}
 }

@@ -240,6 +240,8 @@ namespace N64::Cpu_detail
 		void Write64(uint8 number, uint64 value);
 		void Write32(uint8 number, uint32 value);
 
+		void SetLLBit(bool value) { m_llBit = value; };
+
 		void HandleTlbException(uint64 vaddr);
 		template <BusAccess access> ExceptionCode GetTlbExceptionCode() const;
 

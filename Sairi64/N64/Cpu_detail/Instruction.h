@@ -164,6 +164,15 @@ namespace N64::Cpu_detail
 		// 0b11111
 	};
 
+	enum class OpCop0CoFunct : uint8
+	{
+		TLBR = 0x01,
+		TLBWI = 0x02,
+		TLBWR = 0x06,
+		TLBP = 0x08,
+		ERET = 0x18,
+	};
+
 	class Instruction
 	{
 	public:
@@ -254,11 +263,12 @@ namespace N64::Cpu_detail
 		String Stringify() const;
 	};
 
-	class InstructionCopCo : public InstructionCop
+	class InstructionCop0Co : public InstructionCop
 	{
 	public:
-		uint32 Funct() const { return GetBits<0, 5>(Raw()); }
+		OpCop0CoFunct Funct() const { return static_cast<OpCop0CoFunct>(GetBits<0, 5>(Raw())); }
 		uint32 ShouldBeZero() const { return GetBits<6, 24>(Raw()); }
+		String Stringify() const;
 	};
 
 	class InstructionFi : public Instruction

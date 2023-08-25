@@ -306,9 +306,30 @@ private:
 		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
 		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
 		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
-			// TODO
-			break;
+			return interpretCO0(n64, cpu, static_cast<InstructionCop0Co>(instr));
 		default: ;
+		}
+
+		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
+		return {};
+	}
+
+	[[nodiscard]]
+	static OperatedUnit interpretCO0(N64System& n64, Cpu& cpu, InstructionCop0Co instr)
+	{
+		switch (instr.Funct())
+		{
+		case OpCop0CoFunct::TLBR:
+			break;
+		case OpCop0CoFunct::TLBWI:
+			break;
+		case OpCop0CoFunct::TLBWR:
+			break;
+		case OpCop0CoFunct::TLBP:
+			break;
+		case OpCop0CoFunct::ERET:
+			return Op::ERET(cpu, instr);
+		default: break;
 		}
 
 		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));

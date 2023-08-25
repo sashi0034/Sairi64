@@ -15,7 +15,7 @@ namespace N64::Cpu_detail
 
 	String Instruction::Stringify() const
 	{
-		return U"{} ({:016X})"_fmt(OpName(), Raw());
+		return U"{} ({:08X})"_fmt(OpName(), Raw());
 	}
 
 	StringView InstructionI::RtName() const
@@ -83,6 +83,11 @@ namespace N64::Cpu_detail
 	String InstructionCop1Sub::Stringify() const
 	{
 		return U"{}{} rt:{}, fs:{}"_fmt(StringifyEnum(Sub()), CopNumber(), RtName(), Fs());
+	}
+
+	String InstructionCop0Co::Stringify() const
+	{
+		return U"{} ({:08X})"_fmt(StringifyEnum(Funct()), Raw());
 	}
 
 	String InstructionFi::Stringify() const

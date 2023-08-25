@@ -1250,6 +1250,25 @@ public:
 	}
 
 	[[nodiscard]]
+	static OperatedUnit ERET(Cpu& cpu, InstructionCop0Co instr)
+	{
+		BEGIN_OP;
+		auto&& cop0Reg = cpu.GetCop0().Reg();
+		if (cop0Reg.status.Erl())
+		{
+			cpu.GetPc().Change64(cop0Reg.errorEpc);
+			cop0Reg.status.Erl().Set(false);
+		}
+		else
+		{
+			cpu.GetPc().Change64(cop0Reg.epc);
+			cop0Reg.status.Exl().Set(false);
+		}
+		cpu.GetCop0().SetLLBit(false);
+		END_OP;
+	}
+
+	[[nodiscard]]
 	static OperatedUnit CFC1(Cpu& cpu, InstructionCop1Sub instr)
 	{
 		BEGIN_OP;

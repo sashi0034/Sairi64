@@ -2,6 +2,7 @@
 
 #include "Cpu_Interpreter_Op.h"
 
+// https://hack64.net/docs/VR43XX.pdf
 class N64::Cpu_detail::Cpu::Interpreter::Op::Cop
 {
 public:

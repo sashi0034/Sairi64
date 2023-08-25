@@ -23,6 +23,9 @@ namespace N64::Mmio
 		uint8 ResultLength() const { return m_cmdPtr[1] & 0x3F; }
 		uint8 Index() const { return m_cmdPtr[2]; }
 
+		template <uint8 offset> void SetAt(uint8 value) const { m_cmdPtr[offset] = value; }
+		template <uint8 offset> uint8 GetAt() const { return m_cmdPtr[offset]; }
+
 	private:
 		uint8* m_cmdPtr{};
 	};
@@ -32,9 +35,18 @@ namespace N64::Mmio
 	public:
 		PifCmdResult(Pif& pif, int cursor) : m_resultPtr(&pif.Ram()[cursor]) { return; }
 		uint8 Length() const { return m_resultPtr[0] & 0x3F; }
+		template <uint8 offset> void SetAt(uint8 value) { m_resultPtr[offset] = value; };
 
 	private:
 		uint8* m_resultPtr{};
+	};
+
+	struct ControllerState
+	{
+		uint8 byte1{};
+		uint8 byte2{};
+		uint8 joyX{};
+		uint8 joyY{};
 	};
 
 	class Pif::Impl
@@ -68,9 +80,37 @@ namespace N64::Mmio
 
 				switch (cmd.Index())
 				{
+				case 1:
+					if (readButtons(channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
+					break;
 				default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
 				}
 			}
+		}
+
+		static bool readButtons(int channel, PifCmdResult result)
+		{
+			if (channel >= 6)
+			{
+				result.SetAt<0>(0x00);
+				result.SetAt<1>(0x00);
+				result.SetAt<2>(0x00);
+				result.SetAt<3>(0x00);
+				return false;
+			}
+
+			const auto controller = pollController();
+			result.SetAt<0>(controller.byte1);
+			result.SetAt<1>(controller.byte2);
+			result.SetAt<2>(controller.joyX);
+			result.SetAt<3>(controller.joyY);
+			return true;
+		}
+
+		static ControllerState pollController()
+		{
+			// TODO: コントローラー
+			return {};
 		}
 	};
 

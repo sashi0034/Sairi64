@@ -24,6 +24,7 @@ namespace N64
 #endif
 #if 0
 			if (System().GetCpu().GetPc().Curr() == 0xffffffff80010164)
+			if (System().GetCpu().GetPc().Curr() == 0xFFFFFFFF80010CDC) // VI_XScale_0x04400030 書き込み付近
 				isTraceEnabled = true;
 #endif
 		}

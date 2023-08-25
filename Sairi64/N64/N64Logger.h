@@ -30,7 +30,7 @@ namespace N64
 #ifdef _DEBUG // debug
 #define N64LOGGER_TRACE_ENABLE
 #else // release
-#ifndef N64_RELEASE
+#if not N64_RELEASE_ENABLE
 #define N64LOGGER_TRACE_ENABLE
 #endif
 #endif

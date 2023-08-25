@@ -32,7 +32,7 @@ void Main()
 {
 	Addon::Register<DearImGuiAddon>(U"ImGui");
 
-#ifndef N64_RELEASE
+#if not N64_RELEASE_ENABLE
 	// テスト実行
 	const bool isPassedTests = Catch::Session().run() == 0;
 	if (!isPassedTests)

@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "Utils/Util.h"
 
-// デバッグ無しのリリースビルド
-// #define N64_RELEASE
+// デバッグ無しのリリースビルド設定
+#define N64_RELEASE_ENABLE false
 
 namespace N64
 {

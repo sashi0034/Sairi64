@@ -35,7 +35,7 @@ namespace N64::Mmu
 		return paddr;
 	}
 
-#ifndef N64_RELEASE
+#if not N64_RELEASE_ENABLE
 	// #define MMU_ACCESS_LOG_READ
 	// #define MMU_ACCESS_LOG_WRITE
 #if defined(MMU_ACCESS_LOG_READ) || defined(MMU_ACCESS_LOG_WRITE)

@@ -278,7 +278,7 @@ namespace N64::Mmio
 
 	static void Pif_executeRomHle(N64System& n64)
 	{
-		const bool pal = false; // TODO
+		const bool pal = n64.GetMemory().IsRomPal();
 
 		auto&& rom = n64.GetMemory().GetRom();
 		const uint32 cicSeed = rom.CicSeed();

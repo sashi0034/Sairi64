@@ -103,7 +103,7 @@ namespace N64::Mmio
 		N64_TRACE(U"start PI DMA write: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr));
 
 		if (cartAddr < 0x1000'0000 || 0xFFFF'FFFF < cartAddr)
-			N64Logger::Abort(U"pi dma transfer card address is out of range: {}"_fmt(cartAddr));
+			N64Logger::Abort(U"PI DMA transfer card address is out of range: {}"_fmt(cartAddr));
 
 		const uint32 cartAddrOffset = cartAddr - 0x1000'0000;
 		for (uint32 i = 0; i < transferLength; ++i)

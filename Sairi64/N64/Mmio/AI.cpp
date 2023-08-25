@@ -53,11 +53,11 @@ namespace N64::Mmio
 			return;
 		case AiAddress::DacRate_0x04500010:
 			writeDacRate(n64, value);
-			break;
+			return;
 		case AiAddress::BitRate_0x04500014:
 			m_bitRate = value & 0xF;
 			m_dac.precision = m_bitRate + 1;
-			break;
+			return;
 		default: break;
 		}
 

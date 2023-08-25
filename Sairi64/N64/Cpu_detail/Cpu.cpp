@@ -29,7 +29,7 @@ namespace N64::Cpu_detail
 		auto status = Cop0Status32(cop0Reg.status);
 
 		const bool interruptsPending =
-			status.Im() & Cop0Cause32(cop0Reg.cause).InterruptPending() != 0;
+			(status.Im() & Cop0Cause32(cop0Reg.cause).InterruptPending()) != 0;
 		const bool interruptsEnabled = status.Ie();
 		const bool currentlyHandlingException = status.Exl();
 		const bool currentlyHandlingError = status.Erl();

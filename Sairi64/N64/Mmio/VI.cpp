@@ -20,7 +20,7 @@ namespace N64::Mmio
 		case ViAddress::VInterrupt_0x0440000C:
 			return m_vInterrupt;
 		case ViAddress::VCurrent_0x04400010:
-			return m_vCurrent << 1;
+			return m_vCurrent; // ?
 		case ViAddress::Burst_0x04400014:
 			return m_burst;
 		case ViAddress::VSync_0x04400018:

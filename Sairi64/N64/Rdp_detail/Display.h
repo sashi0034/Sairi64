@@ -16,7 +16,7 @@ namespace N64::Rdp_detail
 	private:
 		class Impl;
 
-		Vec2 m_videoScale{};
+		Vec2 m_videoScale{1.0, 1.0};
 		Image m_pixelBuffer{};
 		DynamicTexture m_texture{};
 

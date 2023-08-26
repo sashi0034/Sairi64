@@ -13,13 +13,12 @@ namespace N64::Mmu
 	{
 		// TODO: 64 bit mode
 
-		if (VMap::KSEG0.IsBetween(vaddr)) // 0x80000000, 0x9FFFFFFF
+		switch (static_cast<uint32>(vaddr) >> 29)
 		{
-			return PAddr32(vaddr - VMap::KSEG0.base);
-		}
-		if (VMap::KSEG1.IsBetween(vaddr)) // 0xA0000000, 0xBFFFFFFF
-		{
-			return PAddr32(vaddr - VMap::KSEG1.base);
+		case VMap::KSEG0_sr29_4: // 0x80000000, 0x9FFFFFFF
+		case VMap::KSEG1_sr29_5: // 0xA0000000, 0xBFFFFFFF
+			return PAddr32(vaddr & 0x1FFFFFFF);
+		default: break;
 		}
 
 		N64Logger::Abort(U"unsupported vaddr: {:016x}"_fmt(vaddr));

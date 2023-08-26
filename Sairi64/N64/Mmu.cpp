@@ -94,6 +94,161 @@ namespace N64::Mmu
 #endif
 
 	template <typename Wire>
+	Wire readPaddr_unsupported(PAddr32 paddr)
+	{
+		N64Logger::Abort(U"read unsupported paddr {}-bit: {:08X}"_fmt(
+			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
+		return {};
+	}
+
+	template <typename Wire>
+	using readPaddr_func = Wire (*)(N64System& n64, PAddr32 paddr);
+
+	template <typename Wire>
+	consteval std::array<readPaddr_func<Wire>, 0x1000> readPaddr_mapHi12()
+	{
+		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
+		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
+		constexpr bool wire16 = std::is_same<Wire, uint16_t>::value;
+		constexpr bool wire8 = std::is_same<Wire, uint8_t>::value;
+		static_assert(wire64 || wire32 || wire16 || wire8);
+
+		std::array<readPaddr_func<Wire>, 0x1000> mapHi12{};
+		mapHi12.fill({
+			[](N64System& n64, PAddr32 paddr)
+			{
+				return readPaddr_unsupported<Wire>(paddr);
+			}
+		});
+		constexpr int hi_12 = 12;
+		constexpr int lo_20 = 20;
+
+		// RDRAM
+		for (uint32 addr = PMap::RdramMemory.base; addr < PMap::RdramMemory.end; addr += (1 << lo_20))
+		{
+			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr) // 0x00000000, 0x007FFFFF
+			{
+				const uint32 offset = paddr - PMap::RdramMemory.base;
+				return ReadBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset));
+			};
+		}
+
+		// RSP
+		mapHi12[0x040] = [](N64System& n64, PAddr32 paddr)
+		{
+			switch (GetBits<12, 19, uint32>(paddr))
+			{
+			case 0x00: // 0x04000000, 0x04000FFF
+			{
+				const uint32 offset = paddr & 0xFFF;
+				return Utils::ReadBytes<Wire>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset));
+			}
+			case 0x01: // 0x04001000, 0x04001FFF
+			{
+				const uint32 offset = paddr & 0xFFF;
+				return Utils::ReadBytes<Wire>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset));
+			}
+			default:
+				if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
+				{
+					if constexpr (wire32) return n64.GetRsp().ReadPAddr32(paddr);
+				}
+				return readPaddr_unsupported<Wire>(paddr);
+			}
+		};
+
+		// MI
+		mapHi12[0x043] = [](N64System& n64, PAddr32 paddr) // 0x04300000, 0x043FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetMI().Read32(paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// VI
+		mapHi12[0x044] = [](N64System& n64, PAddr32 paddr) // 0x04400000, 0x044FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetVI().Read32(paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// AI
+		mapHi12[0x045] = [](N64System& n64, PAddr32 paddr) // 0x04500000, 0x045FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetAI().Read32(paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// PI
+		mapHi12[0x046] = [](N64System& n64, PAddr32 paddr) // 0x04600000, 0x046FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetPI().Read32(n64, paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// RI
+		mapHi12[0x047] = [](N64System& n64, PAddr32 paddr) // 0x04700000, 0x047FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetRI().Read32(paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// SI
+		mapHi12[0x048] = [](N64System& n64, PAddr32 paddr) // 0x04800000, 0x048FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetSI().Read32(n64, paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// PIF RAM
+		mapHi12[0x1FC] = [](N64System& n64, PAddr32 paddr)
+		{
+			if (GetBits<6, 20, uint32>(paddr) == ((0x007 << 2) | 0b11)) // 0x1FC007C0, 0x1FC007FF
+			{
+				if constexpr (wire32)
+				{
+					const uint64 offset = paddr - PMap::PifRam.base;
+					return ReadBytes32(n64.GetSI().GetPifRam(), offset);
+				}
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
+		// ROM
+		for (uint32 addr = PMap::Rom.base; addr < PMap::Rom.end; addr += (1 << lo_20)) // 0x10000000, 0x1FBFFFFF
+		{
+			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr) // 0x10000000, 0x1FBFFFFF
+			{
+				if constexpr (wire32)
+				{
+					const uint64 offset = paddr - PMap::Rom.base;
+					return ReadBytes32(n64.GetMemory().GetRom().Data(), offset);
+				}
+				return readPaddr_unsupported<Wire>(paddr);
+			};
+		}
+
+		return mapHi12;
+	};
+
+	template <typename Wire>
 	Wire readPaddr_internal(N64System& n64, PAddr32 paddr)
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
@@ -102,90 +257,8 @@ namespace N64::Mmu
 		constexpr bool wire8 = std::is_same<Wire, uint8_t>::value;
 		static_assert(wire64 || wire32 || wire16 || wire8);
 
-		if (PMap::RdramMemory.IsBetween(paddr)) // 0x00000000, 0x007FFFFF
-		{
-			const uint32 offset = paddr - PMap::RdramMemory.base;
-			return ReadBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset));
-		}
-		else if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetRsp().ReadPAddr32(paddr);
-			}
-		}
-		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
-		{
-			const uint32 offset = paddr - PMap::SpDmem.base;
-			return Utils::ReadBytes<Wire>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset));
-		}
-		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
-		{
-			const uint32 offset = paddr - PMap::SpImem.base;
-			return Utils::ReadBytes<Wire>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset));
-		}
-		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
-		{
-			if constexpr (wire32)
-			{
-				const uint64 offset = paddr - PMap::PifRam.base;
-				return ReadBytes32(n64.GetSI().GetPifRam(), offset);
-			}
-		}
-		else if (PMap::MI.IsBetween(paddr)) // 0x04300000, 0x043FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetMI().Read32(paddr);
-			}
-		}
-		else if (PMap::VI.IsBetween(paddr)) // 0x04400000, 0x044FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetVI().Read32(paddr);
-			}
-		}
-		else if (PMap::AI.IsBetween(paddr)) // 0x04500000, 0x045FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetAI().Read32(paddr);
-			}
-		}
-		else if (PMap::PI.IsBetween(paddr)) // 0x04600000, 0x046FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetPI().Read32(n64, paddr);
-			}
-		}
-		else if (PMap::RI.IsBetween(paddr)) // 0x04700000, 0x047FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetRI().Read32(paddr);
-			}
-		}
-		else if (PMap::SI.IsBetween(paddr)) // 0x04800000, 0x048FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetSI().Read32(n64, paddr);
-			}
-		}
-		else if (PMap::Rom.IsBetween(paddr)) // 0x10000000, 0x1FBFFFFF
-		{
-			if constexpr (wire32)
-			{
-				const uint64 offset = paddr - PMap::Rom.base;
-				return ReadBytes32(n64.GetMemory().GetRom().Data(), offset);
-			}
-		}
-
-		N64Logger::Abort(U"read unsupported paddr {}-bit: {:08X}"_fmt(
-			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
-		return 0;
+		static constexpr std::array<readPaddr_func<Wire>, 0x1000> map = readPaddr_mapHi12<Wire>();
+		return map[paddr >> 20](n64, paddr);
 	}
 
 	template <typename Wire>

@@ -3,6 +3,8 @@
 #include "N64/N64Logger.h"
 #include "N64/N64System.h"
 
+// HLE = High Level Emulation
+
 namespace N64::Mmio
 {
 	static void Pif_executeRomHle_switchCic(N64System& n64, bool pal, CicType cic)

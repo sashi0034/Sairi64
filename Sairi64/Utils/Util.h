@@ -51,6 +51,13 @@ namespace Utils
 		return BitAccessor<x1, x2, T>(ref);
 	}
 
+	constexpr inline uint32_t ByteSwap32(uint32_t value) noexcept
+	{
+		// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/external/portable_endian_bswap.h#L11
+		return (((value) & 0xFF000000u) >> 24u) | (((value) & 0x00FF0000u) >> 8u) |
+			(((value) & 0x0000FF00u) << 8u) | (((value) & 0x000000FFu) << 24u);
+	}
+
 	template <typename Wire>
 	inline Wire ReadBytes(std::span<const uint8_t> span, uint64_t offset)
 	{

@@ -73,6 +73,7 @@ namespace Tests
 		REQUIRE(data[5] == 0x02);
 		REQUIRE(data[6] == 0x03);
 		REQUIRE(data[7] == 0x04);
+		REQUIRE(ReadBytes32(data, 4) == 0x04030201);
 
 		// 64-bitの書き込み
 		WriteBytes(data, 8, static_cast<uint64_t>(0x0807060504030201));
@@ -85,5 +86,11 @@ namespace Tests
 		REQUIRE(data[8 + 6] == 0x03);
 		REQUIRE(data[8 + 7] == 0x04);
 		REQUIRE(ReadBytes64(data, 8) == 0x0807060504030201);
+	}
+
+	TEST_CASE("UtilTest_ByteSwap")
+	{
+		constexpr uint32 v32 = 0x12345678;
+		REQUIRE(ByteSwap32(v32) == 0x78563412);
 	}
 }

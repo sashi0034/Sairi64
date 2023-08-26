@@ -59,10 +59,10 @@ namespace N64::Rdp_detail
 		const uint32 rdramOffset = n64.GetVI().Origin() & RdramSizeMask_0x007FFFFF;
 		for (int i = 0; i < m_pixelBuffer.width() * m_pixelBuffer.height(); i++)
 		{
-			m_pixelBuffer.data()[i].r = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 0];
-			m_pixelBuffer.data()[i].g = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 1];
-			m_pixelBuffer.data()[i].b = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 2];
-			// m_pixelBuffer.data()[i].a = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 3];
+			m_pixelBuffer.data()[i].r = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 3];
+			m_pixelBuffer.data()[i].g = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 2];
+			m_pixelBuffer.data()[i].b = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 1];
+			// m_pixelBuffer.data()[i].a = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 0];
 		}
 		// std::copy_n(n64.GetMemory().Rdram().begin() + rdramOffset,
 		//             m_pixelBuffer.width() * m_pixelBuffer.height() * 4,

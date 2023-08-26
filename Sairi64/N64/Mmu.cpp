@@ -126,7 +126,8 @@ namespace N64::Mmu
 		// RDRAM
 		for (uint32 addr = PMap::RdramMemory.base; addr < PMap::RdramMemory.end; addr += (1 << lo_20))
 		{
-			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr) // 0x00000000, 0x007FFFFF
+			// 0x00000000, 0x007FFFFF
+			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr)
 			{
 				const uint32 offset = paddr - PMap::RdramMemory.base;
 				return ReadBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset));
@@ -232,9 +233,10 @@ namespace N64::Mmu
 		};
 
 		// ROM
-		for (uint32 addr = PMap::Rom.base; addr < PMap::Rom.end; addr += (1 << lo_20)) // 0x10000000, 0x1FBFFFFF
+		for (uint32 addr = PMap::Rom.base; addr < PMap::Rom.end; addr += (1 << lo_20))
 		{
-			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr) // 0x10000000, 0x1FBFFFFF
+			// 0x10000000, 0x1FBFFFFF
+			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr)
 			{
 				if constexpr (wire32)
 				{
@@ -246,17 +248,178 @@ namespace N64::Mmu
 		}
 
 		return mapHi12;
-	};
+	}
 
 	template <typename Wire>
-	Wire readPaddr_internal(N64System& n64, PAddr32 paddr)
+	void writePaddr_unsupported(PAddr32 paddr)
+	{
+		N64Logger::Abort(U"write unsupported paddr {}-bit: {:08X}"_fmt(
+			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
+	}
+
+	template <typename Wire, typename Value>
+	using writePaddr_func = void (*)(N64System& n64, PAddr32 paddr, Value value);
+
+	template <typename Wire, typename Value>
+	consteval std::array<writePaddr_func<Wire, Value>, 0x1000> writePaddr_mapHi12()
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
 		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
 		constexpr bool wire16 = std::is_same<Wire, uint16_t>::value;
 		constexpr bool wire8 = std::is_same<Wire, uint8_t>::value;
-		static_assert(wire64 || wire32 || wire16 || wire8);
+		static_assert(
+			(wire8 && std::is_same<Value, uint32>::value) ||
+			(wire16 && std::is_same<Value, uint32>::value) ||
+			(wire32 && std::is_same<Value, uint32>::value) ||
+			(wire64 && std::is_same<Value, uint64>::value)); // Valueは32bit以上
 
+		std::array<writePaddr_func<Wire, Value>, 0x1000> mapHi12{};
+		mapHi12.fill({
+			[](N64System& n64, PAddr32 paddr, Value value)
+			{
+				return writePaddr_unsupported<Wire>(paddr);
+			}
+		});
+		constexpr int hi_12 = 12;
+		constexpr int lo_20 = 20;
+
+		// RDRAM
+		for (uint32 addr = PMap::RdramMemory.base; addr < PMap::RdramMemory.end; addr += (1 << lo_20))
+		{
+			// 0x00000000, 0x007FFFFF
+			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
+			{
+				const uint32 offset = paddr - PMap::RdramMemory.base;
+				return WriteBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset), value);
+			};
+		}
+
+		// RSP
+		mapHi12[0x040] = [](N64System& n64, PAddr32 paddr, Value value)
+		{
+			switch (GetBits<12, 19, uint32>(paddr))
+			{
+			case 0x00: // 0x04000000, 0x04000FFF
+			{
+				if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
+				if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
+				if constexpr (wire64) value >>= 32; // ?
+				const uint32 offset = paddr & 0xFFF;
+				// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる? 書き込み量はWire?
+				return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
+			}
+			case 0x01: // 0x04001000, 0x04001FFF
+			{
+				if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
+				if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
+				if constexpr (wire64) value >>= 32; // ?
+				const uint32 offset = paddr & 0xFFF;
+				return Utils::WriteBytes<Value>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
+			}
+			default:
+				if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
+				{
+					if constexpr (wire32) return n64.GetRsp().WritePAddr32(n64, paddr, value);
+				}
+				return writePaddr_unsupported<Wire>(paddr);
+			}
+		};
+
+		// MI
+		mapHi12[0x043] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04300000, 0x043FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetMI().Write32(n64, paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// VI
+		mapHi12[0x044] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04400000, 0x044FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetVI().Write32(n64, paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// AI
+		mapHi12[0x045] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04500000, 0x045FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetAI().Write32(n64, paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// PI
+		mapHi12[0x046] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04600000, 0x046FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetPI().Write32(n64, paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// RI
+		mapHi12[0x047] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04700000, 0x047FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetRI().Write32(paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// SI
+		mapHi12[0x048] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04800000, 0x048FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetSI().Write32(n64, paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// PIF RAM
+		mapHi12[0x1FC] = [](N64System& n64, PAddr32 paddr, Value value)
+		{
+			if (GetBits<6, 20, uint32>(paddr) == ((0x007 << 2) | 0b11)) // 0x1FC007C0, 0x1FC007FF
+			{
+				if constexpr (wire32)
+				{
+					const uint64 offset = paddr - PMap::PifRam.base;
+					return WriteBytes32(n64.GetSI().GetPifRam(), offset, value);
+				}
+			}
+			return writePaddr_unsupported<Wire>(paddr);
+		};
+
+		// ROM
+		for (uint32 addr = PMap::Rom.base; addr < PMap::Rom.end; addr += (1 << lo_20))
+		{
+			// 0x10000000, 0x1FBFFFFF
+			mapHi12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
+			{
+				if constexpr (wire32)
+				{
+					const uint64 offset = paddr - PMap::Rom.base;
+					return WriteBytes32(n64.GetMemory().GetRom().Data(), offset, value);
+				}
+				return writePaddr_unsupported<Wire>(paddr);
+			};
+		}
+
+		return mapHi12;
+	}
+
+	template <typename Wire>
+	Wire readPaddr_internal(N64System& n64, PAddr32 paddr)
+	{
 		static constexpr std::array<readPaddr_func<Wire>, 0x1000> map = readPaddr_mapHi12<Wire>();
 		return map[paddr >> 20](n64, paddr);
 	}
@@ -274,108 +437,8 @@ namespace N64::Mmu
 	template <typename Wire, typename Value>
 	void writePaddr_internal(N64System& n64, PAddr32 paddr, Value value)
 	{
-		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
-		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
-		constexpr bool wire16 = std::is_same<Wire, uint16_t>::value;
-		constexpr bool wire8 = std::is_same<Wire, uint8_t>::value;
-		static_assert(
-			(wire8 && std::is_same<Value, uint32>::value) ||
-			(wire16 && std::is_same<Value, uint32>::value) ||
-			(wire32 && std::is_same<Value, uint32>::value) ||
-			(wire64 && std::is_same<Value, uint64>::value)); // Valueは32bit以上
-
-		// 8ビットアクセスでも、32ビット書き込みとなるような状況もあるので注意
-
-		if (PMap::RdramMemory.IsBetween(paddr)) // 0x00000000, 0x007FFFFF
-		{
-			const uint32 offset = paddr - PMap::RdramMemory.base;
-			return WriteBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset), value);
-		}
-		else if (PMap::RspRegisters.IsBetween(paddr)) // 0x04040000, 0x040BFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetRsp().WritePAddr32(n64, paddr, value);
-			}
-		}
-		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
-		{
-			if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
-			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
-			if constexpr (wire64) value >>= 32; // ?
-			const uint32 offset = paddr - PMap::SpDmem.base;
-			// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる? 書き込み量はWire?
-			return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
-		}
-		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
-		{
-			if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
-			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
-			if constexpr (wire64) value >>= 32; // ?
-			const uint32 offset = paddr - PMap::SpImem.base;
-			return Utils::WriteBytes<Value>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
-		}
-		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
-		{
-			if constexpr (wire32)
-			{
-				const uint64 offset = paddr - PMap::PifRam.base;
-				return WriteBytes32(n64.GetSI().GetPifRam(), offset, value);
-			}
-		}
-		else if (PMap::MI.IsBetween(paddr)) // 0x04300000, 0x043FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetMI().Write32(n64, paddr, value);
-			}
-		}
-		else if (PMap::VI.IsBetween(paddr)) // 0x04400000, 0x044FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetVI().Write32(n64, paddr, value);
-			}
-		}
-		else if (PMap::AI.IsBetween(paddr)) // 0x04500000, 0x045FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetAI().Write32(n64, paddr, value);
-			}
-		}
-		else if (PMap::PI.IsBetween(paddr)) // 0x04600000, 0x046FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetPI().Write32(n64, paddr, value);
-			}
-		}
-		else if (PMap::RI.IsBetween(paddr)) // 0x04700000, 0x047FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetRI().Write32(paddr, value);
-			}
-		}
-		else if (PMap::SI.IsBetween(paddr)) // 0x04800000, 0x048FFFFF
-		{
-			if constexpr (wire32)
-			{
-				return n64.GetSI().Write32(n64, paddr, value);
-			}
-		}
-		else if (PMap::Rom.IsBetween(paddr)) // 0x10000000, 0x1FBFFFFF
-		{
-			if constexpr (wire32)
-			{
-				const uint64 offset = paddr - PMap::Rom.base;
-				return WriteBytes32(n64.GetMemory().GetRom().Data(), offset, value);
-			}
-		}
-
-		N64Logger::Abort(U"write unsupported paddr {}-bit: {:08X}"_fmt(
-			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
+		static constexpr std::array<writePaddr_func<Wire, Value>, 0x1000> map = writePaddr_mapHi12<Wire, Value>();
+		return map[paddr >> 20](n64, paddr, value);
 	}
 
 	template <typename Wire, typename Value>

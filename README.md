@@ -1,7 +1,7 @@
 # Sairi64
 N64 emulator for my learning
 
-I am [doing kmc-jp/n64-emu](https://github.com/kmc-jp/n64-emu) all over again and learning.
+I'm reviewing and relearning again: [kmc-jp/n64-emu](https://github.com/kmc-jp/n64-emu)
 
 - ✅ Succeeded in partially displaying [mini](https://github.com/wermipls/mimi)
  

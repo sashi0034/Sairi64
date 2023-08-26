@@ -13,13 +13,12 @@ namespace N64::Mmu
 	{
 		// TODO: 64 bit mode
 
-		if (VMap::KSEG0.IsBetween(vaddr)) // 0x80000000, 0x9FFFFFFF
+		switch (static_cast<uint32>(vaddr) >> 29)
 		{
-			return PAddr32(vaddr - VMap::KSEG0.base);
-		}
-		if (VMap::KSEG1.IsBetween(vaddr)) // 0xA0000000, 0xBFFFFFFF
-		{
-			return PAddr32(vaddr - VMap::KSEG1.base);
+		case VMap::KSEG0_sr29_4: // 0x80000000, 0x9FFFFFFF
+		case VMap::KSEG1_sr29_5: // 0xA0000000, 0xBFFFFFFF
+			return PAddr32(vaddr & 0x1FFFFFFF);
+		default: break;
 		}
 
 		N64Logger::Abort(U"unsupported vaddr: {:016x}"_fmt(vaddr));
@@ -228,20 +227,20 @@ namespace N64::Mmu
 		}
 		else if (PMap::SpDmem.IsBetween(paddr)) // 0x04000000, 0x04000FFF
 		{
-			// if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
-			// if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
-			// if constexpr (wire64) value >>= 32; // ?
+			if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
+			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
+			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpDmem.base;
 			// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる? 書き込み量はWire?
-			return Utils::WriteBytes<Wire>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
+			return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::SpImem.IsBetween(paddr)) // 0x04001000, 0x04001FFF
 		{
-			// if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
-			// if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
-			// if constexpr (wire64) value >>= 32; // ?
+			if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
+			if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
+			if constexpr (wire64) value >>= 32; // ?
 			const uint32 offset = paddr - PMap::SpImem.base;
-			return Utils::WriteBytes<Wire>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
+			return Utils::WriteBytes<Value>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
 		}
 		else if (PMap::PifRam.IsBetween(paddr)) // 0x1FC007C0, 0x1FC007FF
 		{

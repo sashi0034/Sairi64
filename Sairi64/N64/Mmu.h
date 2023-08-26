@@ -15,7 +15,9 @@ namespace N64
 		{
 			constexpr AddressRange<uint32> KUSEG{0x00000000, 0x7FFFFFFF};
 			constexpr AddressRange<uint32> KSEG0{0x80000000, 0x9FFFFFFF};
+			constexpr uint8 KSEG0_sr29_4 = 4; // KSEG0 >> 29
 			constexpr AddressRange<uint32> KSEG1{0xA0000000, 0xBFFFFFFF};
+			constexpr uint8 KSEG1_sr29_5 = 5; // KSEG1 >> 29
 			constexpr AddressRange<uint32> KSSEG{0xC0000000, 0xDFFFFFFF};
 			constexpr AddressRange<uint32> KSEG3{0xE0000000, 0xFFFFFFFF};
 		}

@@ -64,28 +64,82 @@ namespace N64::Memory_detail
 		return result;
 	}
 
+	enum class SupportedExtension
+	{
+		Unsupported,
+		Z64
+	};
+
+	void rearrangeRomData(Array<uint8>& rom, SupportedExtension extension, const String& extensionName)
+	{
+		switch (extension)
+		{
+		case SupportedExtension::Z64:
+			// ビッグエンディアンからリトルエンディアンに
+			for (uint64 i = 0; i < rom.size(); i += 4)
+			{
+				const uint32 original = *reinterpret_cast<uint32*>(&rom[i]);
+				*reinterpret_cast<uint32*>(&rom[i]) = Utils::ByteSwap32(original);
+			}
+			break;
+		default: ;
+			N64Logger::Abort(U"unsupported extension: {}"_fmt(extensionName));
+			break;
+		}
+	}
+
 	bool Rom::LoadFile(const FilePath& filePath)
 	{
+		const auto extensionName = FileSystem::Extension(filePath);
+		const auto extension = [&]()
+		{
+			if (extensionName == U"z64") return SupportedExtension::Z64;
+			return SupportedExtension::Unsupported;
+		}();
+		if (extension == SupportedExtension::Unsupported)
+		{
+			N64Logger::Error(U"unsupported file extension: {}"_fmt(filePath));
+			return false;
+		}
+
 		BinaryReader reader{filePath};
-		if (reader.isOpen() == false) return false;
+		if (reader.isOpen() == false)
+		{
+			N64Logger::Error(U"could not open file: {}"_fmt(filePath));
+			return false;
+		};
 
 		const int romSize = reader.size();
 
 		if (romSize < sizeof(RomHeader))
 		{
-			N64Logger::Error(U"ROM is too small: rom={} < {}"_fmt(romSize, static_cast<int>(sizeof(RomHeader))));
+			N64Logger::Error(U"rom file is too small: size={} < {}"_fmt(romSize, static_cast<int>(sizeof(RomHeader))));
 			return false;
 		}
 		if (romSize > maxRomSize)
 		{
-			N64Logger::Error(U"ROM is huge: rom={} > {}"_fmt(romSize, maxRomSize));
+			N64Logger::Error(U"rom file is huge: size={} > {}"_fmt(romSize, maxRomSize));
 			return false;
 		}
 
-		m_rom.resize(romSize);
+		m_actualRomSize = romSize;
+		m_rom.resize(std::bit_ceil(static_cast<uint64>(romSize))); // バイトスワップなどをするので、一応切りのいい数にしておく
 
+		// ファイル内容を配列に転送
 		reader.read(m_rom.data(), romSize);
 
+		// ヘッダ情報やCICなど取得
+		readRomInfo();
+
+		// ファイル形式に応じて、ビットスワップなどを行う
+		rearrangeRomData(m_rom, extension, extensionName);
+
+		return true;
+	}
+
+
+	void Rom::readRomInfo()
+	{
 		// header
 		m_header = *reinterpret_cast<RomHeader*>(m_rom.data());
 
@@ -103,8 +157,6 @@ namespace N64::Memory_detail
 		{
 			return m_rom[0x3d] == c;
 		});
-
-		return true;
 	}
 
 	uint32 Rom::CicSeed() const

@@ -51,8 +51,11 @@ namespace N64::Memory_detail
 
 	private:
 		Array<uint8> m_rom{};
+		size_t m_actualRomSize{};
 		RomHeader m_header{};
 		CicType m_cic{};
 		bool m_isPal{};
+
+		void readRomInfo();
 	};
 }

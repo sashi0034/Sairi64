@@ -51,96 +51,90 @@ namespace Utils
 		return BitAccessor<x1, x2, T>(ref);
 	}
 
-	inline uint64_t ReadBytes64(std::span<const uint8_t> span, uint64_t offset)
+	constexpr inline uint32_t ByteSwap32(uint32_t value) noexcept
 	{
-		return (static_cast<uint64_t>(span[offset + 0]) << 56) |
-			(static_cast<uint64_t>(span[offset + 1]) << 48) |
-			(static_cast<uint64_t>(span[offset + 2]) << 40) |
-			(static_cast<uint64_t>(span[offset + 3]) << 32) |
-			(static_cast<uint64_t>(span[offset + 4]) << 24) |
-			(static_cast<uint64_t>(span[offset + 5]) << 16) |
-			(static_cast<uint64_t>(span[offset + 6]) << 8) |
-			(static_cast<uint64_t>(span[offset + 7]) << 0);
-	}
-
-	inline uint32_t ReadBytes32(std::span<const uint8_t> span, uint64_t offset)
-	{
-		return static_cast<uint32_t>(span[offset + 0] << 24) |
-			static_cast<uint32_t>(span[offset + 1] << 16) |
-			static_cast<uint32_t>(span[offset + 2] << 8) |
-			static_cast<uint32_t>(span[offset + 3] << 0);
-	}
-
-	inline uint16_t ReadBytes16(std::span<const uint8_t> span, uint64_t offset)
-	{
-		return (static_cast<uint16_t>(span[offset + 0] << 8)) +
-			(static_cast<uint16_t>(span[offset + 1] << 0));
-	}
-
-	inline uint8_t ReadBytes8(std::span<const uint8_t> span, uint64_t offset)
-	{
-		return span[offset];
+		// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/external/portable_endian_bswap.h#L11
+		return (((value) & 0xFF000000u) >> 24u) | (((value) & 0x00FF0000u) >> 8u) |
+			(((value) & 0x0000FF00u) << 8u) | (((value) & 0x000000FFu) << 24u);
 	}
 
 	template <typename Wire>
 	inline Wire ReadBytes(std::span<const uint8_t> span, uint64_t offset)
 	{
-		if constexpr (std::is_same<Wire, uint8_t>::value)
-			return ReadBytes8(span, offset);
-		else if constexpr (std::is_same<Wire, uint16_t>::value)
-			return ReadBytes16(span, offset);
-		else if constexpr (std::is_same<Wire, uint32_t>::value)
-			return ReadBytes32(span, offset);
-		else if constexpr (std::is_same<Wire, uint64_t>::value)
-			return ReadBytes64(span, offset);
+		static_assert(std::endian::native == std::endian::little);
+		// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/utils/MemoryHelpers.hpp#L9
+		static_assert(std::is_integral<Wire>::value);
+		if constexpr (sizeof(Wire) == 8) // 64-bit
+		{
+			const uint32 hi = *reinterpret_cast<const uint32*>(&span[offset + 0]);
+			const uint32 lo = *reinterpret_cast<const uint32*>(&span[offset + 4]);
+			Wire result = (static_cast<Wire>(hi) << 32) | static_cast<Wire>(lo);
+			return result;
+		}
 		else
-			static_assert(AlwaysFalse<Wire>);
+		{
+			return *reinterpret_cast<const Wire*>(&span[offset]);
+		}
 	}
 
-	inline void WriteBytes64(std::span<uint8_t> span, uint64_t offset, uint64_t value)
+	inline uint64_t ReadBytes64(std::span<const uint8_t> span, uint64_t offset)
 	{
-		span[offset + 0] = (value >> 56) & 0XFF;
-		span[offset + 1] = (value >> 48) & 0XFF;
-		span[offset + 2] = (value >> 40) & 0XFF;
-		span[offset + 3] = (value >> 32) & 0XFF;
-		span[offset + 4] = (value >> 24) & 0XFF;
-		span[offset + 5] = (value >> 16) & 0XFF;
-		span[offset + 6] = (value >> 8) & 0XFF;
-		span[offset + 7] = (value) & 0XFF;
+		return ReadBytes<uint64_t>(span, offset);
 	}
 
-	inline void WriteBytes32(std::span<uint8_t> span, uint64_t offset, uint32_t value)
+	inline uint32_t ReadBytes32(std::span<const uint8_t> span, uint64_t offset)
 	{
-		span[offset + 0] = (value >> 24) & 0XFF;
-		span[offset + 1] = (value >> 16) & 0XFF;
-		span[offset + 2] = (value >> 8) & 0XFF;
-		span[offset + 3] = (value) & 0XFF;
+		return ReadBytes<uint32_t>(span, offset);
 	}
 
-	inline void WriteBytes16(std::span<uint8_t> span, uint64_t offset, uint16_t value)
+	inline uint16_t ReadBytes16(std::span<const uint8_t> span, uint64_t offset)
 	{
-		span[offset + 0] = (value >> 8) & 0XFF;
-		span[offset + 1] = (value) & 0XFF;
+		return ReadBytes<uint16_t>(span, offset);
 	}
 
-	inline void WriteBytes8(std::span<uint8_t> span, uint64_t offset, uint8_t value)
+	inline uint8_t ReadBytes8(std::span<const uint8_t> span, uint64_t offset)
 	{
-		span[offset] = value;
+		return ReadBytes<uint8_t>(span, offset);
 	}
 
 	template <typename Wire>
 	inline void WriteBytes(std::span<uint8_t> span, uint64_t offset, Wire value)
 	{
-		if constexpr (std::is_same<Wire, uint8_t>::value)
-			WriteBytes8(span, offset, value);
-		else if constexpr (std::is_same<Wire, uint16_t>::value)
-			WriteBytes16(span, offset, value);
-		else if constexpr (std::is_same<Wire, uint32_t>::value)
-			WriteBytes32(span, offset, value);
-		else if constexpr (std::is_same<Wire, uint64_t>::value)
-			WriteBytes64(span, offset, value);
+		static_assert(std::endian::native == std::endian::little);
+		// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/utils/MemoryHelpers.hpp#L21
+		static_assert(std::is_integral<Wire>::value);
+		if constexpr (sizeof(Wire) == 8) // 64-bit
+		{
+			const uint32 hi = value >> 32;
+			const uint32 lo = value;
+
+			*reinterpret_cast<uint32*>(&span[offset + 0]) = hi;
+			*reinterpret_cast<uint32*>(&span[offset + 4]) = lo;
+		}
 		else
-			static_assert(AlwaysFalse<Wire>);
+		{
+			*reinterpret_cast<Wire*>(&span[offset]) = value;
+		}
+	}
+
+	inline void WriteBytes64(std::span<uint8_t> span, uint64_t offset, uint64_t value)
+	{
+		WriteBytes<uint64_t>(span, offset, value);
+	}
+
+	inline void WriteBytes32(std::span<uint8_t> span, uint64_t offset, uint32_t value)
+	{
+		WriteBytes<uint32_t>(span, offset, value);
+	}
+
+	inline void WriteBytes16(std::span<uint8_t> span, uint64_t offset, uint16_t value)
+	{
+		WriteBytes<uint16_t>(span, offset, value);
+	}
+
+	inline void WriteBytes8(std::span<uint8_t> span, uint64_t offset, uint8_t value)
+	{
+		WriteBytes<uint8_t>(span, offset, value);
 	}
 
 	template <typename T>

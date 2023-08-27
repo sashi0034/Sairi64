@@ -41,14 +41,6 @@ namespace N64::Mmio
 		uint8* m_resultPtr{};
 	};
 
-	struct ControllerState
-	{
-		uint8 byte1{};
-		uint8 byte2{};
-		uint8 joyX{};
-		uint8 joyY{};
-	};
-
 	class Pif::Impl
 	{
 	public:
@@ -59,7 +51,7 @@ namespace N64::Mmio
 			int channel = 0;
 
 			int cursor = 0;
-			while (cursor < 63)
+			while (cursor < 63) // RAMサイズ64分の処理
 			{
 				const auto cmd = PifCmdArgs(pif, cursor);
 				const uint8 cmdLength = cmd.Length();
@@ -78,17 +70,18 @@ namespace N64::Mmio
 				const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
 				cursor += 1 + cmdLength + result.Length();
 
+				// コマンド処理
 				switch (cmd.Index())
 				{
 				case 1:
-					if (readButtons(channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
+					if (readButtons(pif, channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
 					break;
 				default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
 				}
 			}
 		}
 
-		static bool readButtons(int channel, PifCmdResult result)
+		static bool readButtons(Pif& pif, int channel, PifCmdResult result)
 		{
 			if (channel >= 6)
 			{
@@ -99,18 +92,12 @@ namespace N64::Mmio
 				return false;
 			}
 
-			const auto controller = pollController();
+			const auto controller = pif.m_controller.ReadState();
 			result.SetAt<0>(controller.byte1);
 			result.SetAt<1>(controller.byte2);
 			result.SetAt<2>(controller.joyX);
 			result.SetAt<3>(controller.joyY);
 			return true;
-		}
-
-		static ControllerState pollController()
-		{
-			// TODO: コントローラー
-			return {};
 		}
 	};
 

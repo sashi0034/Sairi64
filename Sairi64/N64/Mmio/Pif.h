@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "N64/Forward.h"
+#include "Controller.h"
 
 namespace N64::Mmio
 {
@@ -12,6 +13,7 @@ namespace N64::Mmio
 	{
 	public:
 		PifRam& Ram() { return m_ram; }
+		Controller& GetController() { return m_controller; }
 		void ProcessCommands();
 
 		static void ExecuteRom(N64System& n64);
@@ -20,5 +22,7 @@ namespace N64::Mmio
 		class Impl;
 
 		PifRam m_ram{};
+
+		Controller m_controller{};
 	};
 }

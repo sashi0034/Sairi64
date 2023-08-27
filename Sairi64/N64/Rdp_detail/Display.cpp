@@ -17,11 +17,10 @@ namespace N64::Rdp_detail
 			const float yScale = static_cast<float>(vi.YScale().Scale()) / 1024.0f;
 			const float xScale = static_cast<float>(vi.XScale().Scale()) / 1024.0f;
 
-			// shift操作いるかも? 1.0じゃなくてscale?
 			const auto vVideo = vi.VVideo().End() - vi.VVideo().Start();
 			const auto hVideo = vi.HVideo().End() - vi.HVideo().Start();
 
-			const int newHeight = ceilf(static_cast<float>(vVideo>> 1) * yScale);
+			const int newHeight = ceilf(static_cast<float>(vVideo >> 1) * yScale);
 			const int newWidth = ceilf(static_cast<float>(hVideo >> 0) * xScale);
 
 			const bool shouldRecreateTexture =

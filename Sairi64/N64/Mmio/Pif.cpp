@@ -75,6 +75,7 @@ namespace N64::Mmio
 				{
 				case 1:
 					if (readButtons(pif, channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
+					channel++;
 					break;
 				default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
 				}

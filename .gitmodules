@@ -1,3 +1,3 @@
-[submodule "Sairi64/Includes/imgui"]
-	path = Sairi64/Includes/imgui
+[submodule "PreCompile/Includes/imgui"]
+	path = PreCompile/Includes/imgui
 	url = https://github.com/ocornut/imgui

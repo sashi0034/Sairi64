@@ -141,10 +141,106 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="DearImGuiAddon\DearImGuiAddon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sairi64\N64\Cpu.cpp">
+    <ClCompile Include="DearImGuiAddon\imgui_impl_s3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Cpu_detail\Cop0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Cpu_detail\Cop1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Cpu_detail\Cpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Cpu_detail\Gpr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Cpu_detail\Instruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Interrupt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Memory_detail\Memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Memory_detail\Rom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\AI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\MI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\PI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\Pif.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\RI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\SI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmio\VI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Mmu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\N64Config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\N64Frame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\N64Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\N64Singleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\N64System.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Rdp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Rdp_detail\Rdp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Rdp_detail\Display.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Rsp_detail\Rsp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="N64\Scheduler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\AnyTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\N64Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\UtilTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ui\UiManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -776,10 +872,118 @@
     </Xml>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="DearImGuiAddon\DearImGuiAddon.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sairi64\N64\Cpu.h">
+    <ClInclude Include="DearImGuiAddon\imgui_impl_s3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Cop0.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Cop1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Cpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op_Cop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Gpr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Cpu_detail\Instruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Interrupt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Memory_detail\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Memory_detail\Rom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\AI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\MI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\PI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\Pif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\Pif_executeRomHle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\RI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\SI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmio\VI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Mmu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\N64Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\N64Frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\N64Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\N64Singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\N64System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Rdp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Rdp_detail\Rdp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Rdp_detail\Display.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Rsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Rsp_detail\Rsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Forward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="N64\Scheduler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ui\UiManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

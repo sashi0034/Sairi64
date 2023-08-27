@@ -5,6 +5,8 @@ VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sairi64", "Sairi64\Sairi64.vcxproj", "{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PreCompile", "PreCompile\PreCompile.vcxproj", "{59CA77B8-4BE3-4A9A-91D6-0D18E35077EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Debug|x64.Build.0 = Debug|x64
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Release|x64.ActiveCfg = Release|x64
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Release|x64.Build.0 = Release|x64
+		{59CA77B8-4BE3-4A9A-91D6-0D18E35077EB}.Debug|x64.ActiveCfg = Debug|x64
+		{59CA77B8-4BE3-4A9A-91D6-0D18E35077EB}.Debug|x64.Build.0 = Debug|x64
+		{59CA77B8-4BE3-4A9A-91D6-0D18E35077EB}.Release|x64.ActiveCfg = Release|x64
+		{59CA77B8-4BE3-4A9A-91D6-0D18E35077EB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

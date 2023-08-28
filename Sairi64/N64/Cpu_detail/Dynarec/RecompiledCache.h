@@ -31,8 +31,9 @@ namespace N64::Cpu_detail::Dynarec
 
 	struct CachePage
 	{
-		Array<BlockCode> codes{Arg::reserve(CachePageOffsetSize_0x400)};
-		Array<BlockInfo> infos{Arg::reserve(CachePageOffsetSize_0x400)};
+		Array<BlockCode> codeList{CachePageOffsetSize_0x400};
+		Array<BlockInfo> infoList{CachePageOffsetSize_0x400};
+		bool isBroken{};
 	};
 
 	using CachePagePtr = std::unique_ptr<CachePage>;

@@ -46,6 +46,14 @@ namespace N64
 		constexpr explicit PAddr32(uint32 addr): EnumValue(addr) { return; }
 	};
 
+	using CpuCycles = int32;
+
+	enum class ProcessorType
+	{
+		Interpreter,
+		Dynarec,
+	};
+
 	enum class BusAccess
 	{
 		Load,

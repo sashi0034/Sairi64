@@ -1,14 +1,9 @@
 ﻿#pragma once
 #include "N64System.h"
+#include "N64Config.h"
 
 namespace N64
 {
-	struct N64InitArgs
-	{
-		String filePath;
-		bool executePifRom = true;
-	};
-
 	struct N64FrameInternalState
 	{
 		int rspConsumableCycles;
@@ -17,9 +12,9 @@ namespace N64
 	class N64Frame
 	{
 	public:
-		void Init(N64System& n64, const N64InitArgs& arg);
-		void RunOnConsole(N64System& n64, const std::function<bool()>& breakPoint);
-		void ControlFrame(N64System& n64);
+		void Init(N64System& n64, const N64Config& config);
+		void RunOnConsole(N64System& n64, const N64Config& config, const std::function<bool()>& breakPoint);
+		void ControlFrame(N64System& n64, const N64Config& config);
 
 	private:
 		double m_fragmentTime{};

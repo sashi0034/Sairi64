@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Forward.h"
 
 namespace N64
 {
@@ -8,5 +9,12 @@ namespace N64
 		{
 			String filePath;
 		} rom;
+
+		ProcessorType processor = ProcessorType::Interpreter;
+
+		struct
+		{
+			bool executePifRom = true;
+		} boot;
 	};
 }

@@ -10,16 +10,35 @@
 
 namespace N64::Cpu_detail
 {
-	void updateCountAndCheckCompareInterrupt(N64System& n64, Cpu& cpu)
+	template <ProcessorType processor>
+	void updateCountAndCheckCompareInterrupt(
+		N64System& n64, Cpu& cpu,
+		std::conditional_t<processor == ProcessorType::Interpreter, void*, CpuCycles> cycles)
 	{
 		auto&& cop0Reg = cpu.GetCop0().Reg();
-		cop0Reg.count += 1;
-		cop0Reg.count &= 0x1FFFFFFFF;
-		if (cop0Reg.count == static_cast<uint64>(cop0Reg.compare) << 1)
+		if constexpr (processor == ProcessorType::Interpreter)
 		{
-			// 割り込み発生
-			cop0Reg.cause.Ip7().Set(true);
-			UpdateInterrupt(n64);
+			cop0Reg.count += 1; // インタプリタ型は1ステップずつカウント
+			cop0Reg.count &= 0x1FFFFFFFF;
+			if (cop0Reg.count == (static_cast<uint64>(cop0Reg.compare) << 1))
+			{
+				// 割り込み発生
+				cop0Reg.cause.Ip7().Set(true);
+				UpdateInterrupt(n64);
+			}
+		}
+		else if constexpr (processor == ProcessorType::Dynarec)
+		{
+			const uint64 before = cop0Reg.count;
+			const uint64 after = cop0Reg.count + cycles;
+			const uint64 compare = static_cast<uint64>(cop0Reg.compare) << 1;
+			if (before < compare && compare <= after)
+			{
+				// 割り込み発生
+				cop0Reg.cause.Ip7().Set(true);
+				UpdateInterrupt(n64);
+			}
+			cop0Reg.count = after & 0x1FFFFFFFF;
 		}
 	}
 
@@ -37,12 +56,9 @@ namespace N64::Cpu_detail
 			(currentlyHandlingException == false) && (currentlyHandlingError == false);
 	}
 
-	void Cpu::Step(N64System& n64)
+	void Cpu::stepInterpreter(N64System& n64)
 	{
 		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
-
-		// check compare interrupt
-		updateCountAndCheckCompareInterrupt(n64, *this);
 
 		// update delay slot
 		m_delaySlot.Step();
@@ -70,6 +86,45 @@ namespace N64::Cpu_detail
 
 		// execution
 		Interpreter::InterpretInstruction(n64, *this, fetchedInstr);
+
+		// check compare interrupt
+		updateCountAndCheckCompareInterrupt<ProcessorType::Interpreter>(n64, *this, nullptr);
+	}
+
+	void Cpu::stepDynarec(N64System& n64)
+	{
+		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
+
+		// update delay slot
+		m_delaySlot.Step();
+
+		// check for interrupt/exception
+		if (shouldServiceInterrupt(m_cop0))
+		{
+			handleException(m_pc.Curr(), ExceptionKinds::Interrupt, 0);
+			return;
+		}
+
+		// instruction fetch
+		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(*this, m_pc.Curr());
+		if (paddrOfPc.has_value() == false)
+		{
+			m_cop0.HandleTlbException(m_pc.Curr());
+			handleException(m_pc.Curr(), m_cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
+			return;
+		}
+		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
+		N64_TRACE(U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), m_pc.Curr()));
+
+		// update pc
+		m_pc.Step();
+
+		// execution
+		Interpreter::InterpretInstruction(n64, *this, fetchedInstr);
+		CpuCycles taken{}; // TODO
+
+		// check compare interrupt
+		updateCountAndCheckCompareInterrupt<ProcessorType::Dynarec>(n64, *this, taken);
 	}
 
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/r4300i.c#L68

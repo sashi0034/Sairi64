@@ -3,6 +3,11 @@
 
 namespace N64::Cpu_detail::Dynarec
 {
+	CpuCycles RecompiledCodeMissingHandler(N64System& n64)
+	{
+		return {};
+	}
+
 	void RecompiledCache::CheckInvalidatePage(PAddr32 paddr)
 	{
 		auto&& page = m_pages[GetPageIndex(paddr)];

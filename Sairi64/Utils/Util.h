@@ -5,6 +5,9 @@ namespace Utils
 	template <class...>
 	constexpr std::false_type AlwaysFalse{};
 
+	template <typename T, T value>
+	constexpr std::false_type AlwaysFalseValue{};
+
 	template <int x1, int x2 = x1, typename T>
 	T GetBits(T value)
 	{

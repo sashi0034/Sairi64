@@ -65,11 +65,11 @@ namespace N64::Cpu_detail
 	};
 
 	// https://ultra64.ca/files/documentation/silicon-graphics/SGI_R4300_RISC_Processor_Specification_REV2.2.pdf
-
 	class Cpu
 	{
 	public:
-		void Step(N64System& n64);
+		template <ProcessorType processor> void Step(N64System& n64);
+
 		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
 		Cop0& GetCop0() { return m_cop0; }
@@ -92,6 +92,19 @@ namespace N64::Cpu_detail
 		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果
 		uint64 m_hi{}; // 64ビットの整数乗算/除算レジスタの下位結果
 
+		void stepInterpreter(N64System& n64);
+		void stepDynarec(N64System& n64);
 		void handleException(uint64 pc, ExceptionCode code, int coprocessorError);
 	};
+
+	template <ProcessorType processor>
+	void Cpu::Step(N64System& n64)
+	{
+		if constexpr (processor == ProcessorType::Interpreter)
+			stepInterpreter(n64);
+		else if constexpr (processor == ProcessorType::Dynarec)
+			stepDynarec(n64);
+		else
+			static_assert(Utils::AlwaysFalseValue<ProcessorType, processor>);
+	}
 }

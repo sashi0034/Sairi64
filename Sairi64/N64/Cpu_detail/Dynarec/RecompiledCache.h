@@ -11,9 +11,9 @@ namespace N64::Cpu_detail::Dynarec
 	inline uint32 GetPageIndex(PAddr32 paddr) { return Utils::GetBits<12, 31, uint32>(paddr); }
 	inline uint32 GetPageOffset(PAddr32 paddr) { return Utils::GetBits<2, 11, uint32>(paddr); }
 
-	typedef void (*RecompiledCode)(N64System& n64, Cpu& cpu);
+	typedef CpuCycles (*RecompiledCode)(N64System& n64);
 
-	void RecompiledCodeMissingHandler(N64System& n64, Cpu& cpu);
+	CpuCycles RecompiledCodeMissingHandler(N64System& n64);
 
 	struct BlockCode
 	{
@@ -22,17 +22,19 @@ namespace N64::Cpu_detail::Dynarec
 
 	struct BlockInfo
 	{
-		sint16 cycles = 0;
+		sint16 info = 0;
 
-		bool IsCode() const { return cycles != 0; }
-		bool IsEntry() const { return cycles > 0; }
-		bool IsBody() const { return cycles < 0; }
+		void SetAsHead(sint16 maxCycles) { info = maxCycles; }
+		void SetAsBody(sint16 headOffset) { info = headOffset; }
+		bool IsCode() const { return info != 0; }
+		bool IsHead() const { return info > 0; }
+		bool IsBody() const { return info < 0; }
 	};
 
 	struct CachePage
 	{
-		Array<BlockCode> codeList{CachePageOffsetSize_0x400};
-		Array<BlockInfo> infoList{CachePageOffsetSize_0x400};
+		std::array<BlockInfo, CachePageOffsetSize_0x400> infoList{};
+		std::array<BlockCode, CachePageOffsetSize_0x400> codeList{};
 		bool isBroken{};
 	};
 

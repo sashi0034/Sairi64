@@ -27,6 +27,7 @@ namespace N64
 		Mmio::AI& GetAI() { return m_ai; }
 		Mmio::VI& GetVI() { return m_vi; }
 		Scheduler& GetScheduler() { return m_scheduler; }
+		asmjit::JitRuntime& GetJit() { return m_jit; }
 
 		N64System& operator=(const N64System&) = delete;
 
@@ -44,5 +45,6 @@ namespace N64
 		Mmio::VI m_vi{};
 
 		Scheduler m_scheduler{};
+		asmjit::JitRuntime m_jit{};
 	};
 }

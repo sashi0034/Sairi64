@@ -11,24 +11,23 @@ namespace N64::Cpu_detail::Dynarec
 	inline uint32 GetPageIndex(PAddr32 paddr) { return Utils::GetBits<12, 31, uint32>(paddr); }
 	inline uint32 GetPageOffset(PAddr32 paddr) { return Utils::GetBits<2, 11, uint32>(paddr); }
 
-	typedef CpuCycles (*RecompiledCode)(N64System& n64);
-
-	CpuCycles RecompiledCodeMissingHandler(N64System& n64);
+	typedef CpuCycles (*RecompiledCodeHandler)();
 
 	struct BlockCode
 	{
-		RecompiledCode code = &RecompiledCodeMissingHandler;
+		RecompiledCodeHandler code = nullptr;
+		bool HasCode() const { return code != nullptr; }
 	};
 
 	struct BlockInfo
 	{
 		sint16 info = 0;
 
-		void SetAsHead(sint16 maxCycles) { info = maxCycles; }
+		void SetAsHead(sint16 codeLength) { info = codeLength; }
 		void SetAsBody(sint16 headOffset) { info = headOffset; }
 		bool IsCode() const { return info != 0; }
-		bool IsHead() const { return info > 0; }
-		bool IsBody() const { return info < 0; }
+		bool IsCodeHead() const { return info > 0; }
+		bool IsCodeBody() const { return info < 0; }
 	};
 
 	struct CachePage
@@ -36,6 +35,7 @@ namespace N64::Cpu_detail::Dynarec
 		std::array<BlockInfo, CachePageOffsetSize_0x400> infoList{};
 		std::array<BlockCode, CachePageOffsetSize_0x400> codeList{};
 		bool isBroken{};
+		Array<RecompiledCodeHandler> generatedCodes{};
 	};
 
 	using CachePagePtr = std::unique_ptr<CachePage>;
@@ -43,7 +43,8 @@ namespace N64::Cpu_detail::Dynarec
 	class RecompiledCache
 	{
 	public:
-		void CheckInvalidatePage(PAddr32 paddr);
+		RecompiledCodeHandler HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc);
+		void CheckInvalidatePage(PAddr32 paddr) const;
 
 	private:
 		Array<CachePagePtr> m_pages{Arg::reserve(CachePageIndexSize_0x80000)};

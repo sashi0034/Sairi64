@@ -74,14 +74,13 @@ public:
 			cpu.handleException(cpu.m_pc.Curr(), cpu.m_cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
 			return 1;
 		}
-		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
-		N64_TRACE(U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), cpu.m_pc.Curr()));
+
+		const auto code = cpu.m_dynarec.cache.HitBlockCodeOrRecompile(n64, cpu, paddrOfPc.value());
 
 		// update pc
 		// m_pc.Step();
 
-		// TODO
-		return {};
+		return code();
 	}
 };
 

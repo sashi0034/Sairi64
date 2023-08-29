@@ -43,11 +43,10 @@ namespace N64::Cpu_detail::Dynarec
 	class RecompiledCache
 	{
 	public:
-		RecompiledCache();
 		RecompiledCodeHandler HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc);
 		void CheckInvalidatePage(PAddr32 paddr) const;
 
 	private:
-		Array<CachePagePtr> m_pages{Arg::reserve(CachePageIndexSize_0x80000)}; // TODO: std::arrayにしたらビルドが終わらないので調査
+		Array<CachePagePtr> m_pages{CachePageIndexSize_0x80000};
 	};
 }

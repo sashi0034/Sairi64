@@ -2,6 +2,7 @@
 #include "Cop0.h"
 #include "Cop1.h"
 #include "Gpr.h"
+#include "Dynarec/RecompiledCache.h"
 
 namespace N64
 {
@@ -68,7 +69,7 @@ namespace N64::Cpu_detail
 	class Cpu
 	{
 	public:
-		template <ProcessorType processor> void Step(N64System& n64);
+		template <ProcessorType processor> CpuCycles Step(N64System& n64);
 
 		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
@@ -81,6 +82,7 @@ namespace N64::Cpu_detail
 		void SetHi(uint64 hi) { m_hi = hi; }
 
 	private:
+		class Impl;
 		class Interpreter;
 
 		Pc m_pc{};
@@ -92,19 +94,33 @@ namespace N64::Cpu_detail
 		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果
 		uint64 m_hi{}; // 64ビットの整数乗算/除算レジスタの下位結果
 
+		struct
+		{
+			Dynarec::RecompiledCache cache{};
+		} m_dynarec{};
+
 		void stepInterpreter(N64System& n64);
-		void stepDynarec(N64System& n64);
+		CpuCycles stepDynarec(N64System& n64);
+
 		void handleException(uint64 pc, ExceptionCode code, int coprocessorError);
 	};
 
 	template <ProcessorType processor>
-	void Cpu::Step(N64System& n64)
+	CpuCycles Cpu::Step(N64System& n64)
 	{
 		if constexpr (processor == ProcessorType::Interpreter)
+		{
 			stepInterpreter(n64);
+			return 1;
+		}
 		else if constexpr (processor == ProcessorType::Dynarec)
-			stepDynarec(n64);
+		{
+			return stepDynarec(n64);
+		}
 		else
+		{
 			static_assert(Utils::AlwaysFalseValue<ProcessorType, processor>);
+			return {};
+		}
 	}
 }

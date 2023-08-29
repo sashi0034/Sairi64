@@ -8,10 +8,11 @@
 #include "N64/N64Logger.h"
 #include "Utils/Util.h"
 
-namespace N64::Cpu_detail
+class N64::Cpu_detail::Cpu::Impl
 {
+public:
 	template <ProcessorType processor>
-	void updateCountAndCheckCompareInterrupt(
+	static void updateCountAndCheckCompareInterrupt(
 		N64System& n64, Cpu& cpu,
 		std::conditional_t<processor == ProcessorType::Interpreter, void*, CpuCycles> cycles)
 	{
@@ -42,7 +43,7 @@ namespace N64::Cpu_detail
 		}
 	}
 
-	bool shouldServiceInterrupt(const Cop0& cop0)
+	static bool shouldServiceInterrupt(const Cop0& cop0)
 	{
 		auto&& cop0Reg = cop0.Reg();
 		auto status = Cop0Status32(cop0Reg.status);
@@ -56,6 +57,37 @@ namespace N64::Cpu_detail
 			(currentlyHandlingException == false) && (currentlyHandlingError == false);
 	}
 
+	static CpuCycles takeDynarecCycle(N64System& n64, Cpu& cpu)
+	{
+		// check for interrupt/exception
+		if (shouldServiceInterrupt(cpu.m_cop0))
+		{
+			cpu.handleException(cpu.m_pc.Curr(), ExceptionKinds::Interrupt, 0);
+			return 1;
+		}
+
+		// instruction fetch
+		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(cpu, cpu.m_pc.Curr());
+		if (paddrOfPc.has_value() == false)
+		{
+			cpu.m_cop0.HandleTlbException(cpu.m_pc.Curr());
+			cpu.handleException(cpu.m_pc.Curr(), cpu.m_cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
+			return 1;
+		}
+		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
+		N64_TRACE(U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), cpu.m_pc.Curr()));
+
+		// update pc
+		// m_pc.Step();
+
+		// TODO
+		return {};
+	}
+};
+
+namespace N64::Cpu_detail
+{
+	// インタプリタ実行
 	void Cpu::stepInterpreter(N64System& n64)
 	{
 		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
@@ -64,7 +96,7 @@ namespace N64::Cpu_detail
 		m_delaySlot.Step();
 
 		// check for interrupt/exception
-		if (shouldServiceInterrupt(m_cop0))
+		if (Impl::shouldServiceInterrupt(m_cop0))
 		{
 			handleException(m_pc.Curr(), ExceptionKinds::Interrupt, 0);
 			return;
@@ -88,43 +120,22 @@ namespace N64::Cpu_detail
 		Interpreter::InterpretInstruction(n64, *this, fetchedInstr);
 
 		// check compare interrupt
-		updateCountAndCheckCompareInterrupt<ProcessorType::Interpreter>(n64, *this, nullptr);
+		Impl::updateCountAndCheckCompareInterrupt<ProcessorType::Interpreter>(n64, *this, nullptr);
 	}
 
-	void Cpu::stepDynarec(N64System& n64)
+	// 動的再コンパイラ実行
+	CpuCycles Cpu::stepDynarec(N64System& n64)
 	{
 		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
 		// update delay slot
-		m_delaySlot.Step();
-
-		// check for interrupt/exception
-		if (shouldServiceInterrupt(m_cop0))
-		{
-			handleException(m_pc.Curr(), ExceptionKinds::Interrupt, 0);
-			return;
-		}
-
-		// instruction fetch
-		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(*this, m_pc.Curr());
-		if (paddrOfPc.has_value() == false)
-		{
-			m_cop0.HandleTlbException(m_pc.Curr());
-			handleException(m_pc.Curr(), m_cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
-			return;
-		}
-		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
-		N64_TRACE(U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), m_pc.Curr()));
-
-		// update pc
-		m_pc.Step();
-
-		// execution
-		Interpreter::InterpretInstruction(n64, *this, fetchedInstr);
-		CpuCycles taken{}; // TODO
+		// TODO: delay slotもDynarec内部で更新?
+		const CpuCycles taken = Impl::takeDynarecCycle(n64, *this);
 
 		// check compare interrupt
-		updateCountAndCheckCompareInterrupt<ProcessorType::Dynarec>(n64, *this, taken);
+		Impl::updateCountAndCheckCompareInterrupt<ProcessorType::Dynarec>(n64, *this, taken);
+
+		return taken;
 	}
 
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/r4300i.c#L68

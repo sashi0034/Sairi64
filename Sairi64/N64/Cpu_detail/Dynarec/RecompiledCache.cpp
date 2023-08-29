@@ -17,6 +17,11 @@ namespace N64::Cpu_detail::Dynarec
 		return {}; // TODO: recompile
 	}
 
+	RecompiledCache::RecompiledCache()
+	{
+		m_pages.resize(CachePageIndexSize_0x80000);
+	}
+
 	RecompiledCodeHandler RecompiledCache::HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc)
 	{
 		auto&& page = m_pages[GetPageIndex(pc)];

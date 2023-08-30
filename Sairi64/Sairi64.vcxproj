@@ -215,6 +215,7 @@
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
     <ClCompile Include="N64\Scheduler.cpp" />
     <ClCompile Include="Tests\AnyTests.cpp" />
+    <ClCompile Include="Tests\DynarecTest.cpp" />
     <ClCompile Include="Tests\N64Test.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
     <ClCompile Include="Ui\UiManager.cpp" />

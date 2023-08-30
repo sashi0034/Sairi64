@@ -52,7 +52,8 @@ namespace N64::Cpu_detail::Dynarec
 		m_gpStackCount++;
 		m_gpMap[rd] = nextGp.id();
 
-		x86Asm.mov(nextGp, gpr.Raw()[rd]);
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[rd])));
+		x86Asm.mov(nextGp, x86::rax);
 
 		return nextGp;
 	}
@@ -112,7 +113,9 @@ namespace N64::Cpu_detail::Dynarec
 		for (int i = 0; i < m_gpStackCount; ++i)
 		{
 			const uint8 gprId = m_gpStack[i];
-			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[gprId])), m_gpMap[gprId]);
+			x86Asm.mov(x86::rax, (uint64)(&gpr.Raw()[gprId]));
+			x86Asm.mov(x86::qword_ptr(x86::rax), x86::gpq(m_gpMap[gprId]));
+			m_gpMap[gprId] = -1;
 		}
 		m_gpStackCount = 0;
 	}

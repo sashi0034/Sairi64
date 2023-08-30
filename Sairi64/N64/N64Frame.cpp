@@ -16,12 +16,12 @@ namespace N64
 	[[nodiscard]] inline bool emulateFrame_stepCyclesPerHalfLine(
 		N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
-		for (int i = 0; i < n64.GetVI().CyclesPerHalfLine(); ++i)
+		for (int i = 0; i < n64.GetVI().CyclesPerHalfLine();) // TODO: iは0じゃなくて、前回フレームを考慮して進める
 		{
 			// CPUステップ
-			n64.GetCpu().Step<processor>(n64);
+			const CpuCycles taken = n64.GetCpu().Step<processor>(n64);
 
-			if (state.rspConsumableCycles++; state.rspConsumableCycles >= 3)
+			if (state.rspConsumableCycles += taken; state.rspConsumableCycles >= 3)
 			{
 				// CPUステップ3回につき、RSPステップ2回
 				state.rspConsumableCycles -= 3;
@@ -29,12 +29,14 @@ namespace N64
 			}
 
 			// スケジューラステップ
-			n64.GetScheduler().Step();
+			n64.GetScheduler().Step(taken);
 
 			if constexpr (hasBreakPoint)
 			{
 				if (breakPoint()) return true;
 			}
+
+			i += taken;
 		}
 		return false;
 	}

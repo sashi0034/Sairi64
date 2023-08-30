@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Forward.h"
 
 namespace N64
 {
@@ -37,7 +38,7 @@ namespace N64
 			m_eventQueue.emplace(ScheduledEvent(m_currentTime + cycles + 1, event));
 		}
 
-		void Step();
+		void Step(CpuCycles cycles);
 
 	private:
 		uint64 m_currentTime{};

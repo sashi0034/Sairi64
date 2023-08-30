@@ -3,11 +3,11 @@
 
 namespace N64
 {
-	void Scheduler::Step()
+	void Scheduler::Step(CpuCycles cycles)
 	{
 		if (m_eventQueue.empty()) return;
 
-		m_currentTime += 1;
+		m_currentTime += cycles;
 		if (m_currentTime >= m_overflowTime)
 		{
 			// 時間オーバーフローしたときの対処
@@ -18,7 +18,7 @@ namespace N64
 		{
 			// キューは昇順ソートされているので、先頭要素だけを比較する
 			auto&& top = m_eventQueue.top();
-			if (top.GetFireTime() == m_currentTime)
+			if (m_currentTime >= top.GetFireTime())
 			{
 				// 発火
 				top.Fire();

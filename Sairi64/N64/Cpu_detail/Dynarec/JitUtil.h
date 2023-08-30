@@ -6,6 +6,8 @@
 #error "This file is an internal file used by Recompiler"
 #endif
 
+#define OFFSET_TO(type, base, target) (offsetof(type, target) - offsetof(type, base))
+
 namespace N64::Cpu_detail::Dynarec
 {
 	namespace x86 = asmjit::x86;
@@ -32,10 +34,11 @@ namespace N64::Cpu_detail::Dynarec
 	                    uint64 prevPc, uint64 currPc, uint64 nextPc)
 	{
 		auto&& x86Asm = ctx.x86Asm;
-		x86Asm->mov(x86::rax, (uint64)&ctx.cpu->GetPc().Raw().curr);
-		x86Asm->mov(x86::qword_ptr(x86::rax, -8), prevPc);
+		auto&& raw = &ctx.cpu->GetPc().Raw();
+		x86Asm->mov(x86::rax, (uint64)&raw->curr);
+		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), prevPc);
 		x86Asm->mov(x86::qword_ptr(x86::rax, 0), currPc);
-		x86Asm->mov(x86::qword_ptr(x86::rax, 8), nextPc);
+		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), nextPc);
 	}
 
 	static void FlashPc(const AssembleContext& ctx, const Pc& pc)
@@ -47,7 +50,7 @@ namespace N64::Cpu_detail::Dynarec
 	{
 		auto&& x86Asm = ctx.x86Asm;
 		x86Asm->mov(x86::rax, (uint64)&ctx.cpu->GetDelaySlot().Raw().curr);
-		x86Asm->mov(x86::qword_ptr(x86::rax, -8), delaySlot.Prev());
+		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(DelaySlotRow, curr, prev)), delaySlot.Prev());
 		x86Asm->mov(x86::qword_ptr(x86::rax, 0), delaySlot.Curr());
 	}
 

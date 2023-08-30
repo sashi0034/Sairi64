@@ -10,7 +10,7 @@ namespace N64
 			String filePath;
 		} rom;
 
-		ProcessorType processor = ProcessorType::Interpreter;
+		ProcessorType processor = ProcessorType::Dynarec;
 
 		struct
 		{

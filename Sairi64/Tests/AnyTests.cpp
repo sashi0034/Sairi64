@@ -15,14 +15,14 @@ namespace Tests
 		scheduler.ScheduleEvent(10, [&test]() { test = 1; });
 		scheduler.ScheduleEvent(30, [&test]() { test += 10; });
 
-		for (int i = 0; i < 100; ++i) scheduler.Step();
+		for (int i = 0; i < 100; ++i) scheduler.Step(1);
 		REQUIRE(test == 15);
 
 		scheduler.ScheduleEvent(50, [&test]() { test *= 10; });
 		scheduler.ScheduleEvent(0, [&test]() { test *= 2; });
 		scheduler.ScheduleEvent(40, [&test]() { test -= 20; });
 
-		for (int i = 0; i < 100; ++i) scheduler.Step();
+		for (int i = 0; i < 100; ++i) scheduler.Step(7);
 		REQUIRE(test == 100);
 	}
 

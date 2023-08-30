@@ -432,6 +432,8 @@ namespace N64::Cpu_detail::Dynarec
 		const uint32 recompiledLength = assembleCodeInternal(ctx, startPc);
 
 		gprMapper.FlushClear(x86Asm, cpu.GetGpr());
+		// TODO: end label?
+		x86Asm.mov(x86::rax, recompiledLength);
 		x86Asm.add(x86::rsp, stackSize);
 		gprMapper.PopNonVolatiles(x86Asm);
 		x86Asm.ret();

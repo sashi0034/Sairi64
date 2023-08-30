@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "RecompiledCache.h"
 
-#include "Recompiler_x86_64.h"
+#include "Recompiler.h"
 #include "N64/N64Logger.h"
 #include "N64/N64System.h"
 

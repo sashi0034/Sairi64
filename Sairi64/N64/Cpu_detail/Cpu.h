@@ -86,6 +86,7 @@ namespace N64::Cpu_detail
 		template <ProcessorType processor> CpuCycles Step(N64System& n64);
 
 		Pc& GetPc() { return m_pc; }
+		DelaySlot& GetDelaySlot() { return m_delaySlot; }
 		Gpr& GetGpr() { return m_gpr; }
 		Cop0& GetCop0() { return m_cop0; }
 		Cop1& GetCop1() { return m_cop1; }

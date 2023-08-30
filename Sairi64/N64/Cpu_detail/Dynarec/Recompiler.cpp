@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "Recompiler_x86_64.h"
+#include "Recompiler.h"
 
 #include "GprMapper.h"
 #include "N64/Mmu.h"
@@ -22,8 +22,9 @@ namespace N64::Cpu_detail::Dynarec
 	struct AssembleState
 	{
 		uint32 recompiledLength;
-		uint32 cursorPc;
-		Pc mirrorCursorPc;
+		uint32 scanPc;
+		Pc shadowScanPc;
+		DelaySlot scanDelaySlot;
 	};
 
 	using EndFlag = bool;
@@ -163,8 +164,16 @@ namespace N64::Cpu_detail::Dynarec
 			auto&& x86Asm = ctx.x86Asm;
 			x86Asm->mov(x86::rax, (uint64)&ctx.cpu->GetPc().Raw().curr);
 			x86Asm->mov(x86::qword_ptr(x86::rax, -8), prevPc);
-			x86Asm->mov(x86::qword_ptr(x86::rax), currPc);
+			x86Asm->mov(x86::qword_ptr(x86::rax, 0), currPc);
 			x86Asm->mov(x86::qword_ptr(x86::rax, 8), nextPc);
+		}
+
+		static void FlashDelaySlot(const AssembleContext& ctx, const DelaySlot& delaySlot)
+		{
+			auto&& x86Asm = ctx.x86Asm;
+			x86Asm->mov(x86::rax, (uint64)&ctx.cpu->GetDelaySlot().Raw().curr);
+			x86Asm->mov(x86::qword_ptr(x86::rax, -8), delaySlot.Prev());
+			x86Asm->mov(x86::qword_ptr(x86::rax, 0), delaySlot.Curr());
 		}
 
 	private:
@@ -176,8 +185,9 @@ namespace N64::Cpu_detail::Dynarec
 
 		AssembleState state{
 			.recompiledLength = 0,
-			.cursorPc = startPc,
-			.mirrorCursorPc = ctx.cpu->GetPc(), // copy
+			.scanPc = startPc,
+			.shadowScanPc = ctx.cpu->GetPc(), // copy
+			.scanDelaySlot = ctx.cpu->GetDelaySlot(), // copy
 		};
 
 		while (true)
@@ -186,12 +196,14 @@ namespace N64::Cpu_detail::Dynarec
 			if (state.recompiledLength > maxRecompilableLength) break;
 
 			// 命令フェッチ
-			const Instruction fetchedInstr = {Mmu::ReadPaddr32(*ctx.n64, PAddr32(state.cursorPc))};
+			const Instruction fetchedInstr = {Mmu::ReadPaddr32(*ctx.n64, PAddr32(state.scanPc))};
 
 			state.recompiledLength += 1;
-			state.cursorPc += 4;
-			state.mirrorCursorPc.Step();
-			Impl::FlashPc(ctx, state.mirrorCursorPc); // TODO: 命令内でフレッシュするか判断?
+			state.scanPc += 4;
+			state.shadowScanPc.Step();
+			Impl::FlashPc(ctx, state.shadowScanPc); // TODO: 命令内でフレッシュするか判断?
+			state.scanDelaySlot.Step();
+			Impl::FlashDelaySlot(ctx, state.scanDelaySlot);
 
 			// 命令アセンブル
 			const EndFlag end = Impl::AssembleInstr(ctx, fetchedInstr, state);

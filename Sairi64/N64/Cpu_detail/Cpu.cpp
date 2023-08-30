@@ -76,10 +76,6 @@ public:
 		}
 
 		const auto code = cpu.m_dynarec.cache.HitBlockCodeOrRecompile(n64, cpu, paddrOfPc.value());
-
-		// update pc
-		// m_pc.Step();
-
 		return code();
 	}
 };
@@ -127,8 +123,6 @@ namespace N64::Cpu_detail
 	{
 		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
-		// update delay slot
-		// TODO: delay slotもDynarec内部で更新?
 		const CpuCycles taken = Impl::takeDynarecCycle(n64, *this);
 
 		// check compare interrupt

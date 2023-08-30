@@ -122,7 +122,7 @@ public:
 		case Opcode::LDC1:
 			break;
 		case Opcode::LD:
-			break;
+			return UseInterpreter(ctx, instr, &interpret::LD);
 		case Opcode::SC:
 			break;
 		case Opcode::SWC1:
@@ -132,7 +132,7 @@ public:
 		case Opcode::SDC1:
 			break;
 		case Opcode::SD:
-			break;
+			return UseInterpreter(ctx, instr, &interpret::SD);
 		default: ;
 		}
 
@@ -196,9 +196,9 @@ private:
 		case OpSpecialFunct::DDIVU:
 			break;
 		case OpSpecialFunct::ADD:
-			return Jit::ADDU(ctx, instr); // TODO: オーバーフローハンドリング?
+			return UseInterpreter(ctx, instr, &interpret::ADD);
 		case OpSpecialFunct::ADDU:
-			return Jit::ADDU(ctx, instr);
+			return UseInterpreter(ctx, instr, &interpret::ADDU);
 		case OpSpecialFunct::SUB:
 			return UseInterpreter(ctx, instr, &interpret::SUB);
 		case OpSpecialFunct::SUBU:

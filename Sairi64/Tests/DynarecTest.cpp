@@ -20,7 +20,7 @@ TEST_CASE("DynarecTest_GprMapper")
 	code.setLogger(&logger);
 #endif
 
-	static Gpr gpr{};
+	Gpr gpr{};
 	for (int i = 0; i < 32; ++i) gpr.Write(i, i * 10);
 	Dynarec::GprMapper gprMapper{};
 	gprMapper.PushNonVolatiles(x86Asm);
@@ -63,4 +63,47 @@ TEST_CASE("DynarecTest_GprMapper")
 	REQUIRE(gpr.Read(2) == 37);
 	REQUIRE(gpr.Read(16) == 177);
 	REQUIRE(gpr.Read(17) == 347);
+}
+
+#define DYNAREC_RECOMPILER_INTERNAL
+#include "N64/Cpu_detail/Dynarec/JitUtil.h"
+
+TEST_CASE("DynarecTest_AssembleStepPc")
+{
+	using namespace asmjit;
+
+	JitRuntime jit;
+	CodeHolder code;
+	code.init(jit.environment());
+	x86::Assembler x86Asm(&code);
+#ifdef SHOW_LOG
+	StringLogger logger{};
+	code.setLogger(&logger);
+#endif
+
+	PcRaw pc{0x10, 0x14, 0x18};
+	Dynarec::AssembleStepPc(x86Asm, pc);
+	x86Asm.ret();
+
+#ifdef SHOW_LOG
+	auto codeData = logger.data();
+	std::cout << codeData << std::endl;
+#endif
+
+	typedef void (*func_t)();
+	func_t func;
+	const auto error = jit.add(&func, &code);
+	REQUIRE(error == 0);
+
+	func();
+	REQUIRE(pc.prev == 0x14);
+	REQUIRE(pc.curr == 0x18);
+	REQUIRE(pc.next == 0x1C);
+
+	func();
+	REQUIRE(pc.prev == 0x18);
+	REQUIRE(pc.curr == 0x1C);
+	REQUIRE(pc.next == 0x20);
+
+	jit.release(func);
 }

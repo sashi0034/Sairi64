@@ -30,18 +30,21 @@ namespace N64::Cpu_detail::Dynarec
 
 	using EndFlag = bool;
 
-	static void AssembleStepPc(const AssembleContext& ctx)
+	static void AssembleStepPc(x86::Assembler& x86Asm, const PcRaw& pc)
 	{
 		// TODO: まとめてステップできるようにしたい
-		auto&& x86Asm = ctx.x86Asm;
-		auto&& raw = &ctx.cpu->GetPc().Raw();
-		x86Asm->mov(x86::rax, (uint64)&raw->curr); // rax <- *curr
-		x86Asm->mov(x86::rcx, x86::qword_ptr(x86::rax, 0)); // rcx <- curr
-		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), x86::rcx); // prev <- rcx
-		x86Asm->mov(x86::rcx, x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next))); // rcx <- next
-		x86Asm->mov(x86::qword_ptr(x86::rax, 0), x86::rcx); // curr <- rcx
-		x86Asm->add(x86::rcx, 4); // rcx <- rcx+4
-		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), x86::rcx); // next <- rcx
+		x86Asm.mov(x86::rax, (uint64)&pc.curr); // rax <- *curr
+		x86Asm.mov(x86::rcx, x86::qword_ptr(x86::rax, 0)); // rcx <- curr
+		x86Asm.mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), x86::rcx); // prev <- rcx
+		x86Asm.mov(x86::rcx, x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next))); // rcx <- next
+		x86Asm.mov(x86::qword_ptr(x86::rax, 0), x86::rcx); // curr <- rcx
+		x86Asm.add(x86::rcx, 4); // rcx <- rcx+4
+		x86Asm.mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), x86::rcx); // next <- rcx
+	}
+
+	static void AssembleStepPc(const AssembleContext& ctx)
+	{
+		AssembleStepPc(*ctx.x86Asm, ctx.cpu->GetPc().Raw());
 	}
 
 	static void AssembleStepDelaySlot(const AssembleContext& ctx)

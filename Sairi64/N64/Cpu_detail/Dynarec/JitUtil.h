@@ -16,8 +16,8 @@ namespace N64::Cpu_detail::Dynarec
 	{
 		uint32 recompiledLength;
 		uint32 scanPc;
-		Pc shadowScanPc;
-		DelaySlot scanDelaySlot;
+		// Pc shadowScanPc;
+		// DelaySlot scanDelaySlot;
 	};
 
 	struct AssembleContext
@@ -29,6 +29,33 @@ namespace N64::Cpu_detail::Dynarec
 	};
 
 	using EndFlag = bool;
+
+	static void AssembleStepPc(const AssembleContext& ctx)
+	{
+		// TODO: まとめてステップできるようにしたい
+		auto&& x86Asm = ctx.x86Asm;
+		auto&& raw = &ctx.cpu->GetPc().Raw();
+		x86Asm->mov(x86::rax, (uint64)&raw->curr); // rax <- *curr
+		x86Asm->mov(x86::rcx, x86::qword_ptr(x86::rax, 0)); // rcx <- curr
+		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), x86::rcx); // prev <- rcx
+		x86Asm->mov(x86::rcx, x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next))); // rcx <- next
+		x86Asm->mov(x86::qword_ptr(x86::rax, 0), x86::rcx); // curr <- rcx
+		x86Asm->add(x86::rcx, 4); // rcx <- rcx+4
+		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), x86::rcx); // next <- rcx
+	}
+
+	static void AssembleStepDelaySlot(const AssembleContext& ctx)
+	{
+		// https://learn.microsoft.com/ja-jp/windows-hardware/drivers/debugger/x64-architecture#calling-conventions
+		// rcx > ecx > Cx > cl
+		auto&& x86Asm = ctx.x86Asm;
+		auto&& raw = &ctx.cpu->GetDelaySlot().Raw();
+		x86Asm->mov(x86::rax, (uint64)&raw->curr); // rax <- *curr
+		x86Asm->movzx(x86::ecx, x86::byte_ptr(x86::rax, 0)); // ecx <- curr
+		x86Asm->mov(x86::byte_ptr(x86::rax, OFFSET_TO(DelaySlotRow, curr, prev)), x86::cl); // prev <- cl
+		x86Asm->xor_(x86::cl, x86::cl); // cl <- 0
+		x86Asm->mov(x86::byte_ptr(x86::rax, 0), x86::cl); // curr <- cl
+	}
 
 	static void FlashPc(const AssembleContext& ctx,
 	                    uint64 prevPc, uint64 currPc, uint64 nextPc)

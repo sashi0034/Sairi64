@@ -32,7 +32,7 @@ public:
 		case Opcode::JAL:
 			return UseInterpreter(ctx, instr, &interpret::JAL);
 		case Opcode::BEQ:
-			return UseInterpreter(ctx, instr, &interpret::JAL);
+			return UseInterpreter(ctx, instr, &interpret::BEQ);
 		case Opcode::BNE:
 			return UseInterpreter(ctx, instr, &interpret::BNE);
 		case Opcode::BLEZ:
@@ -382,8 +382,6 @@ namespace N64::Cpu_detail::Dynarec
 		AssembleState state{
 			.recompiledLength = 0,
 			.scanPc = startPc,
-			.shadowScanPc = ctx.cpu->GetPc(), // copy
-			.scanDelaySlot = ctx.cpu->GetDelaySlot(), // copy
 		};
 
 		while (true)
@@ -391,8 +389,7 @@ namespace N64::Cpu_detail::Dynarec
 			// ページ内のみコンパイル
 			if (state.recompiledLength > maxRecompilableLength)
 			{
-				FlashPc(ctx, state.shadowScanPc);
-				FlashDelaySlot(ctx, state.scanDelaySlot);
+				// // TODO: flash?
 				break;
 			}
 
@@ -401,12 +398,10 @@ namespace N64::Cpu_detail::Dynarec
 
 			state.recompiledLength += 1;
 			state.scanPc += 4;
-			state.shadowScanPc.Step();
-			state.scanDelaySlot.Step();
 
 			// TODO: 命令内でフレッシュするか判断?
-			FlashPc(ctx, state.shadowScanPc);
-			FlashDelaySlot(ctx, state.scanDelaySlot);
+			AssembleStepPc(ctx);
+			AssembleStepDelaySlot(ctx);
 
 			// 命令アセンブル
 			const EndFlag end = Impl::AssembleInstr(ctx, state, fetchedInstr);

@@ -12,7 +12,7 @@ namespace N64
 		static N64Logger& Instance() { return N64Singleton::Instance().GetLogger(); }
 		bool isTraceEnabled{};
 
-		void UpdateTranceEnabled()
+		void UpdateTraceEnabled()
 		{
 #if 0
 			isTraceEnabled = true;
@@ -23,8 +23,16 @@ namespace N64
 			// if (count > 23772368) isTraceEnabled = true; // SI_STATUS登場付近
 #endif
 #if 0
-			if (System().GetCpu().GetPc().Curr() == 0xFFFFFFFF80010CDC) // VI_XScale_0x04400030 書き込み付近
+			if (System().GetCpu().GetPc().Curr() == 0xffffffff80000128)
 				isTraceEnabled = true;
+#endif
+#if 0
+			static int countdown = 120;
+			if (isTraceEnabled && countdown >= 0)
+			{
+				countdown--;
+				if (countdown == 0) isTraceEnabled = false;
+			}
 #endif
 		}
 	};
@@ -78,7 +86,7 @@ namespace N64
 	bool N64Logger::IsTraceEnabled()
 	{
 		auto&& impl = Impl::Instance().m_impl;
-		impl->UpdateTranceEnabled();
+		impl->UpdateTraceEnabled();
 		return impl->isTraceEnabled;
 	}
 

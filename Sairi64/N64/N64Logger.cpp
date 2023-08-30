@@ -20,10 +20,10 @@ namespace N64
 #if 0
 			static int count = 0;
 			count++;
-			// if (count > 23772368) isTraceEnabled = true; // SI_STATUS登場付近
+			if (count > 15357900) isTraceEnabled = true;
 #endif
 #if 0
-			if (System().GetCpu().GetPc().Curr() == 0xffffffff80000128)
+			if (System().GetCpu().GetPc().Curr() == 0xffffffff80000100)
 				isTraceEnabled = true;
 #endif
 #if 0

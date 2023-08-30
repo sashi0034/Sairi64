@@ -79,11 +79,6 @@ namespace N64::Cpu_detail
 		DelaySlotRow m_raw{};
 	};
 
-	namespace Dynarec
-	{
-		class Jit; // TODO: JITで必要なくなったら除去
-	}
-
 	// https://ultra64.ca/files/documentation/silicon-graphics/SGI_R4300_RISC_Processor_Specification_REV2.2.pdf
 	class Cpu
 	{
@@ -101,6 +96,8 @@ namespace N64::Cpu_detail
 		void SetLo(uint64 lo) { m_lo = lo; }
 		void SetHi(uint64 hi) { m_hi = hi; }
 
+		Dynarec::RecompiledCache& RecompiledCache() { return m_recompiledCache; }
+
 		class Interpreter;
 
 	private:
@@ -115,10 +112,7 @@ namespace N64::Cpu_detail
 		uint64 m_lo{}; // 64ビットの整数乗算/除算レジスタの上位結果
 		uint64 m_hi{}; // 64ビットの整数乗算/除算レジスタの下位結果
 
-		struct
-		{
-			Dynarec::RecompiledCache cache{};
-		} m_dynarec{};
+		Dynarec::RecompiledCache m_recompiledCache{};
 
 		void stepInterpreter(N64System& n64);
 		CpuCycles stepDynarec(N64System& n64);

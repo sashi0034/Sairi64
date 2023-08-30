@@ -62,6 +62,7 @@ public:
 		// check for interrupt/exception
 		if (shouldServiceInterrupt(cpu.m_cop0))
 		{
+			cpu.m_delaySlot.Step();
 			cpu.handleException(cpu.m_pc.Curr(), ExceptionKinds::Interrupt, 0);
 			return 1;
 		}
@@ -70,12 +71,13 @@ public:
 		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(cpu, cpu.m_pc.Curr());
 		if (paddrOfPc.has_value() == false)
 		{
+			cpu.m_delaySlot.Step();
 			cpu.m_cop0.HandleTlbException(cpu.m_pc.Curr());
 			cpu.handleException(cpu.m_pc.Curr(), cpu.m_cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
 			return 1;
 		}
 
-		const auto code = cpu.m_dynarec.cache.HitBlockCodeOrRecompile(n64, cpu, paddrOfPc.value());
+		const auto code = cpu.m_recompiledCache.HitBlockCodeOrRecompile(n64, cpu, paddrOfPc.value());
 		return code();
 	}
 };

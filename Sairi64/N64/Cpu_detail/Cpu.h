@@ -11,58 +11,72 @@ namespace N64
 
 namespace N64::Cpu_detail
 {
+	struct PcRaw
+	{
+		uint64 prev{};
+		uint64 curr{};
+		uint64 next{4};
+	};
+
 	class Pc
 	{
 	public:
-		uint64 Prev() const { return m_prev; }
-		uint64 Curr() const { return m_curr; }
-		uint64 Next() const { return m_next; }
-		void SetNext(uint64 next) { m_next = next; }
+		uint64 Prev() const { return m_raw.prev; }
+		uint64 Curr() const { return m_raw.curr; }
+		uint64 Next() const { return m_raw.next; }
+		void SetNext(uint64 next) { m_raw.next = next; }
 
 		void Step()
 		{
-			m_prev = m_curr;
-			m_curr = m_next;
-			m_next += 4;
+			m_raw.prev = m_raw.curr;
+			m_raw.curr = m_raw.next;
+			m_raw.next += 4;
 		}
 
 		void Change32(uint32 pc)
 		{
-			m_prev = m_curr;
-			m_curr = (sint64)static_cast<sint32>(pc);
-			m_next = pc + 4;
+			m_raw.prev = m_raw.curr;
+			m_raw.curr = (sint64)static_cast<sint32>(pc);
+			m_raw.next = pc + 4;
 		}
 
 		void Change64(uint64 pc)
 		{
-			m_prev = m_curr;
-			m_curr = pc;
-			m_next = pc + 4;
+			m_raw.prev = m_raw.curr;
+			m_raw.curr = pc;
+			m_raw.next = pc + 4;
 		}
 
+		PcRaw& Raw() { return m_raw; }
+
 	private:
-		uint64 m_prev{};
-		uint64 m_curr{};
-		uint64 m_next{4};
+		PcRaw m_raw;
+	};
+
+	struct DelaySlotRow
+	{
+		bool prev;
+		bool curr;
 	};
 
 	class DelaySlot
 	{
 	public:
-		bool Prev() const { return m_prev; }
-		bool Curr() const { return m_curr; }
+		bool Prev() const { return m_raw.prev; }
+		bool Curr() const { return m_raw.curr; }
 
 		void Step()
 		{
-			m_prev = m_curr;
-			m_curr = false;
+			m_raw.prev = m_raw.curr;
+			m_raw.curr = false;
 		}
 
-		void Set() { m_curr = true; }
+		void Set() { m_raw.curr = true; }
+
+		DelaySlotRow& Raw() { return m_raw; };
 
 	private:
-		bool m_prev{};
-		bool m_curr{};
+		DelaySlotRow m_raw{};
 	};
 
 	// https://ultra64.ca/files/documentation/silicon-graphics/SGI_R4300_RISC_Processor_Specification_REV2.2.pdf

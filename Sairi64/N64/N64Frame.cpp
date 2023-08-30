@@ -5,21 +5,21 @@
 
 namespace N64
 {
-	void N64Frame::Init(N64System& n64, const N64InitArgs& arg)
+	void N64Frame::Init(N64System& n64, const N64Config& config)
 	{
-		n64.GetMemory().GetRom().LoadFile(arg.filePath);
+		n64.GetMemory().GetRom().LoadFile(config.rom.filePath);
 
-		if (arg.executePifRom) Mmio::Pif::ExecuteRom(n64);
+		if (config.boot.executePifRom) Mmio::Pif::ExecuteRom(n64);
 	}
 
-	template <bool hasBreakPoint>
+	template <bool hasBreakPoint, ProcessorType processor>
 	[[nodiscard]] inline bool emulateFrame_stepCyclesPerHalfLine(
 		N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
 		for (int i = 0; i < n64.GetVI().CyclesPerHalfLine(); ++i)
 		{
 			// CPUステップ
-			n64.GetCpu().Step(n64);
+			n64.GetCpu().Step<processor>(n64);
 
 			if (state.rspConsumableCycles++; state.rspConsumableCycles >= 3)
 			{
@@ -39,7 +39,7 @@ namespace N64
 		return false;
 	}
 
-	template <bool hasBreakPoint = false>
+	template <bool hasBreakPoint = false, ProcessorType processor>
 	bool emulateFrame(N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
 		auto&& vi = n64.GetVI();
@@ -59,12 +59,13 @@ namespace N64
 				if (hasBreakPoint)
 				{
 					// ブレイクポイントに引っかかったら終了 (デバッグ用)
-					if (emulateFrame_stepCyclesPerHalfLine<hasBreakPoint>(n64, state, breakPoint)) return true;
+					if (emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state, breakPoint))
+						return true;
 				}
 				else
 				{
 					// 通常
-					(void)emulateFrame_stepCyclesPerHalfLine<hasBreakPoint>(n64, state);
+					(void)emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state);
 				}
 			}
 
@@ -78,16 +79,30 @@ namespace N64
 		return false;
 	}
 
-	void N64Frame::RunOnConsole(N64System& n64, const std::function<bool()>& breakPoint)
+	template <bool hasBreakPoint = false>
+	bool emulateFrame(
+		N64System& n64,
+		N64FrameInternalState& state,
+		ProcessorType processor,
+		const std::function<bool()>& breakPoint = {})
+	{
+		if (processor == ProcessorType::Interpreter)
+			return emulateFrame<hasBreakPoint, ProcessorType::Interpreter>(n64, state, breakPoint);
+		else if (processor == ProcessorType::Dynarec)
+			return emulateFrame<hasBreakPoint, ProcessorType::Dynarec>(n64, state, breakPoint);
+		else return false;
+	}
+
+	void N64Frame::RunOnConsole(N64System& n64, const N64Config& config, const std::function<bool()>& breakPoint)
 	{
 		while (true)
 		{
-			const bool breaking = emulateFrame<true>(n64, m_internalState, breakPoint);
+			const bool breaking = emulateFrame<true>(n64, m_internalState, config.processor, breakPoint);
 			if (breaking) return;
 		}
 	}
 
-	void N64Frame::ControlFrame(N64System& n64)
+	void N64Frame::ControlFrame(N64System& n64, const N64Config& config)
 	{
 		const double actualDeltaTime = Scene::DeltaTime();
 		const double virtualDeltaTime = 1.0 / GetFps_60_50(n64.GetMemory().IsRomPal());
@@ -98,7 +113,7 @@ namespace N64
 		while (m_fragmentTime >= virtualDeltaTime)
 		{
 			m_fragmentTime -= virtualDeltaTime;
-			emulateFrame(n64, m_internalState);
+			emulateFrame(n64, m_internalState, config.processor);
 		}
 	}
 }

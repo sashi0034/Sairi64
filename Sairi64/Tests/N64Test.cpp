@@ -22,11 +22,15 @@ namespace Tests
 
 		Console.writeln(U"start test rom: {}"_fmt(fileName));
 
+		const N64Config config{
+			.rom = {.filePath = U"asset/rom/dillonb-n64-tests/{}"_fmt(fileName)},
+			.boot = {
+				.executePifRom = false
+			}
+		};
+
 		// テスト用の初期化
-		n64Frame.Init(n64System, {
-			              .filePath = U"asset/rom/dillonb-n64-tests/{}"_fmt(fileName),
-			              .executePifRom = false
-		              });
+		n64Frame.Init(n64System, config);
 		for (uint32 i = 0; i < 0x100000; i += 4)
 		{
 			const uint32 data = Mmu::ReadPaddr32(n64System, PAddr32(0x10001000 + i));
@@ -36,7 +40,7 @@ namespace Tests
 
 		// N64コンソール実行
 		constexpr int targetR30 = 30;
-		n64Frame.RunOnConsole(n64System, [&]()
+		n64Frame.RunOnConsole(n64System, config, [&]()
 		{
 			return n64System.GetCpu().GetGpr().Read(targetR30) != 0;
 		});

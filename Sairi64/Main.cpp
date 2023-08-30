@@ -50,17 +50,14 @@ void Main()
 
 	Ui::UiManager uiManager{};
 
-	n64Frame.Init(n64System, {
-		              .filePath = debugConfig.rom.filePath,
-		              .executePifRom = true
-	              });
+	n64Frame.Init(n64System, debugConfig);
 
 	setupWindow();
 
 	while (System::Update())
 	{
 		// N64更新制御
-		n64Frame.ControlFrame(n64System);
+		n64Frame.ControlFrame(n64System, debugConfig);
 		n64System.GetRdp().RenderReal({
 			.startPoint = {32, 32}, .scale = 2.0
 		});

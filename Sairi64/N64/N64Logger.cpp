@@ -77,8 +77,9 @@ namespace N64
 
 	bool N64Logger::IsTraceEnabled()
 	{
-		Impl::Instance().m_impl->UpdateTranceEnabled();
-		return Impl::Instance().m_impl->isTraceEnabled;
+		auto&& impl = Impl::Instance().m_impl;
+		impl->UpdateTranceEnabled();
+		return impl->isTraceEnabled;
 	}
 
 	N64Logger::ImplPtr::~ImplPtr() = default;

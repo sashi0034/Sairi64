@@ -16,6 +16,8 @@ namespace N64::Cpu_detail
 	public:
 		uint64 Read(uint64 index) const { return m_reg[index]; }
 		void Write(uint64 index, uint64 value) { if (index != 0) m_reg[index] = value; }
+		std::array<uint64, GprSize_32>& Raw() { return m_reg; };
+		const std::array<uint64, GprSize_32>& Raw() const { return m_reg; };
 
 	private:
 		std::array<uint64, GprSize_32> m_reg{};

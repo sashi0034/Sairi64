@@ -5,11 +5,19 @@ namespace Utils
 	template <class...>
 	constexpr std::false_type AlwaysFalse{};
 
+	template <typename T, T value>
+	constexpr std::false_type AlwaysFalseValue{};
+
 	template <int x1, int x2 = x1, typename T>
 	T GetBits(T value)
 	{
 		static_assert(std::is_integral<T>::value);
 		static_assert(x1 <= x2 && x2 < std::numeric_limits<T>::digits);
+
+		if constexpr (x2 + 1 == std::numeric_limits<T>::digits)
+		{
+			return value >> x1;
+		}
 
 		constexpr T mask = ((T(1) << (x2 - x1 + 1)) - 1) << x1;
 		return (value & mask) >> x1;

@@ -187,6 +187,9 @@
     <ClCompile Include="N64\Cpu_detail\Cop1.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Dynarec\GprMapper.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Dynarec\RecompiledCache.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Dynarec\Recompiler_x86_64.cpp" />
     <ClCompile Include="N64\Cpu_detail\Gpr.cpp" />
     <ClCompile Include="N64\Cpu_detail\Instruction.cpp" />
     <ClCompile Include="N64\Interrupt.cpp" />
@@ -196,7 +199,7 @@
     <ClCompile Include="N64\Mmio\Controller.cpp" />
     <ClCompile Include="N64\Mmio\MI.cpp" />
     <ClCompile Include="N64\Mmio\PI.cpp" />
-    <ClCompile Include="N64\Mmio\Pif.cpp"/>
+    <ClCompile Include="N64\Mmio\Pif.cpp" />
     <ClCompile Include="N64\Mmio\RI.cpp" />
     <ClCompile Include="N64\Mmio\SI.cpp" />
     <ClCompile Include="N64\Mmio\VI.cpp" />
@@ -212,6 +215,7 @@
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
     <ClCompile Include="N64\Scheduler.cpp" />
     <ClCompile Include="Tests\AnyTests.cpp" />
+    <ClCompile Include="Tests\DynarecTest.cpp" />
     <ClCompile Include="Tests\N64Test.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
     <ClCompile Include="Ui\UiManager.cpp" />
@@ -522,6 +526,9 @@
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op_Cop.h" />
+    <ClInclude Include="N64\Cpu_detail\Dynarec\GprMapper.h" />
+    <ClInclude Include="N64\Cpu_detail\Dynarec\RecompiledCache.h" />
+    <ClInclude Include="N64\Cpu_detail\Dynarec\Recompiler_x86_64.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Instruction.h" />
     <ClInclude Include="N64\Interrupt.h" />

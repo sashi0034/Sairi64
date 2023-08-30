@@ -34,8 +34,8 @@ TEST_CASE("DynarecTest_GprMapper")
 
 	for (int i = 28; i < 30; i++)
 	{
-		gprMapper.AssignMap(x86Asm, gpr, i, i + 1);
-		gprMapper.AssignMap(x86Asm, gpr, i, i + 1, i + 2);
+		(void)gprMapper.AssignMap(x86Asm, gpr, i, i + 1);
+		(void)gprMapper.AssignMap(x86Asm, gpr, i, i + 1, i + 2);
 	}
 	auto [gpq_16, gpq_17] = gprMapper.AssignMap(x86Asm, gpr, 16, 17);
 	gpq_1 = gprMapper.AssignMap(x86Asm, gpr, 1);

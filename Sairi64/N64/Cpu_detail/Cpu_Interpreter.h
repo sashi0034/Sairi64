@@ -8,9 +8,9 @@ namespace N64::Cpu_detail
 	{
 	public:
 		static void InterpretInstruction(N64System& n64, Cpu& cpu, Instruction instr);
+		class Op;
 
 	private:
 		class Impl;
-		class Op;
 	};
 }

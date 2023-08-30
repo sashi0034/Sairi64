@@ -18,10 +18,10 @@ namespace N64::Cpu_detail::Dynarec
 		void PushNonVolatiles(x86::Assembler& x86Asm);
 		void PopNonVolatiles(x86::Assembler& x86Asm);
 
-		x86::Gpq AssignMap(x86::Assembler& x86Asm, Gpr& gpr, uint8 rd);
-		std::pair<x86::Gpq, x86::Gpq> AssignMap(x86::Assembler& x86Asm, Gpr& gpr, uint8 rd, uint8 rs);
-		std::tuple<x86::Gpq, x86::Gpq, x86::Gpq> AssignMap(x86::Assembler& x86Asm, Gpr& gpr, uint8 rd, uint8 rs,
-		                                                   uint8 rt);
+		[[nodiscard]] x86::Gpq AssignMap(x86::Assembler& x86Asm, Gpr& gpr, uint8 rd);
+		[[nodiscard]] std::pair<x86::Gpq, x86::Gpq> AssignMap(x86::Assembler& x86Asm, Gpr& gpr, uint8 rd, uint8 rs);
+		[[nodiscard]] std::tuple<x86::Gpq, x86::Gpq, x86::Gpq> AssignMap(
+			x86::Assembler& x86Asm, Gpr& gpr, uint8 rd, uint8 rs, uint8 rt);
 		void FlushClear(x86::Assembler& x86Asm, Gpr& gpr);
 
 	private:

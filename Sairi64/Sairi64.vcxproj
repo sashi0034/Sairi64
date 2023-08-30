@@ -187,7 +187,9 @@
     <ClCompile Include="N64\Cpu_detail\Cop1.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Dynarec\GprMapper.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\RecompiledCache.cpp" />
+    <ClCompile Include="N64\Cpu_detail\Dynarec\Recompiler_x86_64.cpp" />
     <ClCompile Include="N64\Cpu_detail\Gpr.cpp" />
     <ClCompile Include="N64\Cpu_detail\Instruction.cpp" />
     <ClCompile Include="N64\Interrupt.cpp" />
@@ -523,7 +525,9 @@
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op_Cop.h" />
+    <ClInclude Include="N64\Cpu_detail\Dynarec\GprMapper.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\RecompiledCache.h" />
+    <ClInclude Include="N64\Cpu_detail\Dynarec\Recompiler_x86_64.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Instruction.h" />
     <ClInclude Include="N64\Interrupt.h" />

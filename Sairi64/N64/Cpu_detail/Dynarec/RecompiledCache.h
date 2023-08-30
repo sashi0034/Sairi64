@@ -13,6 +13,12 @@ namespace N64::Cpu_detail::Dynarec
 
 	typedef CpuCycles (*RecompiledCodeHandler)();
 
+	struct RecompiledResult
+	{
+		RecompiledCodeHandler code;
+		uint32 recompiledLength;
+	};
+
 	struct BlockCode
 	{
 		RecompiledCodeHandler code = nullptr;

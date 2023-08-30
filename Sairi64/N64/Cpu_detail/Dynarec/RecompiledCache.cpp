@@ -1,22 +1,12 @@
 ﻿#include "stdafx.h"
 #include "RecompiledCache.h"
 
+#include "Recompiler_x86_64.h"
 #include "N64/N64Logger.h"
 #include "N64/N64System.h"
 
 namespace N64::Cpu_detail::Dynarec
 {
-	struct RecompiledResult
-	{
-		RecompiledCodeHandler code;
-		uint32 recompiledLength;
-	};
-
-	RecompiledResult RecompileNewCode(N64System& n64, Cpu& cpu, PAddr32 pc)
-	{
-		return {}; // TODO: recompile
-	}
-
 	RecompiledCodeHandler RecompiledCache::HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc)
 	{
 		auto&& page = m_pages[GetPageIndex(pc)];
@@ -44,7 +34,7 @@ namespace N64::Cpu_detail::Dynarec
 				GetPageIndex(pc), GetPageOffset(pc)));
 
 			// 新しいコード作成
-			const auto recompiled = RecompileNewCode(n64, cpu, pc);
+			const auto recompiled = RecompileFreshCode(n64, cpu, pc);
 			page->generatedCodes.push_back(recompiled.code);
 			code.code = recompiled.code;
 

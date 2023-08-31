@@ -1237,16 +1237,19 @@ private:
 	template <BranchType branch>
 	static void branchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
 	{
-		cpu.m_delaySlot.Set();
-
 		if (condition)
 		{
+			cpu.m_delaySlot.Set();
 			cpu.m_pc.SetNext(vaddr);
 			N64_TRACE(U"branch accepted vaddr={:016X}"_fmt(vaddr));
 		}
 		else
 		{
-			if constexpr (branch == BranchType::Likely)
+			if constexpr (branch == BranchType::Normal)
+			{
+				cpu.m_delaySlot.Set();
+			}
+			else if constexpr (branch == BranchType::Likely)
 			{
 				// likelyのときは、遅延スロットを実行しないようにする
 				cpu.m_pc.Change64(cpu.m_pc.Curr() + 4);

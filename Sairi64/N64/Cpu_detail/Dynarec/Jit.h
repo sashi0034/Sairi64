@@ -105,6 +105,35 @@ namespace N64::Cpu_detail::Dynarec
 				x86Asm.shr(x86::ecx, sa);
 				x86Asm.movsxd(x86::rcx, x86::ecx);
 			}
+			else if constexpr (funct == OpSpecialFunct::SRA)
+			{
+				x86Asm.sar(x86::rcx, sa);
+				x86Asm.movsxd(x86::rcx, x86::ecx);
+			}
+			else if constexpr (funct == OpSpecialFunct::DSLL)
+			{
+				x86Asm.shl(x86::rcx, sa);
+			}
+			else if constexpr (funct == OpSpecialFunct::DSRL)
+			{
+				x86Asm.shr(x86::rcx, sa);
+			}
+			else if constexpr (funct == OpSpecialFunct::DSRA)
+			{
+				x86Asm.sar(x86::rcx, sa);
+			}
+			else if constexpr (funct == OpSpecialFunct::DSLL32)
+			{
+				x86Asm.shl(x86::rcx, sa + 32);
+			}
+			else if constexpr (funct == OpSpecialFunct::DSRL32)
+			{
+				x86Asm.shr(x86::rcx, sa + 32);
+			}
+			else if constexpr (funct == OpSpecialFunct::DSRA32)
+			{
+				x86Asm.sar(x86::rcx, sa + 32);
+			}
 			else
 			{
 				static_assert(Utils::AlwaysFalseValue<OpSpecialFunct, funct>);

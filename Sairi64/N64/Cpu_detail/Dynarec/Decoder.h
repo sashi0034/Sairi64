@@ -141,7 +141,7 @@ private:
 		case OpSpecialFunct::SRL:
 			return Jit::SPECIAL_shift<OpSpecialFunct::SRL>(ctx, instr);
 		case OpSpecialFunct::SRA:
-			return UseInterpreter(ctx, instr, &interpret::SRA);
+			return Jit::SPECIAL_shift<OpSpecialFunct::SRA>(ctx, instr);
 		case OpSpecialFunct::SLLV:
 			return UseInterpreter(ctx, instr, &interpret::SLLV);
 		case OpSpecialFunct::SRLV:
@@ -227,17 +227,17 @@ private:
 		case OpSpecialFunct::TNE:
 			return UseInterpreter(ctx, instr, &interpret::TNE);
 		case OpSpecialFunct::DSLL:
-			return UseInterpreter(ctx, instr, &interpret::DSLL);
+			return Jit::SPECIAL_shift<OpSpecialFunct::DSLL>(ctx, instr);
 		case OpSpecialFunct::DSRL:
-			return UseInterpreter(ctx, instr, &interpret::DSRL);
+			return Jit::SPECIAL_shift<OpSpecialFunct::DSRL>(ctx, instr);
 		case OpSpecialFunct::DSRA:
-			return UseInterpreter(ctx, instr, &interpret::DSRA);
+			return Jit::SPECIAL_shift<OpSpecialFunct::DSRA>(ctx, instr);
 		case OpSpecialFunct::DSLL32:
-			return UseInterpreter(ctx, instr, &interpret::DSLL32);
+			return Jit::SPECIAL_shift<OpSpecialFunct::DSLL32>(ctx, instr);
 		case OpSpecialFunct::DSRL32:
-			return UseInterpreter(ctx, instr, &interpret::DSRL32);
+			return Jit::SPECIAL_shift<OpSpecialFunct::DSRL32>(ctx, instr);
 		case OpSpecialFunct::DSRA32:
-			return UseInterpreter(ctx, instr, &interpret::DSRA32);
+			return Jit::SPECIAL_shift<OpSpecialFunct::DSRA32>(ctx, instr);
 		default: ;
 		}
 

@@ -12,7 +12,7 @@ namespace N64::Cpu_detail::Dynarec
 	{
 		uint32 recompiledLength;
 		uint32 scanPc;
-		bool decodingDelaySlot;
+		bool scanningDelaySlot;
 	};
 
 	struct AssembleContext
@@ -140,5 +140,5 @@ namespace N64::Cpu_detail::Dynarec
 		return DecodedToken::End;
 	}
 
-	void CallBreakPoint(const AssembleContext& ctx);
+	void CallBreakPoint(const AssembleContext& ctx, uint64 code = 0);
 }

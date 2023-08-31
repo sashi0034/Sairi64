@@ -56,9 +56,9 @@ public:
 		case Opcode::CP3:
 			break;
 		case Opcode::BEQL:
-			return UseInterpreter(ctx, instr, &interpret::BEQL);
+			return Jit::B_branch<Opcode::BEQL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNEL:
-			return UseInterpreter(ctx, instr, &interpret::BNEL);
+			return Jit::B_branch<Opcode::BNEL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZL:
 			return UseInterpreter(ctx, instr, &interpret::BLEZL);
 		case Opcode::BGTZL:

@@ -92,6 +92,11 @@ namespace N64::Cpu_detail::Dynarec
 		static DecodedToken B_branch(const AssembleContext& ctx, InstructionI instr)
 		{
 			JIT_ENTRY;
+			constexpr BranchType branchType =
+				op == Opcode::BEQL ||
+				op == Opcode::BNEL
+					? BranchType::Likely
+					: BranchType::Normal;
 			auto&& x86Asm = *ctx.x86Asm;
 			auto&& gpr = ctx.cpu->GetGpr();
 			auto&& pc = ctx.cpu->GetPc().Raw();
@@ -103,25 +108,29 @@ namespace N64::Cpu_detail::Dynarec
 			x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
 			loadGpr(x86Asm, x86::rcx, x86::rax, rs); // rcx <- rs
 			loadGpr(x86Asm, x86::rdx, x86::rax, rt); // rdx <- rt
-			if constexpr (op == Opcode::BEQ)
+			if constexpr (op == Opcode::BEQ || op == Opcode::BEQL)
 			{
 				x86Asm.cmp(x86::rcx, x86::rdx);
 				x86Asm.sete(x86::r8b); // r8b <- rs==rt
 			}
-			else if constexpr (op == Opcode::BNE)
+			else if constexpr (op == Opcode::BNE || op == Opcode::BNEL)
 			{
 				x86Asm.cmp(x86::rcx, x86::rdx);
 				x86Asm.setne(x86::r8b); // r8b <- rs!=rt
+			}
+			else
+			{
+				static_assert(Utils::AlwaysFalseValue<Opcode, op>);
 			}
 			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
 			x86Asm.mov(x86::rdx, x86::rax); // rdx <- pc.curr
 			x86Asm.mov(x86::rax, offset); // rax <- immediate
 			x86Asm.add(x86::rdx, x86::rax); // rdx <- pc.curr + rax
 			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
-			x86Asm.mov(x86::rax, (uint64)&Process::BranchVAddr64<BranchType::Normal>);
+			x86Asm.mov(x86::rax, reinterpret_cast<uint64>(&Process::BranchVAddr64<branchType>));
 			x86Asm.call(x86::rax);
 
-			return DecodedToken::Branch;
+			return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
 		}
 
 	private:

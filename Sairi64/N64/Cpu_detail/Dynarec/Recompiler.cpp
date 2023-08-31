@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Recompiler.h"
 
-#include "GprMapper.h"
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 #include "N64/N64System.h"
@@ -29,6 +28,22 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm.bind(continuousLabel); // @continuous
 	}
 
+	void handleBranchLikely(const AssembleContext& ctx, uint32 currentRecompiledLength)
+	{
+		auto&& x86Asm = *ctx.x86Asm;
+		const auto delaySlotLabel = x86Asm.newLabel();
+
+		x86Asm.mov(x86::al, x86::byte_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetDelaySlot().Raw().curr)));
+		x86Asm.test(x86::al, x86::al); // if delaySlot is set
+		x86Asm.jne(delaySlotLabel); // then goto @delaySlot
+		// case delaySlot is not set
+		CallBreakPoint(ctx, 1);
+		x86Asm.mov(x86::rax, currentRecompiledLength); // rax <- current steps
+		x86Asm.jmp(ctx.endLabel); // goto @end
+		x86Asm.bind(delaySlotLabel); // @delaySlot
+		CallBreakPoint(ctx, 2);
+	}
+
 	uint32 assembleCodeInternal(const AssembleContext& ctx, PAddr32 startPc)
 	{
 		const uint32 maxRecompilableLength = CachePageOffsetSize_0x400 - GetPageIndex(startPc);
@@ -36,7 +51,7 @@ namespace N64::Cpu_detail::Dynarec
 		AssembleState state{
 			.recompiledLength = 0,
 			.scanPc = startPc,
-			.decodingDelaySlot = false
+			.scanningDelaySlot = false
 		};
 
 		while (true)
@@ -63,13 +78,19 @@ namespace N64::Cpu_detail::Dynarec
 			if (decoded == DecodedToken::End) break;
 
 			// 遅延スロットのデコードをした後は終了
-			if (decoded != DecodedToken::Branch && state.decodingDelaySlot) break;
+			if (decoded != DecodedToken::Branch && state.scanningDelaySlot) break;
 
 			// 分岐命令の次回は遅延スロット
-			if (decoded == DecodedToken::Branch) state.decodingDelaySlot = true;
+			if (decoded == DecodedToken::Branch) state.scanningDelaySlot = true;
+			if (decoded == DecodedToken::BranchLikely)
+			{
+				state.scanningDelaySlot = true;
+				handleBranchLikely(ctx, state.recompiledLength);
+			}
 
 			if (state.recompiledLength == 1)
 			{
+				// TODO: 削除?
 				// 先頭の命令が分岐時のDelaySlotの可能性があるので、そのときは終了するようにする
 				checkContinuousPc(ctx);
 			}

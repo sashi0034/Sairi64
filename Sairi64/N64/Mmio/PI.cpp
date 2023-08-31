@@ -115,7 +115,7 @@ namespace N64::Mmio
 
 		// 対応する再コンパイル済みキャッシュも無効に
 		n64.GetCpu().RecompiledCache().CheckInvalidatePageBetween(
-			PAddr32(dramAddr), PAddr32(dramAddr + transferLength - 1));
+			PAddr32(EndianAddress<uint8>(dramAddr)), PAddr32(EndianAddress<uint8>(dramAddr + transferLength - 1)));
 
 		m_status.DmaBusy().Set(true);
 

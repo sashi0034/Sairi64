@@ -438,7 +438,7 @@ namespace N64::Mmu
 	void writePaddr_internal(N64System& n64, PAddr32 paddr, Value value)
 	{
 		static constexpr std::array<writePaddr_func<Wire, Value>, 0x1000> map = writePaddr_mapHi12<Wire, Value>();
-		n64.GetCpu().RecompiledCache().CheckInvalidatePage(paddr);
+		n64.GetCpu().RecompiledCache().CheckInvalidatePage(EndianAddress<Wire>(paddr));
 		return map[paddr >> 20](n64, paddr, value);
 	}
 

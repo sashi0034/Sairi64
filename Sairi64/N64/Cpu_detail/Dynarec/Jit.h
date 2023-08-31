@@ -81,6 +81,39 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Continue;
 		}
 
+		template <OpSpecialFunct funct> [[nodiscard]]
+		static DecodedToken SPECIAL_shift(const AssembleContext& ctx, InstructionR instr)
+		{
+			JIT_ENTRY;
+			const uint8 rd = instr.Rd();
+			if (rd == 0) return DecodedToken::Continue;
+
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			const uint8 sa = instr.Sa();
+			const uint8 rt = instr.Rt();
+			x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
+			loadGpr(x86Asm, x86::rcx, x86::rax, rt); // rcx <- rt
+
+			if constexpr (funct == OpSpecialFunct::SLL)
+			{
+				x86Asm.shl(x86::ecx, sa);
+				x86Asm.movsxd(x86::rcx, x86::ecx);
+			}
+			else if constexpr (funct == OpSpecialFunct::SRL)
+			{
+				x86Asm.shr(x86::ecx, sa);
+				x86Asm.movsxd(x86::rcx, x86::ecx);
+			}
+			else
+			{
+				static_assert(Utils::AlwaysFalseValue<OpSpecialFunct, funct>);
+			}
+
+			x86Asm.mov(qword_ptr(x86::rax, rd * 8), x86::rcx);
+			return DecodedToken::Continue;
+		}
+
 		[[nodiscard]]
 		static DecodedToken CACHE(InstructionR instr)
 		{

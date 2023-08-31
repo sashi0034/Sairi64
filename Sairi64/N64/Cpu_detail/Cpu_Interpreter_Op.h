@@ -712,7 +712,7 @@ public:
 	{
 		BEGIN_OP;
 		const sint32 result = cpu.GetGpr().Read(instr.Rt()) << instr.Sa();
-		cpu.GetGpr().Write(instr.Rd(), result);
+		cpu.GetGpr().Write(instr.Rd(), (sint64)result);
 		END_OP;
 	}
 

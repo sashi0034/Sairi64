@@ -37,11 +37,9 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm.test(x86::al, x86::al); // if delaySlot is set
 		x86Asm.jne(delaySlotLabel); // then goto @delaySlot
 		// case delaySlot is not set
-		CallBreakPoint(ctx, 1);
 		x86Asm.mov(x86::rax, currentRecompiledLength); // rax <- current steps
 		x86Asm.jmp(ctx.endLabel); // goto @end
 		x86Asm.bind(delaySlotLabel); // @delaySlot
-		CallBreakPoint(ctx, 2);
 	}
 
 	uint32 assembleCodeInternal(const AssembleContext& ctx, PAddr32 startPc)

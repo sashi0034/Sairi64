@@ -137,9 +137,9 @@ private:
 		switch (instr.Funct())
 		{
 		case OpSpecialFunct::SLL:
-			return UseInterpreter(ctx, instr, &interpret::SLL);
+			return Jit::SPECIAL_shift<OpSpecialFunct::SLL>(ctx, instr);
 		case OpSpecialFunct::SRL:
-			return UseInterpreter(ctx, instr, &interpret::SRL);
+			return Jit::SPECIAL_shift<OpSpecialFunct::SRL>(ctx, instr);
 		case OpSpecialFunct::SRA:
 			return UseInterpreter(ctx, instr, &interpret::SRA);
 		case OpSpecialFunct::SLLV:

@@ -196,9 +196,9 @@ private:
 		case OpSpecialFunct::DDIVU:
 			break;
 		case OpSpecialFunct::ADD:
-			return UseInterpreter(ctx, instr, &interpret::ADD);
+			return Jit::ADDU(ctx, instr); // TODO: オーバーフローハンドリング?
 		case OpSpecialFunct::ADDU:
-			return UseInterpreter(ctx, instr, &interpret::ADDU);
+			return Jit::ADDU(ctx, instr);
 		case OpSpecialFunct::SUB:
 			return UseInterpreter(ctx, instr, &interpret::SUB);
 		case OpSpecialFunct::SUBU:

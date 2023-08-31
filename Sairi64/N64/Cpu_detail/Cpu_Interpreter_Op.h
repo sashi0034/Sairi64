@@ -76,9 +76,9 @@ public:
 
 		const uint32 rs = gpr.Read(instr.Rs());
 		const uint32 rt = gpr.Read(instr.Rt());
-		const sint32 result = rs + rt;
+		const uint32 result = rs + rt;
 
-		gpr.Write(instr.Rd(), static_cast<sint64>(result));
+		gpr.Write(instr.Rd(), (sint64)(static_cast<sint32>(result)));
 
 		END_OP;
 	}

@@ -37,10 +37,13 @@ TEST_CASE("DynarecTest_GprMapper")
 		(void)gprMapper.AssignMap(x86Asm, gpr, i, i + 1);
 		(void)gprMapper.AssignMap(x86Asm, gpr, i, i + 1, i + 2);
 	}
-	auto [gpq_16, gpq_17] = gprMapper.AssignMap(x86Asm, gpr, 16, 17);
-	gpq_1 = gprMapper.AssignMap(x86Asm, gpr, 1);
-	x86Asm.add(gpq_16, gpq_1); // GPR[16] <= 160 + 17
-	x86Asm.add(gpq_17, gpq_16); // GPR[16] <= 177 + 170
+	auto [gpq_16, gpq_17, gpr_1_] = gprMapper.AssignMap(x86Asm, gpr, 16, 17, 1);
+	x86Asm.add(gpq_16, gpr_1_); // GPR[16] <- 160 + 17
+	x86Asm.add(gpq_17, gpq_16); // GPR[17] <- 177 + 170
+
+	auto [gpq_18, gpr_17_1, gpr_17_2] = gprMapper.AssignMap(x86Asm, gpr, 18, 17, 17);
+	x86Asm.add(gpq_18, gpr_17_1); // GPR[18] <- 180 + 347
+	x86Asm.add(gpq_18, gpr_17_2); // GPR[18] <- 180 + 527
 
 	gprMapper.FlushClear(x86Asm, gpr);
 	x86Asm.add(x86::rsp, stackSize);
@@ -63,9 +66,9 @@ TEST_CASE("DynarecTest_GprMapper")
 	REQUIRE(gpr.Read(2) == 37);
 	REQUIRE(gpr.Read(16) == 177);
 	REQUIRE(gpr.Read(17) == 347);
+	REQUIRE(gpr.Read(18) == 874);
 }
 
-#define DYNAREC_RECOMPILER_INTERNAL
 #include "N64/Cpu_detail/Dynarec/JitUtil.h"
 
 TEST_CASE("DynarecTest_AssembleStepPc")

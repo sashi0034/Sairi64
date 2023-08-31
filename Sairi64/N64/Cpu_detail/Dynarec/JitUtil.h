@@ -1,10 +1,7 @@
 ﻿#pragma once
 #include "GprMapper.h"
 #include "N64/N64System.h"
-
-#ifndef DYNAREC_RECOMPILER_INTERNAL
-#error "This file is an internal file used by Recompiler"
-#endif
+#include "N64/N64Logger.h"
 
 #define OFFSET_TO(type, base, target) (offsetof(type, target) - offsetof(type, base))
 
@@ -122,4 +119,6 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm->call(x86::rax);
 		return true;
 	}
+
+	void CallBreakPoint(const AssembleContext& ctx);
 }

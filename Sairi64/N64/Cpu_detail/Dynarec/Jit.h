@@ -27,9 +27,9 @@ namespace N64::Cpu_detail::Dynarec
 			const uint8 rs = instr.Rs();
 			const uint8 rt = instr.Rt();
 			auto [gpqRd, gpqRs, gpqRt] = ctx.gprMapper->AssignMap(*x86Asm, gpr, rd, rs, rt);
-			x86Asm->mov(x86::rax, gpqRs);
-			x86Asm->add(x86::rax, gpqRt);
-			x86Asm->mov(gpqRd, x86::rax);
+			x86Asm->mov(x86::eax, gpqRs.r32());
+			x86Asm->add(x86::eax, gpqRt.r32());
+			x86Asm->movsxd(gpqRd, x86::eax);
 			return false;
 		}
 

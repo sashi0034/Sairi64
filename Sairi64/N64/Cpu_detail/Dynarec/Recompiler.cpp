@@ -196,21 +196,21 @@ private:
 		case OpSpecialFunct::DDIVU:
 			break;
 		case OpSpecialFunct::ADD:
-			return Jit::ADDU(ctx, instr); // TODO: オーバーフローハンドリング?
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr); // TODO: オーバーフローハンドリング?
 		case OpSpecialFunct::ADDU:
-			return Jit::ADDU(ctx, instr);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr);
 		case OpSpecialFunct::SUB:
 			return UseInterpreter(ctx, instr, &interpret::SUB);
 		case OpSpecialFunct::SUBU:
 			return UseInterpreter(ctx, instr, &interpret::SUBU);
 		case OpSpecialFunct::AND:
-			return UseInterpreter(ctx, instr, &interpret::AND);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::AND>(ctx, instr);
 		case OpSpecialFunct::OR:
-			return UseInterpreter(ctx, instr, &interpret::OR);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::OR>(ctx, instr);
 		case OpSpecialFunct::XOR:
-			return UseInterpreter(ctx, instr, &interpret::XOR);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::XOR>(ctx, instr);
 		case OpSpecialFunct::NOR:
-			return UseInterpreter(ctx, instr, &interpret::NOR);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::NOR>(ctx, instr);
 		case OpSpecialFunct::SLT:
 			return UseInterpreter(ctx, instr, &interpret::SLT);
 		case OpSpecialFunct::SLTU:
@@ -250,7 +250,7 @@ private:
 		default: ;
 		}
 
-		N64Logger::Abort(U"not implemented: instruction {}"_fmt(instr.OpName()));
+		N64Logger::Abort(U"not implemented: instruction {}"_fmt(instr.Stringify()));
 		return {};
 	}
 
@@ -385,7 +385,7 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm.mov(x86::rcx, x86::qword_ptr(x86::r8, OFFSET_TO(PcRaw, curr, prev))); // rcx <- pc.prev
 		x86Asm.sub(x86::rax, x86::rcx); // rax <- rax - rcx
 		x86Asm.cmp(x86::rax, 4); // if rax is
-		x86Asm.je(continuousLabel); // equal to 4 then goto @continuous
+		x86Asm.je(continuousLabel); // equals to 4 then goto @continuous
 		// non-continuous
 		x86Asm.mov(x86::rax, 1); // passed cycles <- 1
 		x86Asm.jmp(ctx.endLabel); // goto @end

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "GprMapper.h"
 #include "N64/N64System.h"
 #include "N64/N64Logger.h"
 
@@ -26,7 +25,13 @@ namespace N64::Cpu_detail::Dynarec
 		asmjit::Label endLabel;
 	};
 
-	using EndFlag = bool;
+	enum class DecodeNext
+	{
+		End,
+		Continue,
+		Branch,
+		BranchLikely,
+	};
 
 	static void AssembleStepPc(x86::Assembler& x86Asm, const PcRaw& pc)
 	{
@@ -89,7 +94,7 @@ namespace N64::Cpu_detail::Dynarec
 	using InterpretOp2 = Unit (*)(N64System& n64, Cpu& cpu, Instr instr);
 
 	template <typename Instr, typename Instr1, typename Unit> [[nodiscard]]
-	EndFlag UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp1<Instr1, Unit> op)
+	DecodeNext UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp1<Instr1, Unit> op)
 	{
 		static_assert(std::is_convertible<Instr1, Instr>::value);
 		N64_TRACE(U"use interpreter => " + instr.Stringify());
@@ -101,11 +106,11 @@ namespace N64::Cpu_detail::Dynarec
 
 		x86Asm->mov(x86::rax, reinterpret_cast<uint64_t>(op));
 		x86Asm->call(x86::rax);
-		return true;
+		return DecodeNext::End;
 	}
 
 	template <typename Instr, typename Instr1, typename Unit> [[nodiscard]]
-	static EndFlag UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp2<Instr1, Unit> op)
+	static DecodeNext UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp2<Instr1, Unit> op)
 	{
 		static_assert(std::is_convertible<Instr1, Instr>::value);
 		N64_TRACE(U"use interpreter => " + instr.Stringify());
@@ -118,11 +123,11 @@ namespace N64::Cpu_detail::Dynarec
 
 		x86Asm->mov(x86::rax, reinterpret_cast<uint64_t>(op));
 		x86Asm->call(x86::rax);
-		return true;
+		return DecodeNext::End;
 	}
 
 	template <typename Instr> [[nodiscard]]
-	static EndFlag AssumeNotImplemented(const AssembleContext& ctx, Instr instr)
+	static DecodeNext AssumeNotImplemented(const AssembleContext& ctx, Instr instr)
 	{
 		void (*func)(Instr) = [](Instr instruction)
 		{
@@ -133,7 +138,7 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm.mov(x86::rcx, instr.Raw());
 		x86Asm.mov(x86::rax, &func);
 		x86Asm.call(x86::rax);
-		return true;
+		return DecodeNext::End;
 	}
 
 	void CallBreakPoint(const AssembleContext& ctx);

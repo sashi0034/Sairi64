@@ -16,11 +16,11 @@ namespace N64::Cpu_detail::Dynarec
 	{
 	public:
 		template <OpSpecialFunct funct> [[nodiscard]]
-		static EndFlag SPECIAL_templateArithmetic(const AssembleContext& ctx, InstructionR instr)
+		static DecodeNext SPECIAL_templateArithmetic(const AssembleContext& ctx, InstructionR instr)
 		{
 			JIT_ENTRY;
 			const uint8 rd = instr.Rd();
-			if (rd == 0) return false;
+			if (rd == 0) return DecodeNext::Continue;
 
 			auto&& x86Asm = *ctx.x86Asm;
 			auto&& gpr = ctx.cpu->GetGpr();
@@ -44,16 +44,16 @@ namespace N64::Cpu_detail::Dynarec
 				x86Asm.add(x86::ecx, x86::edx);
 				x86Asm.movsxd(x86::rcx, x86::ecx);
 			}
-			if constexpr (funct == OpSpecialFunct::DADDU)
+			else if constexpr (funct == OpSpecialFunct::DADDU)
 			{
 				x86Asm.add(x86::rcx, x86::rdx);
 			}
-			if constexpr (funct == OpSpecialFunct::SUBU)
+			else if constexpr (funct == OpSpecialFunct::SUBU)
 			{
 				x86Asm.sub(x86::ecx, x86::edx);
 				x86Asm.movsxd(x86::rcx, x86::ecx);
 			}
-			if constexpr (funct == OpSpecialFunct::DSUBU)
+			else if constexpr (funct == OpSpecialFunct::DSUBU)
 			{
 				x86Asm.sub(x86::ecx, x86::edx);
 			}
@@ -74,16 +74,20 @@ namespace N64::Cpu_detail::Dynarec
 				x86Asm.or_(x86::rcx, x86::rdx);
 				x86Asm.not_(x86::rcx);
 			}
+			else
+			{
+				static_assert(Utils::AlwaysFalseValue<OpSpecialFunct, funct>);
+			}
 
 			x86Asm.mov(x86::qword_ptr(x86::rax, rd * 8), x86::rcx); // gpr[rd] <- rcx
-			return false;
+			return DecodeNext::Continue;
 		}
 
 		[[nodiscard]]
-		static EndFlag CACHE(InstructionR instr)
+		static DecodeNext CACHE(InstructionR instr)
 		{
 			JIT_ENTRY;
-			return false;
+			return DecodeNext::Continue;
 		}
 
 	private:

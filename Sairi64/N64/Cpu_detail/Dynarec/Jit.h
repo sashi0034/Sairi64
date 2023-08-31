@@ -28,13 +28,34 @@ namespace N64::Cpu_detail::Dynarec
 			const uint8 rt = instr.Rt();
 
 			x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
-			x86Asm.mov(x86::rcx, x86::qword_ptr(x86::rax, rs * 8)); // rcx <- gpr[rs]
-			x86Asm.mov(x86::rdx, x86::qword_ptr(x86::rax, rt * 8)); // rcx <- gpr[rt]
+
+			if (rs == 0)
+				x86Asm.xor_(x86::rcx, x86::rcx); // rcx <- 0
+			else
+				x86Asm.mov(x86::rcx, x86::qword_ptr(x86::rax, rs * 8)); // rcx <- gpr[rs]
+
+			if (rt == 0)
+				x86Asm.xor_(x86::rdx, x86::rdx); // rdx <- 0
+			else
+				x86Asm.mov(x86::rdx, x86::qword_ptr(x86::rax, rt * 8)); // rdx <- gpr[rt]
 
 			if constexpr (funct == OpSpecialFunct::ADDU)
 			{
 				x86Asm.add(x86::ecx, x86::edx);
 				x86Asm.movsxd(x86::rcx, x86::ecx);
+			}
+			if constexpr (funct == OpSpecialFunct::DADDU)
+			{
+				x86Asm.add(x86::rcx, x86::rdx);
+			}
+			if constexpr (funct == OpSpecialFunct::SUBU)
+			{
+				x86Asm.sub(x86::ecx, x86::edx);
+				x86Asm.movsxd(x86::rcx, x86::ecx);
+			}
+			if constexpr (funct == OpSpecialFunct::DSUBU)
+			{
+				x86Asm.sub(x86::ecx, x86::edx);
 			}
 			else if constexpr (funct == OpSpecialFunct::AND)
 			{

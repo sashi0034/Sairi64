@@ -136,8 +136,7 @@ public:
 		default: ;
 		}
 
-		N64Logger::Abort(U"not implemented: instruction {}"_fmt(instr.OpName()));
-		return {};
+		return AssumeNotImplemented(ctx, instr);
 	}
 
 private:
@@ -196,13 +195,13 @@ private:
 		case OpSpecialFunct::DDIVU:
 			break;
 		case OpSpecialFunct::ADD:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr); // TODO: オーバーフローハンドリング?
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::ADDU:
 			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr);
 		case OpSpecialFunct::SUB:
-			return UseInterpreter(ctx, instr, &interpret::SUB);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::SUBU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::SUBU:
-			return UseInterpreter(ctx, instr, &interpret::SUBU);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::SUBU>(ctx, instr);
 		case OpSpecialFunct::AND:
 			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::AND>(ctx, instr);
 		case OpSpecialFunct::OR:
@@ -216,13 +215,13 @@ private:
 		case OpSpecialFunct::SLTU:
 			return UseInterpreter(ctx, instr, &interpret::SLTU);
 		case OpSpecialFunct::DADD:
-			return UseInterpreter(ctx, instr, &interpret::DADD);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DADDU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::DADDU:
-			return UseInterpreter(ctx, instr, &interpret::DADDU);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DADDU>(ctx, instr);
 		case OpSpecialFunct::DSUB:
-			return UseInterpreter(ctx, instr, &interpret::DSUB);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DSUBU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::DSUBU:
-			return UseInterpreter(ctx, instr, &interpret::DSUBU);
+			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DSUBU>(ctx, instr);
 		case OpSpecialFunct::TGE:
 			break;
 		case OpSpecialFunct::TGEU:
@@ -250,8 +249,7 @@ private:
 		default: ;
 		}
 
-		N64Logger::Abort(U"not implemented: instruction {}"_fmt(instr.Stringify()));
-		return {};
+		return AssumeNotImplemented(ctx, instr);
 	}
 
 	static EndFlag assembleREGIMM(const AssembleContext& ctx, const AssembleState& state, InstructionRegimm instr)
@@ -287,8 +285,7 @@ private:
 		default: ;
 		}
 
-		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
-		return {};
+		return AssumeNotImplemented(ctx, instr);
 	}
 
 	static EndFlag assembleCP0(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
@@ -338,8 +335,7 @@ private:
 		default: break;
 		}
 
-		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
-		return {};
+		return AssumeNotImplemented(ctx, instr);
 	}
 
 	static EndFlag assembleCP1(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
@@ -368,8 +364,7 @@ private:
 		default: ;
 		}
 
-		N64Logger::Abort(U"not implemented: {}"_fmt(instr.Stringify()));
-		return {};
+		return AssumeNotImplemented(ctx, instr);
 	}
 };
 
@@ -406,7 +401,7 @@ namespace N64::Cpu_detail::Dynarec
 			// ページ内のみコンパイル
 			if (state.recompiledLength >= maxRecompilableLength)
 			{
-				// // TODO: flash?
+				// TODO: flash?
 				break;
 			}
 
@@ -468,6 +463,8 @@ namespace N64::Cpu_detail::Dynarec
 		{
 			N64Logger::Abort(U"failed to recompile: error={}"_fmt(error));
 		}
+
+		N64_TRACE(U"recompiled length: {}"_fmt(result.recompiledLength));
 
 		return result;
 	}

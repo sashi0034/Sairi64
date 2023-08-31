@@ -121,5 +121,20 @@ namespace N64::Cpu_detail::Dynarec
 		return true;
 	}
 
+	template <typename Instr> [[nodiscard]]
+	static EndFlag AssumeNotImplemented(const AssembleContext& ctx, Instr instr)
+	{
+		void (*func)(Instr) = [](Instr instruction)
+		{
+			N64Logger::Abort(U"not implemented: instruction {}"_fmt(instruction.Stringify()));
+		};
+
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, instr.Raw());
+		x86Asm.mov(x86::rax, &func);
+		x86Asm.call(x86::rax);
+		return true;
+	}
+
 	void CallBreakPoint(const AssembleContext& ctx);
 }

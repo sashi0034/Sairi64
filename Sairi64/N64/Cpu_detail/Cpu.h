@@ -36,8 +36,8 @@ namespace N64::Cpu_detail
 		void Change32(uint32 pc)
 		{
 			m_raw.prev = m_raw.curr;
-			m_raw.curr = (sint64)static_cast<sint32>(pc);
-			m_raw.next = pc + 4;
+			m_raw.curr = static_cast<sint64>(static_cast<sint32>(pc));
+			m_raw.next = m_raw.curr + 4;
 		}
 
 		void Change64(uint64 pc)

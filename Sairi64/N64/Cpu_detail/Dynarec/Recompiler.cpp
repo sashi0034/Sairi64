@@ -387,7 +387,7 @@ namespace N64::Cpu_detail::Dynarec
 		while (true)
 		{
 			// ページ内のみコンパイル
-			if (state.recompiledLength > maxRecompilableLength)
+			if (state.recompiledLength >= maxRecompilableLength)
 			{
 				// // TODO: flash?
 				break;
@@ -413,24 +413,24 @@ namespace N64::Cpu_detail::Dynarec
 
 	uint32 assembleCode(N64System& n64, Cpu& cpu, PAddr32 startPc, x86::Assembler& x86Asm)
 	{
-		GprMapper gprMapper{};
-		gprMapper.PushNonVolatiles(x86Asm);
+		// GprMapper gprMapper{};
+		// gprMapper.PushNonVolatiles(x86Asm);
 		constexpr int stackSize = 40;
 		x86Asm.sub(x86::rsp, stackSize);
 
 		const AssembleContext ctx{
 			.n64 = &n64,
 			.cpu = &cpu,
-			.gprMapper = &gprMapper,
+			// .gprMapper = &gprMapper,
 			.x86Asm = &x86Asm,
 		};
 		const uint32 recompiledLength = assembleCodeInternal(ctx, startPc);
 
-		gprMapper.FlushClear(x86Asm, cpu.GetGpr());
+		// gprMapper.FlushClear(x86Asm, cpu.GetGpr());
 		// TODO: end label?
 		x86Asm.mov(x86::rax, recompiledLength);
 		x86Asm.add(x86::rsp, stackSize);
-		gprMapper.PopNonVolatiles(x86Asm);
+		// gprMapper.PopNonVolatiles(x86Asm);
 		x86Asm.ret();
 		return recompiledLength;
 	}
@@ -444,7 +444,11 @@ namespace N64::Cpu_detail::Dynarec
 		x86::Assembler x86Asm(&code);
 
 		result.recompiledLength = assembleCode(n64, cpu, startPc, x86Asm);
-		jit.add(&result.code, &code);
+		const uint32 error = jit.add(&result.code, &code);
+		if (error != 0)
+		{
+			N64Logger::Abort(U"failed to recompile: error={}"_fmt(error));
+		}
 
 		return result;
 	}

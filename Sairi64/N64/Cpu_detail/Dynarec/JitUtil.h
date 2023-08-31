@@ -23,6 +23,7 @@ namespace N64::Cpu_detail::Dynarec
 		Cpu* cpu;
 		// GprMapper* gprMapper;
 		x86::Assembler* x86Asm;
+		asmjit::Label endLabel;
 	};
 
 	using EndFlag = bool;

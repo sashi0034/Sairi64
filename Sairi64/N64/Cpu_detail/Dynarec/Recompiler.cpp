@@ -375,6 +375,23 @@ private:
 
 namespace N64::Cpu_detail::Dynarec
 {
+	void checkContinuousPc(const AssembleContext& ctx)
+	{
+		auto&& x86Asm = *ctx.x86Asm;
+		const auto continuousLabel = x86Asm.newLabel();
+
+		x86Asm.mov(x86::r8, (uint64)&ctx.cpu->GetPc().Raw().curr);
+		x86Asm.mov(x86::rax, x86::qword_ptr(x86::r8, 0)); // rax <- pc.curr
+		x86Asm.mov(x86::rcx, x86::qword_ptr(x86::r8, OFFSET_TO(PcRaw, curr, prev))); // rcx <- pc.prev
+		x86Asm.sub(x86::rax, x86::rcx); // rax <- rax - rcx
+		x86Asm.cmp(x86::rax, 4); // if rax is
+		x86Asm.je(continuousLabel); // equal to 4 then goto @continuous
+		// non-continuous
+		x86Asm.mov(x86::rax, 1); // passed cycles <- 1
+		x86Asm.jmp(ctx.endLabel); // goto @end
+		x86Asm.bind(continuousLabel); // @continuous
+	}
+
 	uint32 assembleCodeInternal(const AssembleContext& ctx, PAddr32 startPc)
 	{
 		const uint32 maxRecompilableLength = CachePageOffsetSize_0x400 - GetPageIndex(startPc);
@@ -406,6 +423,12 @@ namespace N64::Cpu_detail::Dynarec
 			// 命令アセンブル
 			const EndFlag end = Impl::AssembleInstr(ctx, state, fetchedInstr);
 			if (end) break;
+
+			if (state.recompiledLength == 1)
+			{
+				// 先頭の命令が分岐時のDelaySlotの可能性があるので、そのときは終了するようにする
+				checkContinuousPc(ctx);
+			}
 		}
 
 		return state.recompiledLength;
@@ -413,24 +436,20 @@ namespace N64::Cpu_detail::Dynarec
 
 	uint32 assembleCode(N64System& n64, Cpu& cpu, PAddr32 startPc, x86::Assembler& x86Asm)
 	{
-		// GprMapper gprMapper{};
-		// gprMapper.PushNonVolatiles(x86Asm);
 		constexpr int stackSize = 40;
 		x86Asm.sub(x86::rsp, stackSize);
 
 		const AssembleContext ctx{
 			.n64 = &n64,
 			.cpu = &cpu,
-			// .gprMapper = &gprMapper,
 			.x86Asm = &x86Asm,
+			.endLabel = x86Asm.newLabel()
 		};
 		const uint32 recompiledLength = assembleCodeInternal(ctx, startPc);
 
-		// gprMapper.FlushClear(x86Asm, cpu.GetGpr());
-		// TODO: end label?
 		x86Asm.mov(x86::rax, recompiledLength);
+		x86Asm.bind(ctx.endLabel); // @end
 		x86Asm.add(x86::rsp, stackSize);
-		// gprMapper.PopNonVolatiles(x86Asm);
 		x86Asm.ret();
 		return recompiledLength;
 	}

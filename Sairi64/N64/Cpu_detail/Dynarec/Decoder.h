@@ -11,7 +11,7 @@ namespace N64::Cpu_detail::Dynarec
 class N64::Cpu_detail::Dynarec::Decoder
 {
 public:
-	static DecodeNext AssembleInstr(const AssembleContext& ctx, const AssembleState& state, Instruction instr)
+	static DecodedToken AssembleInstr(const AssembleContext& ctx, const AssembleState& state, Instruction instr)
 	{
 		switch (instr.Op())
 		{
@@ -132,7 +132,7 @@ public:
 	}
 
 private:
-	static DecodeNext assembleSPECIAL(const AssembleContext& ctx, const AssembleState& state, InstructionR instr)
+	static DecodedToken assembleSPECIAL(const AssembleContext& ctx, const AssembleState& state, InstructionR instr)
 	{
 		switch (instr.Funct())
 		{
@@ -244,7 +244,7 @@ private:
 		return AssumeNotImplemented(ctx, instr);
 	}
 
-	static DecodeNext assembleREGIMM(const AssembleContext& ctx, const AssembleState& state, InstructionRegimm instr)
+	static DecodedToken assembleREGIMM(const AssembleContext& ctx, const AssembleState& state, InstructionRegimm instr)
 	{
 		switch (instr.Sub())
 		{
@@ -280,7 +280,7 @@ private:
 		return AssumeNotImplemented(ctx, instr);
 	}
 
-	static DecodeNext assembleCP0(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
+	static DecodedToken assembleCP0(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
 	{
 		switch (instr.Sub())
 		{
@@ -310,7 +310,7 @@ private:
 	}
 
 	[[nodiscard]]
-	static DecodeNext assembleCO0(const AssembleContext& ctx, const AssembleState& state, InstructionCop0Co instr)
+	static DecodedToken assembleCO0(const AssembleContext& ctx, const AssembleState& state, InstructionCop0Co instr)
 	{
 		switch (instr.Funct())
 		{
@@ -330,7 +330,7 @@ private:
 		return AssumeNotImplemented(ctx, instr);
 	}
 
-	static DecodeNext assembleCP1(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
+	static DecodedToken assembleCP1(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
 	{
 		switch (const auto sub = static_cast<InstructionCopSub>(instr); instr.Sub())
 		{

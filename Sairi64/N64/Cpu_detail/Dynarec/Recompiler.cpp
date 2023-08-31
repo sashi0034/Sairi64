@@ -36,6 +36,7 @@ namespace N64::Cpu_detail::Dynarec
 		AssembleState state{
 			.recompiledLength = 0,
 			.scanPc = startPc,
+			.decodingDelaySlot = false
 		};
 
 		while (true)
@@ -58,8 +59,14 @@ namespace N64::Cpu_detail::Dynarec
 			AssembleStepDelaySlot(ctx);
 
 			// 命令アセンブル
-			const DecodeNext next = Decoder::AssembleInstr(ctx, state, fetchedInstr);
-			if (next == DecodeNext::End) break;
+			const DecodedToken decoded = Decoder::AssembleInstr(ctx, state, fetchedInstr);
+			if (decoded == DecodedToken::End) break;
+
+			// 遅延スロットのデコードをした後は終了
+			if (decoded != DecodedToken::Branch && state.decodingDelaySlot) break;
+
+			// 分岐命令の次回は遅延スロット
+			if (decoded == DecodedToken::Branch) state.decodingDelaySlot = true;
 
 			if (state.recompiledLength == 1)
 			{

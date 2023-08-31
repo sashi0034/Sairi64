@@ -22,11 +22,11 @@ namespace N64::Cpu_detail::Dynarec
 	{
 	public:
 		template <OpSpecialFunct funct> [[nodiscard]]
-		static DecodeNext SPECIAL_templateArithmetic(const AssembleContext& ctx, InstructionR instr)
+		static DecodedToken SPECIAL_templateArithmetic(const AssembleContext& ctx, InstructionR instr)
 		{
 			JIT_ENTRY;
 			const uint8 rd = instr.Rd();
-			if (rd == 0) return DecodeNext::Continue;
+			if (rd == 0) return DecodedToken::Continue;
 
 			auto&& x86Asm = *ctx.x86Asm;
 			auto&& gpr = ctx.cpu->GetGpr();
@@ -78,18 +78,18 @@ namespace N64::Cpu_detail::Dynarec
 			}
 
 			x86Asm.mov(x86::qword_ptr(x86::rax, rd * 8), x86::rcx); // gpr[rd] <- rcx
-			return DecodeNext::Continue;
+			return DecodedToken::Continue;
 		}
 
 		[[nodiscard]]
-		static DecodeNext CACHE(InstructionR instr)
+		static DecodedToken CACHE(InstructionR instr)
 		{
 			JIT_ENTRY;
-			return DecodeNext::Continue;
+			return DecodedToken::Continue;
 		}
 
 		[[nodiscard]]
-		static DecodeNext BEQ(const AssembleContext& ctx, InstructionI instr)
+		static DecodedToken BEQ(const AssembleContext& ctx, InstructionI instr)
 		{
 			JIT_ENTRY;
 			auto&& x86Asm = *ctx.x86Asm;
@@ -113,7 +113,7 @@ namespace N64::Cpu_detail::Dynarec
 			x86Asm.mov(x86::rax, (uint64)&Process::BranchVAddr64<BranchType::Normal>);
 			x86Asm.call(x86::rax);
 
-			return DecodeNext::End;
+			return DecodedToken::Branch;
 		}
 
 	private:

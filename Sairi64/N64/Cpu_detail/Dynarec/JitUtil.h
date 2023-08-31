@@ -12,8 +12,7 @@ namespace N64::Cpu_detail::Dynarec
 	{
 		uint32 recompiledLength;
 		uint32 scanPc;
-		// Pc shadowScanPc;
-		// DelaySlot scanDelaySlot;
+		bool decodingDelaySlot;
 	};
 
 	struct AssembleContext
@@ -25,7 +24,7 @@ namespace N64::Cpu_detail::Dynarec
 		asmjit::Label endLabel;
 	};
 
-	enum class DecodeNext
+	enum class DecodedToken
 	{
 		End,
 		Continue,
@@ -94,7 +93,7 @@ namespace N64::Cpu_detail::Dynarec
 	using InterpretOp2 = Unit (*)(N64System& n64, Cpu& cpu, Instr instr);
 
 	template <typename Instr, typename Instr1, typename Unit> [[nodiscard]]
-	DecodeNext UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp1<Instr1, Unit> op)
+	DecodedToken UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp1<Instr1, Unit> op)
 	{
 		static_assert(std::is_convertible<Instr1, Instr>::value);
 		N64_TRACE(U"use interpreter => " + instr.Stringify());
@@ -106,11 +105,11 @@ namespace N64::Cpu_detail::Dynarec
 
 		x86Asm->mov(x86::rax, reinterpret_cast<uint64_t>(op));
 		x86Asm->call(x86::rax);
-		return DecodeNext::End;
+		return DecodedToken::End;
 	}
 
 	template <typename Instr, typename Instr1, typename Unit> [[nodiscard]]
-	static DecodeNext UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp2<Instr1, Unit> op)
+	static DecodedToken UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp2<Instr1, Unit> op)
 	{
 		static_assert(std::is_convertible<Instr1, Instr>::value);
 		N64_TRACE(U"use interpreter => " + instr.Stringify());
@@ -123,11 +122,11 @@ namespace N64::Cpu_detail::Dynarec
 
 		x86Asm->mov(x86::rax, reinterpret_cast<uint64_t>(op));
 		x86Asm->call(x86::rax);
-		return DecodeNext::End;
+		return DecodedToken::End;
 	}
 
 	template <typename Instr> [[nodiscard]]
-	static DecodeNext AssumeNotImplemented(const AssembleContext& ctx, Instr instr)
+	static DecodedToken AssumeNotImplemented(const AssembleContext& ctx, Instr instr)
 	{
 		static void (*func)(Instr) = [](Instr instruction)
 		{
@@ -138,7 +137,7 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm.mov(x86::rcx, instr.Raw());
 		x86Asm.mov(x86::rax, func);
 		x86Asm.call(x86::rax);
-		return DecodeNext::End;
+		return DecodedToken::End;
 	}
 
 	void CallBreakPoint(const AssembleContext& ctx);

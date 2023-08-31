@@ -24,7 +24,7 @@ public:
 		case Opcode::JAL:
 			return UseInterpreter(ctx, instr, &interpret::JAL);
 		case Opcode::BEQ:
-			return UseInterpreter(ctx, instr, &interpret::BEQ);
+			return Jit::BEQ(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNE:
 			return UseInterpreter(ctx, instr, &interpret::BNE);
 		case Opcode::BLEZ:

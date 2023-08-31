@@ -5,6 +5,7 @@
 #endif
 
 #include "Cpu_Interpreter.h"
+#include "Cpu_Process.h"
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 
@@ -33,14 +34,6 @@ namespace N64::Cpu_detail
 		return ((((value1 ^ value2) & (value1 ^ result)) >> ((sizeof(T) * 8) - 1)) & 1);
 	}
 
-	enum class BranchType
-	{
-		// 常に遅延スロットの命令は実行される
-		Normal,
-		// 分岐条件成立時のみ、遅延スロットの命令は実行される
-		Likely,
-	};
-
 	constexpr uint8 gprRA_31 = 31; // Return Address GPR
 }
 
@@ -59,7 +52,7 @@ public:
 
 		if (isOverflowSignedAdd(rs, rt, result))
 		{
-			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+			Process::ThrowException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
 		}
 		else
 		{
@@ -95,7 +88,7 @@ public:
 
 		if (isOverflowSignedAdd(rs, rt, result))
 		{
-			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+			Process::ThrowException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
 		}
 		else
 		{
@@ -130,7 +123,7 @@ public:
 
 		if (isOverflowSignedSub(rs, rt, result))
 		{
-			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+			Process::ThrowException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
 		}
 		else
 		{
@@ -166,7 +159,7 @@ public:
 
 		if (isOverflowSignedSub(rs, rt, result))
 		{
-			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+			Process::ThrowException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
 		}
 		else
 		{
@@ -339,7 +332,7 @@ public:
 		auto&& gpr = cpu.GetGpr();
 		const uint64 rs = gpr.Read(instr.Rs());
 		const uint64 rt = gpr.Read(instr.Rt());
-		if (rs == rt) throwException(cpu, ExceptionKinds::Trap, 0);
+		if (rs == rt) Process::ThrowException(cpu, ExceptionKinds::Trap, 0);
 		END_OP;
 	}
 
@@ -350,7 +343,7 @@ public:
 		auto&& gpr = cpu.GetGpr();
 		const uint64 rs = gpr.Read(instr.Rs());
 		const uint64 rt = gpr.Read(instr.Rt());
-		if (rs != rt) throwException(cpu, ExceptionKinds::Trap, 0);
+		if (rs != rt) Process::ThrowException(cpu, ExceptionKinds::Trap, 0);
 		END_OP;
 	}
 
@@ -361,7 +354,7 @@ public:
 		auto&& gpr = cpu.GetGpr();
 
 		const uint64 rs = gpr.Read(instr.Rs());
-		branchVAddr64<BranchType::Normal>(cpu, rs, true);
+		Process::BranchVAddr64<BranchType::Normal>(cpu, rs, true);
 		END_OP;
 	}
 
@@ -372,7 +365,7 @@ public:
 		auto&& gpr = cpu.GetGpr();
 
 		const uint64 rs = gpr.Read(instr.Rs());
-		branchVAddr64<BranchType::Normal>(cpu, rs, true);
+		Process::BranchVAddr64<BranchType::Normal>(cpu, rs, true);
 		linkRegister(cpu, instr.Rd());
 		END_OP;
 	}
@@ -505,7 +498,7 @@ public:
 
 		if (isOverflowSignedAdd<uint32>(rs, imm, result))
 		{
-			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+			Process::ThrowException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
 		}
 		else
 		{
@@ -541,7 +534,7 @@ public:
 
 		if (isOverflowSignedAdd<uint64>(rs, imm, result))
 		{
-			throwException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
+			Process::ThrowException(cpu, ExceptionKinds::ArithmeticOverflow, 0);
 		}
 		else
 		{
@@ -572,7 +565,7 @@ public:
 		target <<= 2;
 		target |= ((cpu.GetPc().Curr() - 4) & 0xFFFFFFFF'F0000000); // PC is now 4 ahead
 
-		branchVAddr64<BranchType::Normal>(cpu, target, true);
+		Process::BranchVAddr64<BranchType::Normal>(cpu, target, true);
 		END_OP;
 	}
 
@@ -586,7 +579,7 @@ public:
 		target <<= 2;
 		target |= ((cpu.GetPc().Curr() - 4) & 0xFFFFFFFF'F0000000); // PC is now 4 ahead
 
-		branchVAddr64<BranchType::Normal>(cpu, target, true);
+		Process::BranchVAddr64<BranchType::Normal>(cpu, target, true);
 		END_OP;
 	}
 
@@ -807,7 +800,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -830,7 +823,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -853,7 +846,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}
@@ -876,7 +869,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}
@@ -898,7 +891,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -920,7 +913,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -942,7 +935,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -964,7 +957,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -986,7 +979,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -1008,7 +1001,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}
@@ -1026,7 +1019,7 @@ public:
 		if (checkAddressError<0b11>(cpu, vaddr))
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, ExceptionKinds::AddressErrorLoad, 0);
+			Process::ThrowException(cpu, ExceptionKinds::AddressErrorLoad, 0);
 			END_OP;
 		}
 
@@ -1038,7 +1031,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -1055,7 +1048,7 @@ public:
 		if (checkAddressError<0b11>(cpu, vaddr))
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, ExceptionKinds::AddressErrorLoad, 0);
+			Process::ThrowException(cpu, ExceptionKinds::AddressErrorLoad, 0);
 			END_OP;
 		}
 
@@ -1067,7 +1060,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -1085,7 +1078,7 @@ public:
 		if (checkAddressError<0b111>(cpu, vaddr))
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, ExceptionKinds::AddressErrorLoad, 0);
+			Process::ThrowException(cpu, ExceptionKinds::AddressErrorLoad, 0);
 			END_OP;
 		}
 
@@ -1097,7 +1090,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 		END_OP;
 	}
@@ -1115,7 +1108,7 @@ public:
 		if (checkAddressError<0b11>(cpu, vaddr))
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
+			Process::ThrowException(cpu, ExceptionKinds::AddressErrorStore, 0);
 			END_OP;
 		}
 
@@ -1127,7 +1120,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}
@@ -1144,7 +1137,7 @@ public:
 		if (checkAddressError<0b111>(cpu, vaddr))
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, ExceptionKinds::AddressErrorStore, 0);
+			Process::ThrowException(cpu, ExceptionKinds::AddressErrorStore, 0);
 			END_OP;
 		}
 
@@ -1156,7 +1149,7 @@ public:
 		else
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
-			throwException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
 		}
 		END_OP;
 	}
@@ -1229,42 +1222,13 @@ public:
 	class Cop;
 
 private:
-	static void throwException(Cpu& cpu, ExceptionCode code, int coprocessorError)
-	{
-		cpu.handleException(cpu.m_pc.Prev(), code, coprocessorError);
-	}
-
-	template <BranchType branch>
-	static void branchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
-	{
-		if (condition)
-		{
-			cpu.m_delaySlot.Set();
-			cpu.m_pc.SetNext(vaddr);
-			N64_TRACE(U"branch accepted vaddr={:016X}"_fmt(vaddr));
-		}
-		else
-		{
-			if constexpr (branch == BranchType::Normal)
-			{
-				cpu.m_delaySlot.Set();
-			}
-			else if constexpr (branch == BranchType::Likely)
-			{
-				// likelyのときは、遅延スロットを実行しないようにする
-				cpu.m_pc.Change64(cpu.m_pc.Curr() + 4);
-			}
-			N64_TRACE(U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
-		}
-	}
-
 	template <BranchType branch, HasImm16 Instr>
 	static void branchOffset16(Cpu& cpu, Instr instr, bool condition)
 	{
 		sint64 offset = static_cast<sint16>(instr.Imm());
 		offset *= 4; // left shift 2
 
-		branchVAddr64<branch>(cpu, cpu.GetPc().Curr() + offset, condition);
+		Process::BranchVAddr64<branch>(cpu, cpu.GetPc().Curr() + offset, condition);
 	}
 
 	static void linkRegister(Cpu& cpu, uint8 gprNumber)

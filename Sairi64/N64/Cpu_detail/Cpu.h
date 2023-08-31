@@ -98,6 +98,7 @@ namespace N64::Cpu_detail
 
 		Dynarec::RecompiledCache& RecompiledCache() { return m_recompiledCache; }
 
+		class Process;
 		class Interpreter;
 
 	private:

@@ -12,6 +12,12 @@
 
 namespace N64::Cpu_detail::Dynarec
 {
+	// x86_64 documents
+	// https://learn.microsoft.com/ja-jp/windows-hardware/drivers/debugger/x64-architecture
+	// https://www.felixcloutier.com/x86/mov
+
+	using Process = Cpu::Process;
+
 	class Jit
 	{
 	public:
@@ -28,16 +34,8 @@ namespace N64::Cpu_detail::Dynarec
 			const uint8 rt = instr.Rt();
 
 			x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
-
-			if (rs == 0)
-				x86Asm.xor_(x86::rcx, x86::rcx); // rcx <- 0
-			else
-				x86Asm.mov(x86::rcx, x86::qword_ptr(x86::rax, rs * 8)); // rcx <- gpr[rs]
-
-			if (rt == 0)
-				x86Asm.xor_(x86::rdx, x86::rdx); // rdx <- 0
-			else
-				x86Asm.mov(x86::rdx, x86::qword_ptr(x86::rax, rt * 8)); // rdx <- gpr[rt]
+			loadGpr(x86Asm, x86::rcx, x86::rax, rs); // rcx <- rs
+			loadGpr(x86Asm, x86::rdx, x86::rax, rt); // rdx <- rt
 
 			if constexpr (funct == OpSpecialFunct::ADDU)
 			{
@@ -90,6 +88,45 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodeNext::Continue;
 		}
 
+		[[nodiscard]]
+		static DecodeNext BEQ(const AssembleContext& ctx, InstructionI instr)
+		{
+			JIT_ENTRY;
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			auto&& pc = ctx.cpu->GetPc().Raw();
+			const uint8 rs = instr.Rs();
+			const uint8 rt = instr.Rt();
+			sint64 offset = static_cast<sint16>(instr.Imm());
+			offset *= 4; // left shift 2
+
+			x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
+			loadGpr(x86Asm, x86::rcx, x86::rax, rs); // rcx <- rs
+			loadGpr(x86Asm, x86::rdx, x86::rax, rt); // rdx <- rt
+			x86Asm.cmp(x86::rcx, x86::rdx);
+			x86Asm.sete(x86::r8b); // r8b <- condition
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- pc.curr
+			x86Asm.mov(x86::rax, offset); // rax <- immediate
+			x86Asm.add(x86::rdx, x86::rax); // rdx <- pc.curr + rax
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+			x86Asm.mov(x86::rax, (uint64)&Process::BranchVAddr64<BranchType::Normal>);
+			x86Asm.call(x86::rax);
+
+			return DecodeNext::End;
+		}
+
 	private:
+		static void loadGpr(
+			x86::Assembler& x86Asm,
+			const x86::Gpq& dest,
+			const x86::Gpq& base,
+			const uint8 gprIndex)
+		{
+			if (gprIndex == 0)
+				x86Asm.xor_(dest, dest); // gp <- 0
+			else
+				x86Asm.mov(dest, x86::qword_ptr(base, gprIndex * 8)); // gp <- gpr[index]
+		}
 	};
 }

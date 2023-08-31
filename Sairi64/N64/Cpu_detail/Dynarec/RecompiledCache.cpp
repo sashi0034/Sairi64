@@ -55,4 +55,17 @@ namespace N64::Cpu_detail::Dynarec
 		if (page.get() == nullptr) return;
 		page->isBroken = true;
 	}
+
+	void RecompiledCache::CheckInvalidatePageBetween(PAddr32 beginInclusive, PAddr32 endInclusive) const
+	{
+		if (endInclusive < beginInclusive) return;
+
+		const uint32 beginIndex = GetPageIndex(beginInclusive);
+		const uint32 endIndex = GetPageIndex(endInclusive);
+		for (uint32 i = beginIndex; i <= endIndex; ++i)
+		{
+			auto&& page = m_pages[i];
+			if (page.get() != nullptr) page->isBroken = true;
+		}
+	}
 }

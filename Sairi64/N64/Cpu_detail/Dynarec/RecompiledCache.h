@@ -51,6 +51,7 @@ namespace N64::Cpu_detail::Dynarec
 	public:
 		RecompiledCodeHandler HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc);
 		void CheckInvalidatePage(PAddr32 paddr) const;
+		void CheckInvalidatePageBetween(PAddr32 beginInclusive, PAddr32 endInclusive) const;
 
 	private:
 		Array<CachePagePtr> m_pages{CachePageIndexSize_0x80000};

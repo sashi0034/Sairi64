@@ -108,9 +108,15 @@ namespace N64::Mmio
 		const uint32 cartAddrOffset = cartAddr - 0x1000'0000;
 		for (uint32 i = 0; i < transferLength; ++i)
 		{
+			// データ転送
 			n64.GetMemory().Rdram()[EndianAddress<uint8>(dramAddr + i)] =
 				n64.GetMemory().GetRom().Data()[EndianAddress<uint8>(cartAddrOffset + i)];
 		}
+
+		// 対応する再コンパイル済みキャッシュも無効に
+		n64.GetCpu().RecompiledCache().CheckInvalidatePageBetween(
+			PAddr32(dramAddr), PAddr32(dramAddr + transferLength - 1));
+
 		m_status.DmaBusy().Set(true);
 
 		n64.GetScheduler().ScheduleEvent(transferLength / 8, [&n64, this]()

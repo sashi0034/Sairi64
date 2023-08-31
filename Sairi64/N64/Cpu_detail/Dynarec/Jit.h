@@ -22,7 +22,7 @@ namespace N64::Cpu_detail::Dynarec
 	{
 	public:
 		template <OpSpecialFunct funct> [[nodiscard]]
-		static DecodedToken SPECIAL_templateArithmetic(const AssembleContext& ctx, InstructionR instr)
+		static DecodedToken SPECIAL_arithmetic(const AssembleContext& ctx, InstructionR instr)
 		{
 			JIT_ENTRY;
 			const uint8 rd = instr.Rd();
@@ -88,8 +88,8 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Continue;
 		}
 
-		[[nodiscard]]
-		static DecodedToken BEQ(const AssembleContext& ctx, InstructionI instr)
+		template <Opcode op> [[nodiscard]]
+		static DecodedToken B_branch(const AssembleContext& ctx, InstructionI instr)
 		{
 			JIT_ENTRY;
 			auto&& x86Asm = *ctx.x86Asm;
@@ -103,8 +103,16 @@ namespace N64::Cpu_detail::Dynarec
 			x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
 			loadGpr(x86Asm, x86::rcx, x86::rax, rs); // rcx <- rs
 			loadGpr(x86Asm, x86::rdx, x86::rax, rt); // rdx <- rt
-			x86Asm.cmp(x86::rcx, x86::rdx);
-			x86Asm.sete(x86::r8b); // r8b <- condition
+			if constexpr (op == Opcode::BEQ)
+			{
+				x86Asm.cmp(x86::rcx, x86::rdx);
+				x86Asm.sete(x86::r8b); // r8b <- rs==rt
+			}
+			else if constexpr (op == Opcode::BNE)
+			{
+				x86Asm.cmp(x86::rcx, x86::rdx);
+				x86Asm.setne(x86::r8b); // r8b <- rs!=rt
+			}
 			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
 			x86Asm.mov(x86::rdx, x86::rax); // rdx <- pc.curr
 			x86Asm.mov(x86::rax, offset); // rax <- immediate

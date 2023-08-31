@@ -24,9 +24,9 @@ public:
 		case Opcode::JAL:
 			return UseInterpreter(ctx, instr, &interpret::JAL);
 		case Opcode::BEQ:
-			return Jit::BEQ(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branch<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNE:
-			return UseInterpreter(ctx, instr, &interpret::BNE);
+			return Jit::B_branch<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
 			return UseInterpreter(ctx, instr, &interpret::BLEZ);
 		case Opcode::BGTZ:
@@ -187,33 +187,33 @@ private:
 		case OpSpecialFunct::DDIVU:
 			break;
 		case OpSpecialFunct::ADD:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr); // TODO: 例外
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::ADDU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::ADDU:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::ADDU>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::ADDU>(ctx, instr);
 		case OpSpecialFunct::SUB:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::SUBU>(ctx, instr); // TODO: 例外
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::SUBU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::SUBU:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::SUBU>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::SUBU>(ctx, instr);
 		case OpSpecialFunct::AND:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::AND>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::AND>(ctx, instr);
 		case OpSpecialFunct::OR:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::OR>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::OR>(ctx, instr);
 		case OpSpecialFunct::XOR:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::XOR>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::XOR>(ctx, instr);
 		case OpSpecialFunct::NOR:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::NOR>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::NOR>(ctx, instr);
 		case OpSpecialFunct::SLT:
 			return UseInterpreter(ctx, instr, &interpret::SLT);
 		case OpSpecialFunct::SLTU:
 			return UseInterpreter(ctx, instr, &interpret::SLTU);
 		case OpSpecialFunct::DADD:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DADDU>(ctx, instr); // TODO: 例外
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::DADDU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::DADDU:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DADDU>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::DADDU>(ctx, instr);
 		case OpSpecialFunct::DSUB:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DSUBU>(ctx, instr); // TODO: 例外
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::DSUBU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::DSUBU:
-			return Jit::SPECIAL_templateArithmetic<OpSpecialFunct::DSUBU>(ctx, instr);
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::DSUBU>(ctx, instr);
 		case OpSpecialFunct::TGE:
 			break;
 		case OpSpecialFunct::TGEU:

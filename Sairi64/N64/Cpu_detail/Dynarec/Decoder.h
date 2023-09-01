@@ -46,7 +46,7 @@ public:
 		case Opcode::XORI:
 			return Jit::I_immediateArithmetic<Opcode::XORI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LUI:
-			return UseInterpreter(ctx, instr, &interpret::LUI);
+			return Jit::LUI(ctx, static_cast<InstructionI>(instr));
 		case Opcode::CP0:
 			return assembleCP0(ctx, state, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:

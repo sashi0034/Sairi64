@@ -129,6 +129,19 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Continue;
 		}
 
+		[[nodiscard]]
+		static DecodedToken LUI(const AssembleContext& ctx, InstructionI instr)
+		{
+			JIT_ENTRY;
+			const uint8 rt = instr.Rt();
+			if (rt == 0) return DecodedToken::Continue;
+			sint64 imm = static_cast<sint16>(instr.Imm());
+			imm *= 0x10000;
+			auto&& x86Asm = *ctx.x86Asm;
+			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[rt])), imm);
+			return DecodedToken::Continue;
+		}
+
 		template <OpSpecialFunct funct> [[nodiscard]]
 		static DecodedToken SLT_template(const AssembleContext& ctx, InstructionR instr)
 		{
@@ -353,9 +366,11 @@ namespace N64::Cpu_detail::Dynarec
 			else if constexpr (funct == OpSpecialFunct::JALR)
 			{
 				// link register
+				const uint8 rd = instr.Rd();
+				if (rd == 0) return DecodedToken::Branch;
 				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetPc().Raw().curr)));
 				x86Asm.add(x86::rax, 4);
-				x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[instr.Rd()])), x86::rax);
+				x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[rd])), x86::rax);
 				return DecodedToken::Branch;
 			}
 			else

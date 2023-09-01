@@ -187,7 +187,6 @@
     <ClCompile Include="N64\Cpu_detail\Cop1.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp" />
-    <ClCompile Include="N64\Cpu_detail\Dynarec\GprMapper.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\JitUtil.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\RecompiledCache.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\Recompiler.cpp" />
@@ -529,7 +528,6 @@
     <ClInclude Include="N64\Cpu_detail\Cpu_Interpreter_Op_Cop.h" />
     <ClInclude Include="N64\Cpu_detail\Cpu_Process.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\Decoder.h" />
-    <ClInclude Include="N64\Cpu_detail\Dynarec\GprMapper.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\Jit.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\JitUtil.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\RecompiledCache.h" />

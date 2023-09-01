@@ -10,11 +10,14 @@ namespace N64
 			String filePath;
 		} rom;
 
-		ProcessorType processor = ProcessorType::Dynarec;
+		ProcessorType processor = defaultProcessor();
 
 		struct
 		{
 			bool executePifRom = true;
 		} boot;
+
+	private:
+		static ProcessorType defaultProcessor();
 	};
 }

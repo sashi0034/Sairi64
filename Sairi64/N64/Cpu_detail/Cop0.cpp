@@ -342,7 +342,7 @@ namespace N64::Cpu_detail
 		case TlbError::None:
 			N64Logger::Abort(U"no tlb exception code with none");
 			break;
-		case TlbError::Miss: // fallthrough
+		case TlbError::Miss: [[fallthrough]];
 		case TlbError::Invalid:
 			return access == BusAccess::Load ? ExceptionKinds::TLBMissLoad : ExceptionKinds::TLBMissStore;
 		case TlbError::Modification:

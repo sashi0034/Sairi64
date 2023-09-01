@@ -10,7 +10,7 @@ namespace N64::Mmio
 		{
 		case SiAddress::DramAddr_0x04800000:
 			return m_dramAddr;
-		case SiAddress::PifAdRd64B_0x04800004: // fallthrough
+		case SiAddress::PifAdRd64B_0x04800004: [[fallthrough]];
 		case SiAddress::PifAddrWr64B_0x04800010:
 			return m_pifAddr;
 		case SiAddress::Status_0x04800018:

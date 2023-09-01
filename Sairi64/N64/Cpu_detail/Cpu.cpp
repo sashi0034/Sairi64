@@ -61,6 +61,7 @@ public:
 	{
 		// check for interrupt/exception
 		if (shouldServiceInterrupt(cpu.m_cop0))
+		[[unlikely]]
 		{
 			cpu.m_delaySlot.Step();
 			cpu.handleException(cpu.m_pc.Curr(), ExceptionKinds::Interrupt, 0);
@@ -70,6 +71,7 @@ public:
 		// instruction fetch
 		const ResolvedPAddr32 paddrOfPc = Mmu::ResolveVAddr(cpu, cpu.m_pc.Curr());
 		if (paddrOfPc.has_value() == false)
+		[[unlikely]]
 		{
 			cpu.m_delaySlot.Step();
 			cpu.m_cop0.HandleTlbException(cpu.m_pc.Curr());

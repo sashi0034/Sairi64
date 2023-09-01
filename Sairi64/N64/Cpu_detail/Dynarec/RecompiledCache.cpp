@@ -52,7 +52,7 @@ namespace N64::Cpu_detail::Dynarec
 	void RecompiledCache::CheckInvalidatePage(PAddr32 paddr) const
 	{
 		auto&& page = m_pages[GetPageIndex(paddr)];
-		if (page.get() == nullptr) return;
+		if (page.get() == nullptr) [[likely]] return;
 		page->isBroken = true;
 	}
 

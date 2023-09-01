@@ -90,13 +90,13 @@ public:
 		case Opcode::LWU:
 			return Jit::L_load<Opcode::LWU>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SB:
-			return UseInterpreter(ctx, instr, &interpret::SB);
+			return Jit::S_store<Opcode::SB>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SH:
-			return UseInterpreter(ctx, instr, &interpret::SH);
+			return Jit::S_store<Opcode::SH>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SWL:
 			break;
 		case Opcode::SW:
-			return UseInterpreter(ctx, instr, &interpret::SW);
+			return Jit::S_store<Opcode::SW>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SDL:
 			return UseInterpreter(ctx, instr, &interpret::SDL);
 		case Opcode::SDR:
@@ -124,7 +124,7 @@ public:
 		case Opcode::SDC1:
 			break;
 		case Opcode::SD:
-			return UseInterpreter(ctx, instr, &interpret::SD);
+			return Jit::S_store<Opcode::SD>(ctx, state, static_cast<InstructionI>(instr));
 		default: ;
 		}
 

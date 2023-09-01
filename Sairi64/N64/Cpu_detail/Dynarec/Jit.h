@@ -201,32 +201,13 @@ namespace N64::Cpu_detail::Dynarec
 			JIT_ENTRY;
 			auto&& x86Asm = *ctx.x86Asm;
 			auto&& gpr = ctx.cpu->GetGpr();
-			const uint8 rs = instr.Rs();
 			const uint8 rt = instr.Rt();
-			const sint64 offset = static_cast<sint16>(instr.Imm());
-			const auto resolvedLabel = x86Asm.newLabel();
 
 			// TODO: check address error?
 
-			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
-			x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
-			x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
-			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
-			x86Asm.mov(x86::rax, (uint64)&callResolveVAddr);
-			x86Asm.call(x86::rax); // eax <- paddr
-			x86Asm.cmp(x86::eax, static_cast<uint32>(ResolvedPAddr32::InvalidAddress)); // if eax is not invalid
-			x86Asm.jne(resolvedLabel); // then goto @resolved
-			// now, paddr is invalid
-			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
-			x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
-			x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
-			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
-			x86Asm.mov(x86::rax, (uint64)&handleResolvingError<BusAccess::Load, 0>);
-			x86Asm.call(x86::rax); // handling
-			x86Asm.mov(x86::rax, state.recompiledLength);
-			x86Asm.jmp(ctx.endLabel); // goto @end
+			preprocessMemoryAccess<BusAccess::Load>(ctx, state, instr);
+			// now, paddr is stored in rax
 
-			x86Asm.bind(resolvedLabel); // @resolved
 			if (rt == 0) return DecodedToken::Continue;
 			x86Asm.mov(x86::rdx, x86::rax); // rdx <- paddr
 			x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
@@ -261,6 +242,48 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Continue;
 		}
 
+		template <Opcode op> [[nodiscard]]
+		static DecodedToken S_store(const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
+		{
+			JIT_ENTRY;
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			const uint8 rt = instr.Rt();
+
+			// TODO: check address error?
+
+			preprocessMemoryAccess<BusAccess::Store>(ctx, state, instr);
+			// now, paddr is stored in rax
+
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- paddr
+			x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt]))); // rax <- rt
+			x86Asm.mov(x86::r8, x86::rax);
+
+			if constexpr (op == Opcode::SB)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::WritePaddr8);
+			}
+			else if constexpr (op == Opcode::SH)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::WritePaddr16);
+			}
+			else if constexpr (op == Opcode::SW)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::WritePaddr32);
+			}
+			else if constexpr (op == Opcode::SD)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::WritePaddr64);
+			}
+			else
+			{
+				static_assert(AlwaysFalseValue<Opcode, op>);
+			}
+			x86Asm.call(x86::rax); // write rt
+			return DecodedToken::Continue;
+		}
+
 	private:
 		static void loadGpr(
 			x86::Assembler& x86Asm,
@@ -285,6 +308,41 @@ namespace N64::Cpu_detail::Dynarec
 		{
 			cpu.GetCop0().HandleTlbException(vaddr);
 			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+		}
+
+		template <BusAccess access>
+		static void preprocessMemoryAccess(
+			const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
+		{
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			const uint8 rs = instr.Rs();
+			const sint64 offset = static_cast<sint16>(instr.Imm());
+			const auto resolvedLabel = x86Asm.newLabel();
+
+			if (rs == 0)
+				x86Asm.xor_(x86::rax, x86::rax);
+			else
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
+
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
+			x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+			x86Asm.mov(x86::rax, (uint64)&callResolveVAddr);
+			x86Asm.call(x86::rax); // eax <- paddr
+			x86Asm.cmp(x86::eax, static_cast<uint32>(ResolvedPAddr32::InvalidAddress)); // if eax is not invalid
+			x86Asm.jne(resolvedLabel); // then goto @resolved
+			// now, paddr is invalid
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
+			x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+			x86Asm.mov(x86::rax, (uint64)&handleResolvingError<access, 0>);
+			x86Asm.call(x86::rax); // handling
+			x86Asm.mov(x86::rax, state.recompiledLength);
+			x86Asm.jmp(ctx.endLabel); // goto @end
+			x86Asm.bind(resolvedLabel); // @resolved
+			// now, paddr is stored in rax
 		}
 	};
 }

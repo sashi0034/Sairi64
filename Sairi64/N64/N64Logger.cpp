@@ -18,12 +18,12 @@ namespace N64
 			isTraceEnabled = true;
 #endif
 #if 0
-			static int count = 0;
+			static uint64 count = 0;
 			count++;
-			if (count > 15357900) isTraceEnabled = true;
+			if (count > 36859226) isTraceEnabled = true;
 #endif
 #if 0
-			if (System().GetCpu().GetPc().Curr() == 0xffffffff80000100)
+			if (System().GetCpu().GetPc().Curr() == 0xffffffff80010a20)
 				isTraceEnabled = true;
 #endif
 #if 0

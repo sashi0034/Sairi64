@@ -301,6 +301,25 @@ namespace N64::Cpu_detail::Dynarec
 		}
 
 		template <Opcode op> [[nodiscard]]
+		static DecodedToken J_jump(const AssembleContext& ctx, InstructionJ instr)
+		{
+			JIT_ENTRY;
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& pc = ctx.cpu->GetPc().Raw();
+			const uint64 target = static_cast<uint64>(instr.Target()) << 2;
+
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+			x86Asm.sub(x86::rax, 4);
+			x86Asm.and_(x86::rax, 0xFFFFFFFF'F0000000);
+			x86Asm.or_(x86::rax, target);
+			x86Asm.mov(x86::rdx, x86::rax);
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+			x86Asm.mov(x86::rax, &Process::StaticBranchVAddr64<BranchType::Normal, true>);
+			x86Asm.call(x86::rax);
+			return DecodedToken::Branch;
+		}
+
+		template <Opcode op> [[nodiscard]]
 		static DecodedToken L_load(const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
 		{
 			JIT_ENTRY;

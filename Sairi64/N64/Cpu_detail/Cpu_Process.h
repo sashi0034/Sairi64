@@ -44,6 +44,12 @@ namespace N64::Cpu_detail
 			}
 		}
 
+		template <BranchType branch, bool condition>
+		static void StaticBranchVAddr64(Cpu& cpu, uint64 vaddr)
+		{
+			BranchVAddr64<branch>(cpu, vaddr, condition);
+		}
+
 		static void ThrowException(Cpu& cpu, ExceptionCode code, int coprocessorError)
 		{
 			cpu.handleException(cpu.m_pc.Prev(), code, coprocessorError);

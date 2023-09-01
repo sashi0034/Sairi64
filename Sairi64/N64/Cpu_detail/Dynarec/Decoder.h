@@ -36,7 +36,7 @@ public:
 		case Opcode::ADDIU:
 			return Jit::I_immediateArithmetic<Opcode::ADDIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SLTI:
-			return Jit::SLTI_template<Opcode::SLTI>(ctx, static_cast<InstructionI>(instr)); // TODO: 例外
+			return Jit::SLTI_template<Opcode::SLTI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SLTIU:
 			return Jit::SLTI_template<Opcode::SLTIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ANDI:
@@ -203,9 +203,9 @@ private:
 		case OpSpecialFunct::NOR:
 			return Jit::SPECIAL_arithmetic<OpSpecialFunct::NOR>(ctx, instr);
 		case OpSpecialFunct::SLT:
-			return UseInterpreter(ctx, instr, &interpret::SLT);
+			return Jit::SLT_template<OpSpecialFunct::SLT>(ctx, instr);
 		case OpSpecialFunct::SLTU:
-			return UseInterpreter(ctx, instr, &interpret::SLTU);
+			return Jit::SLT_template<OpSpecialFunct::SLTU>(ctx, instr);
 		case OpSpecialFunct::DADD:
 			return Jit::SPECIAL_arithmetic<OpSpecialFunct::DADDU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::DADDU:

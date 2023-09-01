@@ -33,8 +33,6 @@ namespace N64::Cpu_detail
 	{
 		return ((((value1 ^ value2) & (value1 ^ result)) >> ((sizeof(T) * 8) - 1)) & 1);
 	}
-
-	constexpr uint8 gprRA_31 = 31; // Return Address GPR
 }
 
 class N64::Cpu_detail::Cpu::Interpreter::Op
@@ -573,7 +571,7 @@ public:
 	static OperatedUnit JAL(Cpu& cpu, InstructionJ instr)
 	{
 		BEGIN_OP;
-		linkRegister(cpu, gprRA_31);
+		linkRegister(cpu, GprRA_31);
 
 		uint64 target = instr.Target();
 		target <<= 2;
@@ -1196,7 +1194,7 @@ public:
 		BEGIN_OP;
 		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
 		branchOffset16<BranchType::Normal>(cpu, instr, rs >= 0);
-		linkRegister(cpu, gprRA_31);
+		linkRegister(cpu, GprRA_31);
 		END_OP;
 	}
 
@@ -1206,7 +1204,7 @@ public:
 		BEGIN_OP;
 		const sint64 rs = cpu.GetGpr().Read(instr.Rs());
 		branchOffset16<BranchType::Likely>(cpu, instr, rs >= 0);
-		linkRegister(cpu, gprRA_31);
+		linkRegister(cpu, GprRA_31);
 		END_OP;
 	}
 

@@ -11,6 +11,8 @@ namespace N64::Cpu_detail
 		U"T8", U"T9", U"K0", U"K1", U"GP", U"SP", U"FP", U"RA", // 32
 	};
 
+	constexpr uint8 GprRA_31 = 31; // Return Address GPR
+
 	class Gpr
 	{
 	public:

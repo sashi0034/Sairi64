@@ -149,7 +149,7 @@ private:
 		case OpSpecialFunct::SRAV:
 			return UseInterpreter(ctx, instr, &interpret::SRAV);
 		case OpSpecialFunct::JR:
-			return UseInterpreter(ctx, instr, &interpret::JR);
+			return Jit::JR_template<OpSpecialFunct::JR>(ctx, instr);
 		case OpSpecialFunct::JALR:
 			return UseInterpreter(ctx, instr, &interpret::JALR);
 		case OpSpecialFunct::SYSCALL:

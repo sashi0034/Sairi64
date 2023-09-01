@@ -335,6 +335,20 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Branch;
 		}
 
+		template <OpSpecialFunct funct> [[nodiscard]]
+		static DecodedToken JR_template(const AssembleContext& ctx, InstructionR instr)
+		{
+			JIT_ENTRY;
+			auto&& x86Asm = *ctx.x86Asm;
+			const uint8 rs = instr.Rs();
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[rs])));
+			x86Asm.mov(x86::rdx, x86::rax);
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+			x86Asm.mov(x86::rax, &Process::StaticBranchVAddr64<BranchType::Normal, true>);
+			x86Asm.call(x86::rax);
+			return DecodedToken::Branch;
+		}
+
 		template <Opcode op> [[nodiscard]]
 		static DecodedToken L_load(const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
 		{

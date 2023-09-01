@@ -883,7 +883,7 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const sint8 byte = Mmu::ReadPaddr8(n64, paddr.value());
 			gpr.Write(instr.Rt(), (sint64)byte);
@@ -905,7 +905,7 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint8 byte = Mmu::ReadPaddr8(n64, paddr.value());
 			gpr.Write(instr.Rt(), byte); // zero extend
@@ -927,7 +927,7 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const sint16 value = Mmu::ReadPaddr16(n64, paddr.value());
 			gpr.Write(instr.Rt(), (sint64)value);
@@ -949,7 +949,7 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint16 value = Mmu::ReadPaddr16(n64, paddr.value());
 			gpr.Write(instr.Rt(), value);
@@ -971,7 +971,7 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint32 rt = gpr.Read(instr.Rt());
 			Mmu::WritePaddr8(n64, paddr.value(), rt);
@@ -993,7 +993,7 @@ public:
 		const sint16 offset = static_cast<sint16>(instr.Imm());
 		const uint64 vaddr = gpr.Read(instr.Rs()) + offset;
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint32 rt = gpr.Read(instr.Rt());
 			Mmu::WritePaddr16(n64, paddr.value(), rt);
@@ -1023,7 +1023,7 @@ public:
 			END_OP;
 		}
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const sint32 word = Mmu::ReadPaddr32(n64, paddr.value());
 			gpr.Write(instr.Rt(), (sint64)word);
@@ -1052,7 +1052,7 @@ public:
 			END_OP;
 		}
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint32 word = Mmu::ReadPaddr32(n64, paddr.value());
 			gpr.Write(instr.Rt(), word);
@@ -1082,7 +1082,7 @@ public:
 			END_OP;
 		}
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint64 dword = Mmu::ReadPaddr64(n64, paddr.value());
 			gpr.Write(instr.Rt(), dword);
@@ -1112,7 +1112,7 @@ public:
 			END_OP;
 		}
 
-		if (const Optional<PAddr32> paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		if (const ResolvedPAddr32 paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		{
 			const uint32 word = gpr.Read(instr.Rt());
 			Mmu::WritePaddr32(n64, paddr.value(), word);

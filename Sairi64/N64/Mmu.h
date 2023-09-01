@@ -7,6 +7,22 @@ namespace N64
 {
 	using namespace Utils;
 
+	class ResolvedPAddr32
+	{
+	public:
+		explicit ResolvedPAddr32(uint32 paddr) : m_paddr(paddr) { return; };
+
+		static constexpr PAddr32 InvalidAddress = PAddr32(0xFFFF'FFFF);
+		bool has_value() const { return m_paddr != InvalidAddress; }
+		explicit operator bool() const { return has_value(); }
+		PAddr32 value() const { return m_paddr; }
+
+	private:
+		PAddr32 m_paddr;
+	};
+
+	static_assert(sizeof(ResolvedPAddr32) == 4);
+
 	namespace Mmu
 	{
 		// https://n64brew.dev/wiki/Memory_map
@@ -23,7 +39,7 @@ namespace N64
 		}
 
 		[[nodiscard]]
-		Optional<PAddr32> ResolveVAddr(Cpu& cpu, uint64 vaddr);
+		ResolvedPAddr32 ResolveVAddr(Cpu& cpu, uint64 vaddr);
 
 		namespace PMap
 		{

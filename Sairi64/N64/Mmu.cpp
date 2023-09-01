@@ -9,7 +9,7 @@ namespace N64::Mmu
 	template <class...>
 	constexpr std::false_type always_false{};
 
-	inline Optional<PAddr32> resolveVAddrInternal(Cpu& cpu, uint64 vaddr)
+	inline ResolvedPAddr32 resolveVAddrInternal(Cpu& cpu, uint64 vaddr)
 	{
 		// TODO: 64 bit mode
 
@@ -17,17 +17,17 @@ namespace N64::Mmu
 		{
 		case VMap::KSEG0_sr29_4: // 0x80000000, 0x9FFFFFFF
 		case VMap::KSEG1_sr29_5: // 0xA0000000, 0xBFFFFFFF
-			return PAddr32(vaddr & 0x1FFFFFFF);
+			return ResolvedPAddr32(vaddr & 0x1FFFFFFF);
 		default: break;
 		}
 
 		N64Logger::Abort(U"unsupported vaddr: {:016x}"_fmt(vaddr));
-		return none;
+		return ResolvedPAddr32(ResolvedPAddr32::InvalidAddress);
 	}
 
-	Optional<PAddr32> ResolveVAddr(Cpu& cpu, uint64 vaddr)
+	ResolvedPAddr32 ResolveVAddr(Cpu& cpu, uint64 vaddr)
 	{
-		const Optional<PAddr32> paddr = resolveVAddrInternal(cpu, vaddr);
+		const ResolvedPAddr32 paddr = resolveVAddrInternal(cpu, vaddr);
 		N64_TRACE(paddr.has_value()
 			? U"address translation vaddr:{:#018x} => paddr:{:#010x}"_fmt(vaddr, static_cast<uint32>(paddr.value()))
 			: U"address translation vaddr:{:#018x} => failed"_fmt(vaddr));

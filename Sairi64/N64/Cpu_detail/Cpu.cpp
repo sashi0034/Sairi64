@@ -68,7 +68,7 @@ public:
 		}
 
 		// instruction fetch
-		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(cpu, cpu.m_pc.Curr());
+		const ResolvedPAddr32 paddrOfPc = Mmu::ResolveVAddr(cpu, cpu.m_pc.Curr());
 		if (paddrOfPc.has_value() == false)
 		{
 			cpu.m_delaySlot.Step();
@@ -100,7 +100,7 @@ namespace N64::Cpu_detail
 		}
 
 		// instruction fetch
-		const Optional<PAddr32> paddrOfPc = Mmu::ResolveVAddr(*this, m_pc.Curr());
+		const ResolvedPAddr32 paddrOfPc = Mmu::ResolveVAddr(*this, m_pc.Curr());
 		if (paddrOfPc.has_value() == false)
 		{
 			m_cop0.HandleTlbException(m_pc.Curr());

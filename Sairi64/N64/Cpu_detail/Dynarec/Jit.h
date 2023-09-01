@@ -91,7 +91,7 @@ namespace N64::Cpu_detail::Dynarec
 			auto&& x86Asm = *ctx.x86Asm;
 			auto&& gpr = ctx.cpu->GetGpr();
 			const uint8 rs = instr.Rs();
-			const uint32 imm = static_cast<sint32>(static_cast<sint16>(instr.Imm()));
+			const uint16 imm = instr.Imm();
 
 			if (rs == 0)
 				x86Asm.xor_(x86::rax, x86::rax); // rax <- 0
@@ -100,8 +100,24 @@ namespace N64::Cpu_detail::Dynarec
 
 			if constexpr (op == Opcode::ADDIU)
 			{
-				x86Asm.add(x86::eax, imm); // eax <- eax + immediate
+				x86Asm.add(x86::eax, (sint32)static_cast<sint16>(imm)); // eax <- eax + immediate
 				x86Asm.movsxd(x86::rax, x86::eax); // sign-extend
+			}
+			else if constexpr (op == Opcode::DADDIU)
+			{
+				x86Asm.add(x86::rax, (sint64)static_cast<sint16>(imm));
+			}
+			else if constexpr (op == Opcode::ANDI)
+			{
+				x86Asm.and_(x86::rax, (uint64)imm);
+			}
+			else if constexpr (op == Opcode::ORI)
+			{
+				x86Asm.or_(x86::rax, (uint64)imm);
+			}
+			else if constexpr (op == Opcode::XORI)
+			{
+				x86Asm.xor_(x86::rax, (uint64)imm);
 			}
 			else
 			{

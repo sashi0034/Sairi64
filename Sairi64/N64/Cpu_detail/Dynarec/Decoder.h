@@ -40,11 +40,11 @@ public:
 		case Opcode::SLTIU:
 			return UseInterpreter(ctx, instr, &interpret::SLTIU);
 		case Opcode::ANDI:
-			return UseInterpreter(ctx, instr, &interpret::ANDI);
+			return Jit::I_immediateArithmetic<Opcode::ANDI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ORI:
-			return UseInterpreter(ctx, instr, &interpret::ORI);
+			return Jit::I_immediateArithmetic<Opcode::ORI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::XORI:
-			return UseInterpreter(ctx, instr, &interpret::XORI);
+			return Jit::I_immediateArithmetic<Opcode::XORI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LUI:
 			return UseInterpreter(ctx, instr, &interpret::LUI);
 		case Opcode::CP0:
@@ -64,9 +64,9 @@ public:
 		case Opcode::BGTZL:
 			return UseInterpreter(ctx, instr, &interpret::BGTZL);
 		case Opcode::DADDI:
-			return UseInterpreter(ctx, instr, &interpret::DADDI);
+			return Jit::I_immediateArithmetic<Opcode::DADDIU>(ctx, static_cast<InstructionI>(instr)); // TODO: 例外
 		case Opcode::DADDIU:
-			return UseInterpreter(ctx, instr, &interpret::DADDIU);
+			return Jit::I_immediateArithmetic<Opcode::DADDIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LDL:
 			return UseInterpreter(ctx, instr, &interpret::LDL);
 		case Opcode::LDR:

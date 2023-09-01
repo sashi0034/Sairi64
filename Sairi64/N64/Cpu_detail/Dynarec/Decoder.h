@@ -20,9 +20,9 @@ public:
 		case Opcode::REGIMM:
 			return assembleREGIMM(ctx, state, static_cast<InstructionRegimm>(instr));
 		case Opcode::J:
-			return Jit::J_jump<Opcode::J>(ctx, static_cast<InstructionJ>(instr));
+			return Jit::J_template<Opcode::J>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::JAL:
-			return UseInterpreter(ctx, instr, &interpret::JAL);
+			return Jit::J_template<Opcode::JAL>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::BEQ:
 			return Jit::B_branch<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNE:

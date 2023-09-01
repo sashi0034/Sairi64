@@ -301,15 +301,31 @@ namespace N64::Cpu_detail::Dynarec
 		}
 
 		template <Opcode op> [[nodiscard]]
-		static DecodedToken J_jump(const AssembleContext& ctx, InstructionJ instr)
+		static DecodedToken J_template(const AssembleContext& ctx, InstructionJ instr)
 		{
 			JIT_ENTRY;
 			auto&& x86Asm = *ctx.x86Asm;
 			auto&& pc = ctx.cpu->GetPc().Raw();
 			const uint64 target = static_cast<uint64>(instr.Target()) << 2;
 
-			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
-			x86Asm.sub(x86::rax, 4);
+			if constexpr (op == Opcode::J)
+			{
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+				x86Asm.sub(x86::rax, 4);
+			}
+			else if constexpr (op == Opcode::JAL)
+			{
+				// link register
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+				x86Asm.add(x86::rax, 4);
+				x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[GprRA_31])), x86::rax);
+				x86Asm.sub(x86::rax, 8);
+			}
+			else
+			{
+				static_assert(AlwaysFalseValue<Opcode, op>);
+			}
+			// rax <- pc.curr - 4
 			x86Asm.and_(x86::rax, 0xFFFFFFFF'F0000000);
 			x86Asm.or_(x86::rax, target);
 			x86Asm.mov(x86::rdx, x86::rax);

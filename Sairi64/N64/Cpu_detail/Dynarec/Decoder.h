@@ -32,9 +32,9 @@ public:
 		case Opcode::BGTZ:
 			return UseInterpreter(ctx, instr, &interpret::BGTZ);
 		case Opcode::ADDI:
-			return UseInterpreter(ctx, instr, &interpret::ADDI);
+			return Jit::I_immediateArithmetic<Opcode::ADDIU>(ctx, static_cast<InstructionI>(instr)); // TODO: 例外
 		case Opcode::ADDIU:
-			return UseInterpreter(ctx, instr, &interpret::ADDIU);
+			return Jit::I_immediateArithmetic<Opcode::ADDIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SLTI:
 			return UseInterpreter(ctx, instr, &interpret::SLTI);
 		case Opcode::SLTIU:

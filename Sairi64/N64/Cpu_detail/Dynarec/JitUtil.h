@@ -97,7 +97,6 @@ namespace N64::Cpu_detail::Dynarec
 		static_assert(std::is_convertible<Instr1, Instr>::value);
 		N64_TRACE(U"use interpreter => " + instr.Stringify());
 		auto&& x86Asm = ctx.x86Asm;
-		// ctx.gprMapper->FlushClear(*x86Asm, ctx.cpu->GetGpr());
 
 		x86Asm->mov(x86::rcx, ctx.cpu);
 		x86Asm->mov(x86::rdx, instr.Raw());
@@ -113,7 +112,6 @@ namespace N64::Cpu_detail::Dynarec
 		static_assert(std::is_convertible<Instr1, Instr>::value);
 		N64_TRACE(U"use interpreter => " + instr.Stringify());
 		auto&& x86Asm = ctx.x86Asm;
-		// ctx.gprMapper->FlushClear(*x86Asm, ctx.cpu->GetGpr());
 
 		x86Asm->mov(x86::rcx, ctx.n64);
 		x86Asm->mov(x86::rdx, ctx.cpu);

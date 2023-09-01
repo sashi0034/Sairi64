@@ -81,6 +81,38 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Continue;
 		}
 
+		template <Opcode op> [[nodiscard]]
+		static DecodedToken I_immediateArithmetic(const AssembleContext& ctx, InstructionI instr)
+		{
+			JIT_ENTRY;
+			const uint8 rt = instr.Rt();
+			if (rt == 0) return DecodedToken::Continue;
+
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			const uint8 rs = instr.Rs();
+			const uint32 imm = static_cast<sint32>(static_cast<sint16>(instr.Imm()));
+
+			if (rs == 0)
+				x86Asm.xor_(x86::rax, x86::rax); // rax <- 0
+			else
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs]))); // rax <- rs
+
+			if constexpr (op == Opcode::ADDIU)
+			{
+				x86Asm.add(x86::eax, imm); // eax <- eax + immediate
+				x86Asm.movsxd(x86::rax, x86::eax); // sign-extend
+			}
+			else
+			{
+				static_assert(AlwaysFalseValue<Opcode, op>);
+			}
+
+			x86Asm.mov(x86::rcx, (uint64)&gpr.Raw()[rt]); // rcx <- *rt
+			x86Asm.mov(x86::qword_ptr(x86::rcx), x86::rax); // rcx <- rax
+			return DecodedToken::Continue;
+		}
+
 		template <OpSpecialFunct funct> [[nodiscard]]
 		static DecodedToken SPECIAL_shift(const AssembleContext& ctx, InstructionR instr)
 		{

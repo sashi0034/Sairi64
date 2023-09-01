@@ -88,8 +88,7 @@ namespace N64::Cpu_detail::Dynarec
 
 			if (state.recompiledLength == 1)
 			{
-				// TODO: 削除?
-				// 先頭の命令が分岐時のDelaySlotの可能性があるので、そのときは終了するようにする
+				// 先頭の命令が分岐時の遅延スロットの可能性があるので、そのときは終了するようにする (ページ先頭に遅延スロットあるときなど)
 				checkContinuousPc(ctx);
 			}
 		}

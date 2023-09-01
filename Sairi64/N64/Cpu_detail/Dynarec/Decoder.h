@@ -151,7 +151,7 @@ private:
 		case OpSpecialFunct::JR:
 			return Jit::JR_template<OpSpecialFunct::JR>(ctx, instr);
 		case OpSpecialFunct::JALR:
-			return UseInterpreter(ctx, instr, &interpret::JALR);
+			return Jit::JR_template<OpSpecialFunct::JALR>(ctx, instr);
 		case OpSpecialFunct::SYSCALL:
 			break;
 		case OpSpecialFunct::SYNC:

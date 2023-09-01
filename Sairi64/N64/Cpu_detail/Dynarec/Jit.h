@@ -346,7 +346,23 @@ namespace N64::Cpu_detail::Dynarec
 			x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 			x86Asm.mov(x86::rax, &Process::StaticBranchVAddr64<BranchType::Normal, true>);
 			x86Asm.call(x86::rax);
-			return DecodedToken::Branch;
+			if constexpr (funct == OpSpecialFunct::JR)
+			{
+				return DecodedToken::Branch;
+			}
+			else if constexpr (funct == OpSpecialFunct::JALR)
+			{
+				// link register
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetPc().Raw().curr)));
+				x86Asm.add(x86::rax, 4);
+				x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[instr.Rd()])), x86::rax);
+				return DecodedToken::Branch;
+			}
+			else
+			{
+				static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
+				return {};
+			}
 		}
 
 		template <Opcode op> [[nodiscard]]

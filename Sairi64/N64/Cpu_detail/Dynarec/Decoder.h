@@ -74,21 +74,21 @@ public:
 		case Opcode::RDHWR:
 			break;
 		case Opcode::LB:
-			return UseInterpreter(ctx, instr, &interpret::LB);
+			return Jit::L_load<Opcode::LB>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LH:
-			return UseInterpreter(ctx, instr, &interpret::LH);
+			return Jit::L_load<Opcode::LH>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LWL:
 			break;
 		case Opcode::LW:
-			return Jit::LW(ctx, state, static_cast<InstructionI>(instr));
+			return Jit::L_load<Opcode::LW>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
-			return UseInterpreter(ctx, instr, &interpret::LBU);
+			return Jit::L_load<Opcode::LBU>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LHU:
-			return UseInterpreter(ctx, instr, &interpret::LHU);
+			return Jit::L_load<Opcode::LHU>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LWR:
 			break;
 		case Opcode::LWU:
-			return UseInterpreter(ctx, instr, &interpret::LWU);
+			return Jit::L_load<Opcode::LWU>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SB:
 			return UseInterpreter(ctx, instr, &interpret::SB);
 		case Opcode::SH:
@@ -114,7 +114,7 @@ public:
 		case Opcode::LDC1:
 			break;
 		case Opcode::LD:
-			return UseInterpreter(ctx, instr, &interpret::LD);
+			return Jit::L_load<Opcode::LD>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SC:
 			break;
 		case Opcode::SWC1:

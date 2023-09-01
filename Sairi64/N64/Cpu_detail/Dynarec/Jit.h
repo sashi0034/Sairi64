@@ -195,8 +195,8 @@ namespace N64::Cpu_detail::Dynarec
 			return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
 		}
 
-		// template <Opcode op> [[nodiscard]]
-		static DecodedToken LW(const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
+		template <Opcode op> [[nodiscard]]
+		static DecodedToken L_load(const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
 		{
 			JIT_ENTRY;
 			auto&& x86Asm = *ctx.x86Asm;
@@ -230,9 +230,33 @@ namespace N64::Cpu_detail::Dynarec
 			if (rt == 0) return DecodedToken::Continue;
 			x86Asm.mov(x86::rdx, x86::rax); // rdx <- paddr
 			x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
-			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr32);
-			x86Asm.call(x86::rax); // eax <- value
-			x86Asm.movsxd(x86::rax, x86::eax); // rax <- sign-extended eax
+			if constexpr (op == Opcode::LB || op == Opcode::LBU)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr8);
+				x86Asm.call(x86::rax); // eax <- value
+				if constexpr (op == Opcode::LB) x86Asm.movsxd(x86::rax, x86::al); // rax <- sign-extended al
+			}
+			else if constexpr (op == Opcode::LH || op == Opcode::LHU)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr16);
+				x86Asm.call(x86::rax); // eax <- value
+				if constexpr (op == Opcode::LH) x86Asm.movsxd(x86::rax, x86::ax); // rax <- sign-extended ax
+			}
+			else if constexpr (op == Opcode::LW || op == Opcode::LWU)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr32);
+				x86Asm.call(x86::rax); // rax <- value
+				if constexpr (op == Opcode::LW) x86Asm.movsxd(x86::rax, x86::eax); // rax <- sign-extended eax
+			}
+			else if constexpr (op == Opcode::LD)
+			{
+				x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr64);
+				x86Asm.call(x86::rax); // eax <- value
+			}
+			else
+			{
+				static_assert(AlwaysFalseValue<Opcode, op>);
+			}
 			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt])), x86::rax); // rt <- rax
 			return DecodedToken::Continue;
 		}

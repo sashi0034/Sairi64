@@ -36,9 +36,9 @@ public:
 		case Opcode::ADDIU:
 			return Jit::I_immediateArithmetic<Opcode::ADDIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SLTI:
-			return UseInterpreter(ctx, instr, &interpret::SLTI);
+			return Jit::SLTI_template<Opcode::SLTI>(ctx, static_cast<InstructionI>(instr)); // TODO: 例外
 		case Opcode::SLTIU:
-			return UseInterpreter(ctx, instr, &interpret::SLTIU);
+			return Jit::SLTI_template<Opcode::SLTIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ANDI:
 			return Jit::I_immediateArithmetic<Opcode::ANDI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ORI:

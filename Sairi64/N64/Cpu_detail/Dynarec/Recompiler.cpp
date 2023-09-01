@@ -75,6 +75,8 @@ namespace N64::Cpu_detail::Dynarec
 			const DecodedToken decoded = Decoder::AssembleInstr(ctx, state, fetchedInstr);
 			if (decoded == DecodedToken::End) break;
 
+			// TODO: ストア関連のあとにページが有効か無効かチェック入れたい
+
 			// 遅延スロットのデコードをした後は終了
 			if (decoded != DecodedToken::Branch && state.scanningDelaySlot) break;
 

@@ -129,6 +129,35 @@ namespace N64::Cpu_detail::Dynarec
 			return DecodedToken::Continue;
 		}
 
+		template <Opcode op> [[nodiscard]]
+		static DecodedToken SLTI_template(const AssembleContext& ctx, InstructionI instr)
+		{
+			JIT_ENTRY;
+			const uint8 rt = instr.Rt();
+			if (rt == 0) return DecodedToken::Continue;
+
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			const uint8 rs = instr.Rs();
+			const uint16 imm = instr.Imm();
+
+			if (rs == 0)
+				x86Asm.xor_(x86::rax, x86::rax); // rax <- 0
+			else
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs]))); // rax <- rs
+			x86Asm.xor_(x86::rdx, x86::rdx);
+			x86Asm.cmp(x86::rax, (sint64)static_cast<sint16>(imm));
+			if constexpr (op == Opcode::SLTI)
+				x86Asm.setl(x86::dl);
+			else if constexpr (op == Opcode::SLTIU)
+				x86Asm.setb(x86::dl);
+			else
+				static_assert(AlwaysFalseValue<Opcode, op>);
+			x86Asm.mov(x86::rcx, (uint64)&gpr.Raw()[rt]); // rcx <- *rt
+			x86Asm.mov(x86::qword_ptr(x86::rcx), x86::rdx); // rcx <- rax
+			return DecodedToken::Continue;
+		}
+
 		template <OpSpecialFunct funct> [[nodiscard]]
 		static DecodedToken SPECIAL_shift(const AssembleContext& ctx, InstructionR instr)
 		{

@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "N64Frame.h"
 
+#include "N64Logger.h"
 #include "Mmio/Pif.h"
 
 namespace N64
@@ -37,6 +38,8 @@ namespace N64
 			}
 
 			i += taken;
+
+			N64_TRACE(U"end current step: {}\n"_fmt(taken));
 		}
 		return false;
 	}

@@ -132,8 +132,6 @@ namespace N64::Cpu_detail::Dynarec
 			N64Logger::Abort(U"failed to recompile: error={}"_fmt(error));
 		}
 
-		N64_TRACE(U"recompiled length: {}"_fmt(result.recompiledLength));
-
 		return result;
 	}
 }

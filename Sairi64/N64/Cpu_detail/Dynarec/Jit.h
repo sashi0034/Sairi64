@@ -195,6 +195,48 @@ namespace N64::Cpu_detail::Dynarec
 			return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
 		}
 
+		// template <Opcode op> [[nodiscard]]
+		static DecodedToken LW(const AssembleContext& ctx, const AssembleState& state, InstructionI instr)
+		{
+			JIT_ENTRY;
+			auto&& x86Asm = *ctx.x86Asm;
+			auto&& gpr = ctx.cpu->GetGpr();
+			const uint8 rs = instr.Rs();
+			const uint8 rt = instr.Rt();
+			const sint64 offset = static_cast<sint16>(instr.Imm());
+			const auto resolvedLabel = x86Asm.newLabel();
+
+			// TODO: check address error?
+
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
+			x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+			x86Asm.mov(x86::rax, (uint64)&callResolveVAddr);
+			x86Asm.call(x86::rax); // eax <- paddr
+			x86Asm.cmp(x86::eax, static_cast<uint32>(ResolvedPAddr32::InvalidAddress)); // if eax is not invalid
+			x86Asm.jne(resolvedLabel); // then goto @resolved
+			// now, paddr is invalid
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
+			x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
+			x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+			x86Asm.mov(x86::rax, (uint64)&handleResolvingError<BusAccess::Load, 0>);
+			x86Asm.call(x86::rax); // handling
+			x86Asm.mov(x86::rax, state.recompiledLength);
+			x86Asm.jmp(ctx.endLabel); // goto @end
+
+			x86Asm.bind(resolvedLabel); // @resolved
+			if (rt == 0) return DecodedToken::Continue;
+			x86Asm.mov(x86::rdx, x86::rax); // rdx <- paddr
+			x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
+			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr32);
+			x86Asm.call(x86::rax); // eax <- value
+			x86Asm.movsxd(x86::rax, x86::eax); // rax <- sign-extended eax
+			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt])), x86::rax); // rt <- rax
+			return DecodedToken::Continue;
+		}
+
 	private:
 		static void loadGpr(
 			x86::Assembler& x86Asm,
@@ -206,6 +248,19 @@ namespace N64::Cpu_detail::Dynarec
 				x86Asm.xor_(dest, dest); // gp <- 0
 			else
 				x86Asm.mov(dest, x86::qword_ptr(base, gprIndex * 8)); // gp <- gpr[index]
+		}
+
+		static uint32 callResolveVAddr(Cpu* cpu, uint64 vaddr)
+		{
+			// to disable hidden pointer return value
+			return Mmu::ResolveVAddr(*cpu, vaddr).value();
+		}
+
+		template <BusAccess access, int cop>
+		static void handleResolvingError(Cpu& cpu, uint64 vaddr)
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
 		}
 	};
 }

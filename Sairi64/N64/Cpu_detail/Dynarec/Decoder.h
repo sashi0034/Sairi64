@@ -80,7 +80,7 @@ public:
 		case Opcode::LWL:
 			break;
 		case Opcode::LW:
-			return UseInterpreter(ctx, instr, &interpret::LW);
+			return Jit::LW(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
 			return UseInterpreter(ctx, instr, &interpret::LBU);
 		case Opcode::LHU:

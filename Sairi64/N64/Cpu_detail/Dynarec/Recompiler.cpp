@@ -44,7 +44,7 @@ namespace N64::Cpu_detail::Dynarec
 
 	uint32 assembleCodeInternal(const AssembleContext& ctx, PAddr32 startPc)
 	{
-		const uint32 maxRecompilableLength = CachePageOffsetSize_0x400 - GetPageIndex(startPc);
+		const uint32 maxRecompilableLength = CachePageOffsetSize_0x400 - GetPageOffset(startPc);
 
 		AssembleState state{
 			.recompiledLength = 0,

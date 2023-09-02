@@ -214,6 +214,8 @@
     <ClCompile Include="N64\Rdp_detail\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\Display.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
+    <ClCompile Include="N64\Rsp_detail\RspAddress.cpp" />
+    <ClCompile Include="N64\Rsp_detail\Rsp_Interface.cpp" />
     <ClCompile Include="N64\Scheduler.cpp" />
     <ClCompile Include="Tests\AnyTests.cpp" />
     <ClCompile Include="Tests\DynarecTest.cpp" />
@@ -562,6 +564,8 @@
     <ClInclude Include="N64\Rsp.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp.h" />
     <ClInclude Include="N64\Forward.h" />
+    <ClInclude Include="N64\Rsp_detail\RspAddress.h" />
+    <ClInclude Include="N64\Rsp_detail\Rsp_Interface.h" />
     <ClInclude Include="N64\Scheduler.h" />
     <ClInclude Include="Ui\UiManager.h" />
     <ClInclude Include="Utils\Util.h" />

@@ -9,6 +9,7 @@ namespace N64
 
 		m_currentTime += cycles;
 		if (m_currentTime >= m_overflowTime)
+		[[unlikely]]
 		{
 			// 時間オーバーフローしたときの対処
 			handleOverflowTime();

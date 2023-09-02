@@ -17,30 +17,36 @@ namespace N64
 	[[nodiscard]] inline bool emulateFrame_stepCyclesPerHalfLine(
 		N64System& n64, N64FrameInternalState& state, const std::function<bool()>& breakPoint = {})
 	{
-		for (int i = 0; i < n64.GetVI().CyclesPerHalfLine();) // TODO: iは0じゃなくて、前回フレームを考慮して進める
+		const int cyclesPerHalfLine = n64.GetVI().CyclesPerHalfLine();
+		while (true)
 		{
 			// CPUステップ
 			const CpuCycles taken = n64.GetCpu().Step<processor>(n64);
 
-			if (state.rspConsumableCycles += taken; state.rspConsumableCycles >= 3)
+			if (state.rspConsumableCycles += taken * 2; state.rspConsumableCycles >= 3)
 			{
 				// CPUステップ3回につき、RSPステップ2回
 				state.rspConsumableCycles -= 3;
 				n64.GetRsp().Step(n64);
 			}
 
-			// スケジューラステップ
-			n64.GetScheduler().Step(taken);
-
 			if constexpr (hasBreakPoint)
 			{
 				if (breakPoint()) return true;
 			}
 
-			i += taken;
-
 			N64_TRACE(U"end current step: {}\n"_fmt(taken));
+
+			// 終了チェック
+			state.cpuAccumulatedCycles += taken;
+			if (state.cpuAccumulatedCycles >= cyclesPerHalfLine) break;
 		}
+		// 1ライン終了
+		state.cpuAccumulatedCycles -= cyclesPerHalfLine;
+
+		// スケジューラステップ
+		n64.GetScheduler().Step(cyclesPerHalfLine);
+
 		return false;
 	}
 
@@ -49,38 +55,38 @@ namespace N64
 	{
 		auto&& vi = n64.GetVI();
 
-		// fieldが1のときは上から下へ通常描画、2のときは1ラインずつ開けながら描画される
-		for (int field = 0; field < vi.NumFields(); ++field)
+		for (int line = 0; line < vi.NumHalfLines(); ++line)
 		{
-			for (int line = 0; line < vi.NumHalfLines(); ++line)
-			{
-				// VCurrent=VInterruptのとき割り込み発生
-				const int actualLine = (line << 1) | field; // 現在の描画対象のライン
-				vi.SetVCurrent(actualLine);
-				if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
-					InterruptRaise<Interruption::VI>(n64);
-
-				// CPUやRSPなど実行
-				if (hasBreakPoint)
-				{
-					// ブレイクポイントに引っかかったら終了 (デバッグ用)
-					if (emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state, breakPoint))
-						return true;
-				}
-				else
-				{
-					// 通常
-					(void)emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state);
-				}
-			}
-
-			// 全/半ライン描画完了時にも割り込みチェック (?)
+			// VCurrent=VInterruptのとき割り込み発生
+			const int actualLine = (line << 1) | state.currentField; // 現在の描画対象のライン
+			vi.SetVCurrent(actualLine);
 			if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
 				InterruptRaise<Interruption::VI>(n64);
 
-			// 画面更新
-			n64.GetRdp().UpdateDisplay(n64);
+			// CPUやRSPなど実行
+			if (hasBreakPoint)
+			{
+				// ブレイクポイントに引っかかったら終了 (デバッグ用)
+				if (emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state, breakPoint))
+					return true;
+			}
+			else
+			{
+				// 通常
+				(void)emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state);
+			}
 		}
+
+		// fieldが0のときは上から下へ通常描画、1のときは1ラインずつ開けながら描画される
+		state.currentField = (state.currentField + 1) % vi.NumFields();
+
+		// 全/半ライン描画完了時にも割り込みチェック (?)
+		if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
+			InterruptRaise<Interruption::VI>(n64);
+
+		// 画面更新
+		n64.GetRdp().UpdateDisplay(n64);
+
 		return false;
 	}
 

@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "RspAddress.h"
 #include "N64/Forward.h"
+#include "RspAddress.h"
+#include "Dynarec/ImemCache.h"
 
 namespace N64::Rsp_detail
 {
@@ -36,8 +37,22 @@ namespace N64::Rsp_detail
 		PcRaw m_raw{};
 	};
 
+	constexpr int GprSize_32 = 32;
+
+	class Gpr
+	{
+	public:
+		uint32 Read(uint32 index) const { return m_reg[index]; }
+		void Write(uint32 index, uint32 value) { if (index != 0) m_reg[index] = value; }
+		std::array<uint32, GprSize_32>& Raw() { return m_reg; };
+		const std::array<uint32, GprSize_32>& Raw() const { return m_reg; };
+
+	private:
+		std::array<uint32, GprSize_32> m_reg{};
+	};
+
 	constexpr uint32 SpDmemSize_0x1000 = 0x1000;
-	constexpr uint32 SpImemSize_0x1000 = 0x1000;
+	constexpr uint32 SpImemSize_0x1000 = Dynarec::SpImemSize_0x1000;
 
 	using SpDmem = std::array<uint8, SpDmemSize_0x1000>;
 	using SpImem = std::array<uint8, SpImemSize_0x1000>;
@@ -49,7 +64,8 @@ namespace N64::Rsp_detail
 	public:
 		Rsp();
 
-		void Step(N64System& n64);
+		bool IsHalted() const { return SpStatus32(m_status).Halt(); }
+		RspCycles Step(N64System& n64);
 
 		uint32 ReadPAddr32(PAddr32 paddr);
 		void WritePAddr32(N64System& n64, PAddr32 paddr, uint32 value);
@@ -67,7 +83,7 @@ namespace N64::Rsp_detail
 
 		Pc m_pc{};
 		SpDmaLength32 m_dmaLength{};
-		SpStatus m_status{};
+		SpStatus32 m_status{};
 		bool m_semaphore{};
 	};
 }

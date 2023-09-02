@@ -79,7 +79,7 @@ public:
 			return 1;
 		}
 
-		const auto code = cpu.m_recompiledCache.HitBlockCodeOrRecompile(n64, cpu, paddrOfPc.value());
+		const auto code = cpu.m_recompiledCache.HitBlockOrRecompile(n64, cpu, paddrOfPc.value());
 		return code();
 	}
 };

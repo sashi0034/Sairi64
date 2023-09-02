@@ -7,7 +7,7 @@
 
 namespace N64::Cpu_detail::Dynarec
 {
-	RecompiledCodeHandler RecompiledCache::HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc)
+	RecompiledCodeHandler RecompiledCache::HitBlockOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc)
 	{
 		auto&& page = m_pages[GetPageIndex(pc)];
 		if (page.get() == nullptr)

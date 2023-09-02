@@ -47,6 +47,7 @@ namespace N64
 	};
 
 	using CpuCycles = int32;
+	using RspCycles = int32;
 
 	enum class ProcessorType
 	{
@@ -83,6 +84,13 @@ namespace N64
 	}
 
 	using Memory = Memory_detail::Memory;
+
+	namespace Rsp_detail
+	{
+		class Rsp;
+	}
+
+	using Rsp = Rsp_detail::Rsp;
 
 	class N64System;
 }

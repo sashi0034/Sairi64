@@ -19,10 +19,10 @@ namespace N64::Rsp_detail
 
 	using Utils::BitAccess;
 
-	class SpStatus
+	class SpStatus32
 	{
 	public:
-		SpStatus(uint32 raw = 0): m_raw(raw) { return; }
+		SpStatus32(uint32 raw = 0): m_raw(raw) { return; }
 		operator uint32() const { return m_raw; }
 
 		auto Halt() { return BitAccess<0>(m_raw); } // 1

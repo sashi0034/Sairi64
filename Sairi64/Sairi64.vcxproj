@@ -291,6 +291,7 @@
     <ClCompile Include="N64\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\Display.cpp" />
+    <ClCompile Include="N64\Rsp_detail\Dynarec\ImemCache.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
     <ClCompile Include="N64\Rsp_detail\RspAddress.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp_Interface.cpp" />
@@ -640,6 +641,7 @@
     <ClInclude Include="N64\Rdp_detail\Rdp.h" />
     <ClInclude Include="N64\Rdp_detail\Display.h" />
     <ClInclude Include="N64\Rsp.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\ImemCache.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp.h" />
     <ClInclude Include="N64\Forward.h" />
     <ClInclude Include="N64\Rsp_detail\RspAddress.h" />

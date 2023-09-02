@@ -285,9 +285,9 @@ private:
 		switch (instr.Sub())
 		{
 		case OpCopSub::MFC:
-			return UseInterpreter(ctx, instr, &interpret::Cop::MFC0);
+			return Jit::Cop::MFC0_template<OpCopSub::MFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMFC:
-			return UseInterpreter(ctx, instr, &interpret::Cop::DMFC0);
+			return Jit::Cop::MFC0_template<OpCopSub::DMFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MTC:
 			return UseInterpreter(ctx, instr, &interpret::Cop::MTC0);
 		case OpCopSub::DMTC:

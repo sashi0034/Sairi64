@@ -28,7 +28,7 @@ public:
 		case Opcode::BNE:
 			return Jit::B_branchImmediate<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
-			return UseInterpreter(ctx, instr, &interpret::BLEZ);
+			return Jit::B_branchOffset<Opcode::BLEZ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZ:
 			return UseInterpreter(ctx, instr, &interpret::BGTZ);
 		case Opcode::ADDI:
@@ -60,7 +60,7 @@ public:
 		case Opcode::BNEL:
 			return Jit::B_branchImmediate<Opcode::BNEL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZL:
-			return UseInterpreter(ctx, instr, &interpret::BLEZL);
+			return Jit::B_branchOffset<Opcode::BLEZL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZL:
 			return UseInterpreter(ctx, instr, &interpret::BGTZL);
 		case Opcode::DADDI:

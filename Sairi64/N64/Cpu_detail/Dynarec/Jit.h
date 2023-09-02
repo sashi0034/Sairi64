@@ -271,50 +271,18 @@ public:
 		return DecodedToken::Continue;
 	}
 
-	template <OpRegimm op> [[nodiscard]]
+	template <Opcode op> [[nodiscard]]
+	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionI instr)
+	{
+		JIT_ENTRY;
+		return branchOffsetInternal<op, OpRegimm::Invalid>(ctx, instr);
+	}
+
+	template <OpRegimm sub> [[nodiscard]]
 	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionRegimm instr)
 	{
 		JIT_ENTRY;
-		constexpr BranchType branchType =
-			op == OpRegimm::BLTZ ||
-			op == OpRegimm::BLTZAL ||
-			op == OpRegimm::BGEZ ||
-			op == OpRegimm::BGEZAL
-				? BranchType::Normal
-				: BranchType::Likely;
-		auto&& x86Asm = *ctx.x86Asm;
-		auto&& gpr = ctx.cpu->GetGpr();
-		auto&& pc = ctx.cpu->GetPc().Raw();
-		const sint64 offset = static_cast<sint64>(static_cast<sint16>(instr.Imm())) * 4;
-
-		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
-		if constexpr (op == OpRegimm::BLTZ || op == OpRegimm::BLTZL || op == OpRegimm::BLTZAL)
-		{
-			x86Asm.shr(x86::rax, 63);
-		}
-		else if constexpr (
-			op == OpRegimm::BGEZ || op == OpRegimm::BGEZL ||
-			op == OpRegimm::BGEZAL || op == OpRegimm::BGEZALL)
-		{
-			x86Asm.shr(x86::rax, 63);
-			x86Asm.xor_(x86::rax, 1);
-		}
-		else static_assert(AlwaysFalseValue<OpRegimm, op>);
-		x86Asm.mov(x86::r8, x86::rax); // r8 <- sign of rs
-		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
-		x86Asm.add(x86::rax, offset);
-		x86Asm.mov(x86::rdx, x86::rax); // rdx <- vaddr
-		x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
-		x86Asm.mov(x86::rax, &Process::BranchVAddr64<branchType>);
-		x86Asm.call(x86::rax);
-		if constexpr (op == OpRegimm::BLTZAL || op == OpRegimm::BGEZAL || op == OpRegimm::BGEZALL)
-		{
-			// link register
-			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
-			x86Asm.add(x86::rax, 4);
-			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[GprRA_31])), x86::rax);
-		}
-		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
+		return branchOffsetInternal<Opcode::Invalid, sub>(ctx, instr);
 	}
 
 	template <Opcode op> [[nodiscard]]
@@ -579,5 +547,58 @@ private:
 		x86Asm.jmp(ctx.endLabel); // goto @end
 		x86Asm.bind(resolvedLabel); // @resolved
 		// now, paddr is stored in rax
+	}
+
+	template <Opcode op, OpRegimm sub, typename Instr> [[nodiscard]]
+	static DecodedToken branchOffsetInternal(const AssembleContext& ctx, Instr instr)
+	{
+		constexpr BranchType branchType =
+			sub == OpRegimm::BLTZ ||
+			sub == OpRegimm::BLTZAL ||
+			op == Opcode::BLEZ ||
+			sub == OpRegimm::BGEZ ||
+			sub == OpRegimm::BGEZAL
+				? BranchType::Normal
+				: BranchType::Likely;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.cpu->GetGpr();
+		auto&& pc = ctx.cpu->GetPc().Raw();
+		const sint64 offset = static_cast<sint64>(static_cast<sint16>(instr.Imm())) * 4;
+
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
+		if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZL || sub == OpRegimm::BLTZAL)
+		{
+			x86Asm.shr(x86::rax, 63);
+			x86Asm.mov(x86::r8, x86::rax);
+		}
+		else if constexpr (op == Opcode::BLEZ || op == Opcode::BLEZL)
+		{
+			x86Asm.test(x86::rax, x86::rax);
+			x86Asm.setle(x86::r8);
+		}
+		else if constexpr (
+			sub == OpRegimm::BGEZ || sub == OpRegimm::BGEZL ||
+			sub == OpRegimm::BGEZAL || sub == OpRegimm::BGEZALL)
+		{
+			x86Asm.shr(x86::rax, 63);
+			x86Asm.xor_(x86::rax, 1);
+			x86Asm.mov(x86::r8, x86::rax);
+		}
+		else static_assert(AlwaysFalseValue<OpRegimm, sub>);
+		// now, r8 <- condition
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+		x86Asm.add(x86::rax, offset);
+		x86Asm.mov(x86::rdx, x86::rax); // rdx <- vaddr
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+		x86Asm.mov(x86::rax, &Process::BranchVAddr64<branchType>);
+		x86Asm.call(x86::rax);
+		if constexpr (sub == OpRegimm::BLTZAL || sub == OpRegimm::BGEZAL || sub == OpRegimm::BGEZALL)
+		{
+			// link register
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+			x86Asm.add(x86::rax, 4);
+			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[GprRA_31])), x86::rax);
+		}
+		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
 	}
 };

@@ -523,20 +523,23 @@ private:
 		auto&& pc = ctx.cpu->GetPc().Raw();
 		const sint64 offset = static_cast<sint64>(static_cast<sint16>(instr.Imm())) * 4;
 
-		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
-		if constexpr (op == Opcode::BEQ || op == Opcode::BEQL)
+		if (instr.Rs() != 0)
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
+		else
+			x86Asm.xor_(x86::rax, x86::rax);
+
+		if constexpr (
+			op == Opcode::BEQ || op == Opcode::BEQL ||
+			op == Opcode::BNE || op == Opcode::BNEL)
 		{
 			x86Asm.mov(x86::rcx, x86::rax);
-			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
+			if (instr.Rt() != 0)
+				x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
+			else
+				x86Asm.xor_(x86::rax, x86::rax);
 			x86Asm.cmp(x86::rax, x86::rcx);
-			x86Asm.sete(x86::r8);
-		}
-		else if constexpr (op == Opcode::BNE || op == Opcode::BNEL)
-		{
-			x86Asm.mov(x86::rcx, x86::rax);
-			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
-			x86Asm.cmp(x86::rax, x86::rcx);
-			x86Asm.setne(x86::r8);
+			if constexpr (op == Opcode::BEQ || op == Opcode::BEQL) x86Asm.sete(x86::r8);
+			else x86Asm.setne(x86::r8);
 		}
 		else if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZL || sub == OpRegimm::BLTZAL)
 		{

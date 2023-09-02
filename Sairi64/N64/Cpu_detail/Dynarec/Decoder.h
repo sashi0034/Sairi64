@@ -173,7 +173,7 @@ private:
 		case OpSpecialFunct::MULT:
 			return Jit::MULT_template<OpSpecialFunct::MULT>(ctx, instr);
 		case OpSpecialFunct::MULTU:
-			return UseInterpreter(ctx, instr, &interpret::MULTU);
+			return Jit::MULT_template<OpSpecialFunct::MULTU>(ctx, instr);
 		case OpSpecialFunct::DIV:
 			return UseInterpreter(ctx, instr, &interpret::DIV);
 		case OpSpecialFunct::DIVU:

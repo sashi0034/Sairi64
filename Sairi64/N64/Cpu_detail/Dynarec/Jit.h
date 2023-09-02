@@ -142,13 +142,29 @@ public:
 		const uint8 rs = instr.Rs();
 		const uint8 rt = instr.Rt();
 
-		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
-		x86Asm.movsxd(x86::rcx, x86::eax);
-		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rt])));
-		x86Asm.movsxd(x86::rdx, x86::eax);
+		if constexpr (funct == OpSpecialFunct::MULT)
+		{
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
+			x86Asm.movsxd(x86::rcx, x86::eax);
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rt])));
+			x86Asm.movsxd(x86::rdx, x86::eax);
+		}
+		else if constexpr (funct == OpSpecialFunct::MULTU)
+		{
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
+			x86Asm.mov(x86::ecx, x86::eax);
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rt])));
+			x86Asm.mov(x86::edx, x86::eax);
+			x86Asm.mul(x86::rcx, x86::rdx);
+		}
+		else static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
 		x86Asm.imul(x86::rcx, x86::rdx);
 		x86Asm.movsxd(x86::rax, x86::ecx); // rax <- lo 32-bits sign-extended
-		x86Asm.sar(x86::rcx, 32); // rcx <- hi 32-bits
+		if constexpr (funct == OpSpecialFunct::MULT)
+			x86Asm.sar(x86::rcx, 32); // rcx <- hi 32-bits
+		else if constexpr (funct == OpSpecialFunct::MULTU)
+			x86Asm.shr(x86::rcx, 32); // rcx <- hi 32-bits
+		else static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
 		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressLo(cpu))), x86::rax);
 		x86Asm.movsxd(x86::rax, x86::rcx); // rax <- hi 32-bits sign-extended
 		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressHi(cpu))), x86::rax);

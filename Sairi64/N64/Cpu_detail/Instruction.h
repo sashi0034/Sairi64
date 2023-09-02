@@ -62,7 +62,7 @@ namespace N64::Cpu_detail
 		SCD = 0b111100,
 		SDC1 = 0b111101,
 		SD = 0b111111,
-		Invalid = 0xFF,
+		Invalid_0xFF = 0xFF,
 	};
 
 	enum class OpSpecialFunct : uint8
@@ -135,7 +135,7 @@ namespace N64::Cpu_detail
 		BLTZAL = 0b10000,
 		BGEZAL = 0b10001,
 		BGEZALL = 0b10011,
-		Invalid = 0xFF,
+		Invalid_0xFF = 0xFF,
 	};
 
 	enum class OpCopSub : uint8

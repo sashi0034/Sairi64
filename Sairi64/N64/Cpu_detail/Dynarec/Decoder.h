@@ -24,9 +24,9 @@ public:
 		case Opcode::JAL:
 			return Jit::J_template<Opcode::JAL>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::BEQ:
-			return Jit::B_branchImmediate<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchOffset<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNE:
-			return Jit::B_branchImmediate<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchOffset<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
 			return Jit::B_branchOffset<Opcode::BLEZ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZ:
@@ -56,9 +56,9 @@ public:
 		case Opcode::CP3:
 			break;
 		case Opcode::BEQL:
-			return Jit::B_branchImmediate<Opcode::BEQL>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchOffset<Opcode::BEQL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNEL:
-			return Jit::B_branchImmediate<Opcode::BNEL>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchOffset<Opcode::BNEL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZL:
 			return Jit::B_branchOffset<Opcode::BLEZL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZL:

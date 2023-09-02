@@ -30,6 +30,9 @@ namespace N64
 				n64.GetRsp().Step(n64);
 			}
 
+			// スケジューラステップ
+			n64.GetScheduler().Step(taken);
+
 			if constexpr (hasBreakPoint)
 			{
 				if (breakPoint()) return true;
@@ -43,9 +46,6 @@ namespace N64
 		}
 		// 1ライン終了
 		state.cpuEarnedCycles -= cyclesPerHalfLine;
-
-		// スケジューラステップ
-		n64.GetScheduler().Step(cyclesPerHalfLine);
 
 		return false;
 	}

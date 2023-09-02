@@ -275,59 +275,14 @@ public:
 	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionI instr)
 	{
 		JIT_ENTRY;
-		return branchOffsetInternal<op, OpRegimm::Invalid>(ctx, instr);
+		return branchOffsetInternal<op, OpRegimm::Invalid_0xFF>(ctx, instr);
 	}
 
 	template <OpRegimm sub> [[nodiscard]]
 	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionRegimm instr)
 	{
 		JIT_ENTRY;
-		return branchOffsetInternal<Opcode::Invalid, sub>(ctx, instr);
-	}
-
-	template <Opcode op> [[nodiscard]]
-	static DecodedToken B_branchImmediate(const AssembleContext& ctx, InstructionI instr)
-	{
-		JIT_ENTRY;
-		constexpr BranchType branchType =
-			op == Opcode::BEQL ||
-			op == Opcode::BNEL
-				? BranchType::Likely
-				: BranchType::Normal;
-		auto&& x86Asm = *ctx.x86Asm;
-		auto&& gpr = ctx.cpu->GetGpr();
-		auto&& pc = ctx.cpu->GetPc().Raw();
-		const uint8 rs = instr.Rs();
-		const uint8 rt = instr.Rt();
-		sint64 offset = static_cast<sint16>(instr.Imm());
-		offset *= 4; // left shift 2
-
-		x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
-		loadGpr(x86Asm, x86::rcx, x86::rax, rs); // rcx <- rs
-		loadGpr(x86Asm, x86::rdx, x86::rax, rt); // rdx <- rt
-		if constexpr (op == Opcode::BEQ || op == Opcode::BEQL)
-		{
-			x86Asm.cmp(x86::rcx, x86::rdx);
-			x86Asm.sete(x86::r8b); // r8b <- rs==rt
-		}
-		else if constexpr (op == Opcode::BNE || op == Opcode::BNEL)
-		{
-			x86Asm.cmp(x86::rcx, x86::rdx);
-			x86Asm.setne(x86::r8b); // r8b <- rs!=rt
-		}
-		else
-		{
-			static_assert(Utils::AlwaysFalseValue<Opcode, op>);
-		}
-		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
-		x86Asm.mov(x86::rdx, x86::rax); // rdx <- pc.curr
-		x86Asm.mov(x86::rax, offset); // rax <- immediate
-		x86Asm.add(x86::rdx, x86::rax); // rdx <- pc.curr + rax
-		x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
-		x86Asm.mov(x86::rax, reinterpret_cast<uint64>(&Process::BranchVAddr64<branchType>));
-		x86Asm.call(x86::rax);
-
-		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
+		return branchOffsetInternal<Opcode::Invalid_0xFF, sub>(ctx, instr);
 	}
 
 	template <Opcode op> [[nodiscard]]
@@ -553,6 +508,8 @@ private:
 	static DecodedToken branchOffsetInternal(const AssembleContext& ctx, Instr instr)
 	{
 		constexpr BranchType branchType =
+			op == Opcode::BEQ ||
+			op == Opcode::BNE ||
 			sub == OpRegimm::BLTZ ||
 			sub == OpRegimm::BLTZAL ||
 			op == Opcode::BLEZ ||
@@ -566,7 +523,21 @@ private:
 		const sint64 offset = static_cast<sint64>(static_cast<sint16>(instr.Imm())) * 4;
 
 		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
-		if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZL || sub == OpRegimm::BLTZAL)
+		if constexpr (op == Opcode::BEQ || op == Opcode::BEQL)
+		{
+			x86Asm.mov(x86::rcx, x86::rax);
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
+			x86Asm.cmp(x86::rax, x86::rcx);
+			x86Asm.sete(x86::r8);
+		}
+		else if constexpr (op == Opcode::BNE || op == Opcode::BNEL)
+		{
+			x86Asm.mov(x86::rcx, x86::rax);
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
+			x86Asm.cmp(x86::rax, x86::rcx);
+			x86Asm.setne(x86::r8);
+		}
+		else if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZL || sub == OpRegimm::BLTZAL)
 		{
 			x86Asm.shr(x86::rax, 63);
 			x86Asm.mov(x86::r8, x86::rax);

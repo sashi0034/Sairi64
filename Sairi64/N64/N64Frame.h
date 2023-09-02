@@ -7,7 +7,7 @@ namespace N64
 	struct N64FrameInternalState
 	{
 		int currentField;
-		int cpuAccumulatedCycles;
+		int cpuEarnedCycles;
 		int rspConsumableCycles;
 	};
 

@@ -38,11 +38,11 @@ namespace N64
 			N64_TRACE(U"end current step: {}\n"_fmt(taken));
 
 			// 終了チェック
-			state.cpuAccumulatedCycles += taken;
-			if (state.cpuAccumulatedCycles >= cyclesPerHalfLine) break;
+			state.cpuEarnedCycles += taken;
+			if (state.cpuEarnedCycles >= cyclesPerHalfLine) break;
 		}
 		// 1ライン終了
-		state.cpuAccumulatedCycles -= cyclesPerHalfLine;
+		state.cpuEarnedCycles -= cyclesPerHalfLine;
 
 		// スケジューラステップ
 		n64.GetScheduler().Step(cyclesPerHalfLine);

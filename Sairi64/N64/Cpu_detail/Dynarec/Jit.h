@@ -276,7 +276,10 @@ public:
 	{
 		JIT_ENTRY;
 		constexpr BranchType branchType =
-			op == OpRegimm::BLTZ
+			op == OpRegimm::BLTZ ||
+			op == OpRegimm::BLTZAL ||
+			op == OpRegimm::BGEZ ||
+			op == OpRegimm::BGEZAL
 				? BranchType::Normal
 				: BranchType::Likely;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -285,16 +288,32 @@ public:
 		const sint64 offset = static_cast<sint64>(static_cast<sint16>(instr.Imm())) * 4;
 
 		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
-
-		x86Asm.shr(x86::rax, 63);
+		if constexpr (op == OpRegimm::BLTZ || op == OpRegimm::BLTZL || op == OpRegimm::BLTZAL)
+		{
+			x86Asm.shr(x86::rax, 63);
+		}
+		else if constexpr (
+			op == OpRegimm::BGEZ || op == OpRegimm::BGEZL ||
+			op == OpRegimm::BGEZAL || op == OpRegimm::BGEZALL)
+		{
+			x86Asm.shr(x86::rax, 63);
+			x86Asm.xor_(x86::rax, 1);
+		}
+		else static_assert(AlwaysFalseValue<OpRegimm, op>);
 		x86Asm.mov(x86::r8, x86::rax); // r8 <- sign of rs
-
 		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
 		x86Asm.add(x86::rax, offset);
 		x86Asm.mov(x86::rdx, x86::rax); // rdx <- vaddr
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
 		x86Asm.mov(x86::rax, &Process::BranchVAddr64<branchType>);
 		x86Asm.call(x86::rax);
+		if constexpr (op == OpRegimm::BLTZAL || op == OpRegimm::BGEZAL || op == OpRegimm::BGEZALL)
+		{
+			// link register
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+			x86Asm.add(x86::rax, 4);
+			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[GprRA_31])), x86::rax);
+		}
 		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
 	}
 

@@ -251,11 +251,11 @@ private:
 		case OpRegimm::BLTZ:
 			return Jit::B_branchOffset<OpRegimm::BLTZ>(ctx, instr);
 		case OpRegimm::BGEZ:
-			return UseInterpreter(ctx, instr, &interpret::BGEZ);
+			return Jit::B_branchOffset<OpRegimm::BGEZ>(ctx, instr);
 		case OpRegimm::BLTZL:
-			return UseInterpreter(ctx, instr, &interpret::BLTZL);
+			return Jit::B_branchOffset<OpRegimm::BLTZL>(ctx, instr);
 		case OpRegimm::BGEZL:
-			return UseInterpreter(ctx, instr, &interpret::BGEZL);
+			return Jit::B_branchOffset<OpRegimm::BGEZL>(ctx, instr);
 		case OpRegimm::TGEI:
 			break;
 		case OpRegimm::TGEIU:
@@ -269,11 +269,11 @@ private:
 		case OpRegimm::TNEI:
 			break;
 		case OpRegimm::BLTZAL:
-			break;
+			return Jit::B_branchOffset<OpRegimm::BLTZAL>(ctx, instr);
 		case OpRegimm::BGEZAL:
-			return UseInterpreter(ctx, instr, &interpret::BGEZAL);
+			return Jit::B_branchOffset<OpRegimm::BGEZAL>(ctx, instr);
 		case OpRegimm::BGEZALL:
-			return UseInterpreter(ctx, instr, &interpret::BGEZALL);
+			return Jit::B_branchOffset<OpRegimm::BGEZALL>(ctx, instr);
 		default: ;
 		}
 

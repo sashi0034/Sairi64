@@ -289,9 +289,9 @@ private:
 		case OpCopSub::DMFC:
 			return Jit::Cop::MFC0_template<OpCopSub::DMFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MTC:
-			return UseInterpreter(ctx, instr, &interpret::Cop::MTC0);
+			return Jit::Cop::MTC0_template<OpCopSub::MTC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMTC:
-			return UseInterpreter(ctx, instr, &interpret::Cop::DMTC0);
+			return Jit::Cop::MTC0_template<OpCopSub::DMTC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::CFC:
 			break;
 		case OpCopSub::CTC:

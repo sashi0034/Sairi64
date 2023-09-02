@@ -5,6 +5,7 @@
 #include "N64/Mmu.h"
 #include "N64/N64System.h"
 #include "N64/N64Logger.h"
+#include "N64/Joybus/Controller.h"
 
 namespace N64::Mmio
 {
@@ -90,7 +91,16 @@ public:
 
 	static bool readButtons(Pif& pif, int channel, PifCmdResult result)
 	{
-		if (channel >= 6)
+		if (const auto controller = pif.m_deviceManager.TryGet<Joybus::Controller>(channel))
+		{
+			const auto state = controller->ReadState();
+			result.SetAt<0>(state.byte1);
+			result.SetAt<1>(state.byte2);
+			result.SetAt<2>(state.joyX);
+			result.SetAt<3>(state.joyY);
+			return true;
+		}
+		else
 		{
 			result.SetAt<0>(0x00);
 			result.SetAt<1>(0x00);
@@ -98,13 +108,6 @@ public:
 			result.SetAt<3>(0x00);
 			return false;
 		}
-
-		const auto controller = pif.m_controller.ReadState();
-		result.SetAt<0>(controller.byte1);
-		result.SetAt<1>(controller.byte2);
-		result.SetAt<2>(controller.joyX);
-		result.SetAt<3>(controller.joyY);
-		return true;
 	}
 };
 

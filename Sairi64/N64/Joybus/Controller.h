@@ -1,7 +1,8 @@
 ﻿#pragma once
+#include "JoybusDevice.h"
 #include "Utils/Util.h"
 
-namespace N64::Mmio
+namespace N64::Joybus
 {
 	using namespace Utils;
 
@@ -72,13 +73,18 @@ namespace N64::Mmio
 		sint8 joyY{};
 	};
 
-	class Controller
+	class Controller : public JoybusDevice
 	{
 	public:
-		Controller();
+		Controller(int channel);
+		~Controller() override = default;
+		JoybusType Type() override { return JoybusType::Controller; }
+		AccessorType Accessor() override { return m_accessor; }
 		ControllerState ReadState() const;
 
 	private:
+		int m_channel;
+		AccessorType m_accessor = AccessorType::None;
 		std::array<InputGroup, ControllerButtonSize> m_inputGroups{};
 		InputGroup& inputOf(ControllerButtonKind button);
 		const InputGroup& inputOf(ControllerButtonKind button) const;

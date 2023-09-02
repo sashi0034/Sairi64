@@ -1,11 +1,12 @@
 ﻿#include "stdafx.h"
 #include "Controller.h"
 
-namespace N64::Mmio
+namespace N64::Joybus
 {
 	static const auto keyboardModifier = KeyShift | KeyControl | KeyAlt;
 
-	Controller::Controller()
+	Controller::Controller(int channel) :
+		m_channel(channel)
 	{
 		using enum ControllerButtonKind;
 

@@ -36,10 +36,27 @@ namespace N64::Mmio
 	public:
 		PifCmdResult(Pif& pif, int cursor) : m_resultPtr(&pif.Ram()[cursor]) { return; }
 		uint8 Length() const { return m_resultPtr[0] & 0x3F; }
-		template <uint8 offset> void SetAt(uint8 value) { m_resultPtr[offset] = value; };
+		template <uint8 offset> void SetAt(uint8 value) const { m_resultPtr[offset] = value; };
+
+		template <uint8 startOffset, uint8 endIndex, typename... Values>
+		void SetBetween(Values... values) const
+		{
+			static_assert(endIndex - startOffset + 1 == sizeof...(values));
+			setFromInternal<startOffset>(values...);
+		}
 
 	private:
 		uint8* m_resultPtr{};
+
+		template <uint8 currentOffset, typename First, typename... Rest>
+		void setFromInternal(First value, Rest... rest) const
+		{
+			m_resultPtr[currentOffset] = static_cast<uint8>(value);
+			if constexpr (sizeof...(rest) > 0)
+			{
+				setFromInternal<currentOffset + 1>(rest...);
+			}
+		}
 	};
 }
 
@@ -77,7 +94,7 @@ public:
 			{
 			case 0: [[fallthrough]];
 			case 0xFF:
-				// TODO
+				readControllerId(pif, channel, result);
 				channel++;
 				break;
 			case 1:
@@ -89,7 +106,43 @@ public:
 		}
 	}
 
-	static bool readButtons(Pif& pif, int channel, PifCmdResult result)
+	static void readControllerId(Pif& pif, int channel, const PifCmdResult& result)
+	{
+		if (const auto device = pif.m_deviceManager.TryGet(channel))
+		{
+			switch (device->Type())
+			{
+			case Joybus::JoybusType::None:
+				result.SetBetween<0, 2>(0x00, 0x00, 0x00);
+				return;
+			case Joybus::JoybusType::Controller:
+				result.SetBetween<0, 2>(0x05, 0x00, device->HasAccessor() ? 0x02 : 0x01);
+				return;
+			case Joybus::JoybusType::DancePad:
+				break;
+			case Joybus::JoybusType::VRU:
+				break;
+			case Joybus::JoybusType::Mouse:
+				break;
+			case Joybus::JoybusType::RandnetKeyboard:
+				break;
+			case Joybus::JoybusType::DenshaDeGo:
+				break;
+			case Joybus::JoybusType::Eeprom4KB:
+				break;
+			case Joybus::JoybusType::Eeprom16KB:
+				break;
+			default: ;
+			}
+			N64Logger::Abort(U"unsupported device: {}"_fmt(static_cast<int>(device->Type())));
+		}
+		else
+		{
+			N64Logger::Abort();
+		}
+	}
+
+	static bool readButtons(Pif& pif, int channel, const PifCmdResult& result)
 	{
 		if (const auto controller = pif.m_deviceManager.TryGet<Joybus::Controller>(channel))
 		{
@@ -102,10 +155,7 @@ public:
 		}
 		else
 		{
-			result.SetAt<0>(0x00);
-			result.SetAt<1>(0x00);
-			result.SetAt<2>(0x00);
-			result.SetAt<3>(0x00);
+			result.SetBetween<0, 3>(0x00, 0x00, 0x00, 0x00);
 			return false;
 		}
 	}

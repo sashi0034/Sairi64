@@ -32,6 +32,14 @@ namespace N64::Joybus
 
 		virtual JoybusType Type() = 0;
 		virtual AccessorType Accessor() = 0;
+		bool HasAccessor() { return Accessor() != AccessorType::None; }
+	};
+
+	class EmptyDevice : public JoybusDevice
+	{
+	public:
+		JoybusType Type() override { return JoybusType::None; }
+		AccessorType Accessor() override { return AccessorType::None; }
 	};
 
 	constexpr uint8 JoybusCount_6 = 6;
@@ -40,7 +48,7 @@ namespace N64::Joybus
 	{
 	public:
 		JoybusDeviceManager();
-		template <class T> T* TryGet(uint8 channel);
+		template <class T = JoybusDevice> T* TryGet(uint8 channel);
 
 	private:
 		std::array<std::unique_ptr<JoybusDevice>, JoybusCount_6> m_devices{};

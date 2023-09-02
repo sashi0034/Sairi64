@@ -7,10 +7,12 @@ namespace N64::Joybus
 {
 	JoybusDeviceManager::JoybusDeviceManager()
 	{
-		for (int i = 0; i < JoybusCount_6; ++i)
-		{
-			// TODO: このあたりをちゃんとする
-			m_devices[i] = std::make_unique<Controller>(i);
-		}
+		// TODO: このあたりをちゃんとする
+		m_devices[0] = std::make_unique<Controller>(0);
+		m_devices[1] = std::make_unique<Controller>(1);
+		m_devices[2] = std::make_unique<Controller>(2);
+		m_devices[3] = std::make_unique<Controller>(3);
+		m_devices[4] = std::make_unique<EmptyDevice>();
+		m_devices[5] = std::make_unique<EmptyDevice>();
 	}
 }

@@ -271,8 +271,35 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpRegimm op> [[nodiscard]]
+	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionRegimm instr)
+	{
+		JIT_ENTRY;
+		constexpr BranchType branchType =
+			op == OpRegimm::BLTZ
+				? BranchType::Normal
+				: BranchType::Likely;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.cpu->GetGpr();
+		auto&& pc = ctx.cpu->GetPc().Raw();
+		const sint64 offset = static_cast<sint64>(static_cast<sint16>(instr.Imm())) * 4;
+
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
+
+		x86Asm.shr(x86::rax, 63);
+		x86Asm.mov(x86::r8, x86::rax); // r8 <- sign of rs
+
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&pc.curr)));
+		x86Asm.add(x86::rax, offset);
+		x86Asm.mov(x86::rdx, x86::rax); // rdx <- vaddr
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
+		x86Asm.mov(x86::rax, &Process::BranchVAddr64<branchType>);
+		x86Asm.call(x86::rax);
+		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
+	}
+
 	template <Opcode op> [[nodiscard]]
-	static DecodedToken B_branch(const AssembleContext& ctx, InstructionI instr)
+	static DecodedToken B_branchImmediate(const AssembleContext& ctx, InstructionI instr)
 	{
 		JIT_ENTRY;
 		constexpr BranchType branchType =

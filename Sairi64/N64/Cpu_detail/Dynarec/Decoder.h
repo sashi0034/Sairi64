@@ -24,9 +24,9 @@ public:
 		case Opcode::JAL:
 			return Jit::J_template<Opcode::JAL>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::BEQ:
-			return Jit::B_branch<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchImmediate<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNE:
-			return Jit::B_branch<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchImmediate<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
 			return UseInterpreter(ctx, instr, &interpret::BLEZ);
 		case Opcode::BGTZ:
@@ -56,9 +56,9 @@ public:
 		case Opcode::CP3:
 			break;
 		case Opcode::BEQL:
-			return Jit::B_branch<Opcode::BEQL>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchImmediate<Opcode::BEQL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNEL:
-			return Jit::B_branch<Opcode::BNEL>(ctx, static_cast<InstructionI>(instr));
+			return Jit::B_branchImmediate<Opcode::BNEL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZL:
 			return UseInterpreter(ctx, instr, &interpret::BLEZL);
 		case Opcode::BGTZL:
@@ -249,7 +249,7 @@ private:
 		switch (instr.Sub())
 		{
 		case OpRegimm::BLTZ:
-			return UseInterpreter(ctx, instr, &interpret::BLTZ);
+			return Jit::B_branchOffset<OpRegimm::BLTZ>(ctx, instr);
 		case OpRegimm::BGEZ:
 			return UseInterpreter(ctx, instr, &interpret::BGEZ);
 		case OpRegimm::BLTZL:

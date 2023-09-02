@@ -132,6 +132,29 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken MULT_template(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& cpu = *ctx.cpu;
+		auto&& gpr = cpu.GetGpr().Raw();
+		const uint8 rs = instr.Rs();
+		const uint8 rt = instr.Rt();
+
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
+		x86Asm.movsxd(x86::rcx, x86::eax);
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rt])));
+		x86Asm.movsxd(x86::rdx, x86::eax);
+		x86Asm.imul(x86::rcx, x86::rdx);
+		x86Asm.movsxd(x86::rax, x86::ecx); // rax <- lo 32-bits sign-extended
+		x86Asm.sar(x86::rcx, 32); // rcx <- hi 32-bits
+		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressLo(cpu))), x86::rax);
+		x86Asm.movsxd(x86::rax, x86::rcx); // rax <- hi 32-bits sign-extended
+		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressHi(cpu))), x86::rax);
+		return DecodedToken::Continue;
+	}
+
 	[[nodiscard]]
 	static DecodedToken LUI(const AssembleContext& ctx, InstructionI instr)
 	{

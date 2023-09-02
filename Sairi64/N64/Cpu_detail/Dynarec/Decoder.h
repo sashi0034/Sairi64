@@ -171,7 +171,7 @@ private:
 		case OpSpecialFunct::DSRAV:
 			break;
 		case OpSpecialFunct::MULT:
-			return UseInterpreter(ctx, instr, &interpret::MULT);
+			return Jit::MULT_template<OpSpecialFunct::MULT>(ctx, instr);
 		case OpSpecialFunct::MULTU:
 			return UseInterpreter(ctx, instr, &interpret::MULTU);
 		case OpSpecialFunct::DIV:

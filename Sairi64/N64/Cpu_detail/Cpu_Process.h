@@ -20,6 +20,9 @@ namespace N64::Cpu_detail
 	class Cpu::Process
 	{
 	public:
+		static uint64* AddressHi(Cpu& cpu) { return &cpu.m_hi; }
+		static uint64* AddressLo(Cpu& cpu) { return &cpu.m_lo; }
+
 		template <BranchType branch>
 		static void BranchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
 		{

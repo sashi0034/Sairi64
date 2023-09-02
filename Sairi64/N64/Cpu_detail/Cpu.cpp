@@ -2,7 +2,7 @@
 #include "Cpu.h"
 
 #include "Cpu_Interpreter.h"
-#include "Instruction.h"
+#include "N64/Instruction.h"
 #include "N64/Interrupt.h"
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Jit_Cop.h"
+#include "../Cpu_Interpreter_Op_Cop.h"
 
 namespace N64::Cpu_detail::Dynarec
 {

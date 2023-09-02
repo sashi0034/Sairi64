@@ -43,6 +43,7 @@ namespace N64::Rsp_detail
 	using SpImem = std::array<uint8, SpImemSize_0x1000>;
 
 	// https://n64brew.dev/wiki/Reality_Signal_Processor
+	// https://n64brew.dev/wiki/Reality_Signal_Processor/CPU_Core
 	class Rsp
 	{
 	public:

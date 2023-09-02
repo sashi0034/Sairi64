@@ -30,7 +30,7 @@ public:
 		case Opcode::BLEZ:
 			return Jit::B_branchOffset<Opcode::BLEZ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZ:
-			return UseInterpreter(ctx, instr, &interpret::BGTZ);
+			return Jit::B_branchOffset<Opcode::BGTZ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ADDI:
 			return Jit::I_immediateArithmetic<Opcode::ADDIU>(ctx, static_cast<InstructionI>(instr)); // TODO: 例外
 		case Opcode::ADDIU:
@@ -62,7 +62,7 @@ public:
 		case Opcode::BLEZL:
 			return Jit::B_branchOffset<Opcode::BLEZL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZL:
-			return UseInterpreter(ctx, instr, &interpret::BGTZL);
+			return Jit::B_branchOffset<Opcode::BGTZL>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::DADDI:
 			return Jit::I_immediateArithmetic<Opcode::DADDIU>(ctx, static_cast<InstructionI>(instr)); // TODO: 例外
 		case Opcode::DADDIU:

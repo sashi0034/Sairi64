@@ -513,6 +513,7 @@ private:
 			sub == OpRegimm::BLTZ ||
 			sub == OpRegimm::BLTZAL ||
 			op == Opcode::BLEZ ||
+			op == Opcode::BGTZ ||
 			sub == OpRegimm::BGEZ ||
 			sub == OpRegimm::BGEZAL
 				? BranchType::Normal
@@ -546,6 +547,11 @@ private:
 		{
 			x86Asm.test(x86::rax, x86::rax);
 			x86Asm.setle(x86::r8);
+		}
+		else if constexpr (op == Opcode::BGTZ || op == Opcode::BGTZL)
+		{
+			x86Asm.test(x86::rax, x86::rax);
+			x86Asm.setg(x86::r8);
 		}
 		else if constexpr (
 			sub == OpRegimm::BGEZ || sub == OpRegimm::BGEZL ||

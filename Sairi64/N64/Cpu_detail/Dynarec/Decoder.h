@@ -157,13 +157,13 @@ private:
 		case OpSpecialFunct::SYNC:
 			break;
 		case OpSpecialFunct::MFHI:
-			return UseInterpreter(ctx, instr, &interpret::MFHI);
+			return Jit::MF_template<OpSpecialFunct::MFHI>(ctx, instr);
 		case OpSpecialFunct::MTHI:
-			return UseInterpreter(ctx, instr, &interpret::MTHI);
+			return Jit::MT_template<OpSpecialFunct::MTHI>(ctx, instr);
 		case OpSpecialFunct::MFLO:
-			return UseInterpreter(ctx, instr, &interpret::MFLO);
+			return Jit::MF_template<OpSpecialFunct::MFLO>(ctx, instr);
 		case OpSpecialFunct::MTLO:
-			return UseInterpreter(ctx, instr, &interpret::MTLO);
+			return Jit::MT_template<OpSpecialFunct::MTLO>(ctx, instr);
 		case OpSpecialFunct::DSLLV:
 			break;
 		case OpSpecialFunct::DSRLV:

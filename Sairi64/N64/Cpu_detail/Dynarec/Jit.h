@@ -171,6 +171,42 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken MF_template(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& cpu = *ctx.cpu;
+		const uint8 rd = instr.Rd();
+		if (rd == 0) return DecodedToken::Continue;
+		if constexpr (funct == OpSpecialFunct::MFLO)
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressLo(cpu))));
+		else if constexpr (funct == OpSpecialFunct::MFHI)
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressHi(cpu))));
+		else static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
+		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&cpu.GetGpr().Raw()[rd])), x86::rax);
+		return DecodedToken::Continue;
+	}
+
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken MT_template(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& cpu = *ctx.cpu;
+		const uint8 rs = instr.Rs();
+		if (rs != 0)
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&cpu.GetGpr().Raw()[rs])));
+		else
+			x86Asm.xor_(x86::rax, x86::rax);
+		if constexpr (funct == OpSpecialFunct::MTLO)
+			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressLo(cpu))), x86::rax);
+		else if constexpr (funct == OpSpecialFunct::MTHI)
+			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(Process::AddressHi(cpu))), x86::rax);
+		else static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
+		return DecodedToken::Continue;
+	}
+
 	[[nodiscard]]
 	static DecodedToken LUI(const AssembleContext& ctx, InstructionI instr)
 	{

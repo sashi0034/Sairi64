@@ -5,16 +5,32 @@ VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sairi64", "Sairi64\Sairi64.vcxproj", "{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExternalLibs", "ExternalLibs\ExternalLibs.vcxproj", "{72804C81-57CB-4B5E-AEB0-FC855F9A6626}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Debug|x64.ActiveCfg = Debug|x64
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Debug|x64.Build.0 = Debug|x64
+		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Debug|x86.ActiveCfg = Debug|x64
+		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Debug|x86.Build.0 = Debug|x64
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Release|x64.ActiveCfg = Release|x64
 		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Release|x64.Build.0 = Release|x64
+		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Release|x86.ActiveCfg = Release|x64
+		{900A3E55-E9BF-45B1-BFC7-5DDCFAA25CAF}.Release|x86.Build.0 = Release|x64
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Debug|x64.ActiveCfg = Debug|x64
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Debug|x64.Build.0 = Debug|x64
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Debug|x86.ActiveCfg = Debug|Win32
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Debug|x86.Build.0 = Debug|Win32
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Release|x64.ActiveCfg = Release|x64
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Release|x64.Build.0 = Release|x64
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Release|x86.ActiveCfg = Release|Win32
+		{72804C81-57CB-4B5E-AEB0-FC855F9A6626}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

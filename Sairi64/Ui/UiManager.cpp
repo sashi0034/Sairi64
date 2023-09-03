@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 #include "UiManager.h"
 
-#include "Includes/imgui/imgui.h"
 #include "N64/N64System.h"
 
 namespace Ui

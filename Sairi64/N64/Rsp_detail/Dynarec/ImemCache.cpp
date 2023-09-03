@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "ImemCache.h"
 
-#include "Recompiler.h"
+#include "SpRecompiler.h"
 #include "N64/N64System.h"
 #include "N64/Rsp_detail/Rsp.h"
 
@@ -36,11 +36,11 @@ namespace N64::Rsp_detail::Dynarec
 		}
 
 		// 再コンパイル処理
-		const auto target = RecompilingTarget{
+		const auto target = SpRecompilingTarget{
 			.startPc = pc,
 			.destArray = &m_codes
 		};
-		RecompileFreshCode(n64, rsp, target);
+		SpRecompileFreshCode(n64, rsp, target);
 		return m_codes[index].code;
 	}
 

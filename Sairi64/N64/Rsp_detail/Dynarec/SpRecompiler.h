@@ -3,11 +3,11 @@
 
 namespace N64::Rsp_detail::Dynarec
 {
-	struct RecompilingTarget
+	struct SpRecompilingTarget
 	{
 		ImemAddr16 startPc;
 		BlockCodeArray* destArray;
 	};
 
-	void RecompileFreshCode(N64System& n64, Rsp& rsp, const RecompilingTarget& target);
+	void SpRecompileFreshCode(N64System& n64, Rsp& rsp, const SpRecompilingTarget& target);
 }

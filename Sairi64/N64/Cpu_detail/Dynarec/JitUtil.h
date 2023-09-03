@@ -33,7 +33,6 @@ namespace N64::Cpu_detail::Dynarec
 
 	static void AssembleStepPc(x86::Assembler& x86Asm, const PcRaw& pc)
 	{
-		// TODO: まとめてステップできるようにしたい
 		x86Asm.mov(x86::rax, (uint64)&pc.curr); // rax <- *curr
 		x86Asm.mov(x86::rcx, x86::qword_ptr(x86::rax, 0)); // rcx <- curr
 		x86Asm.mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), x86::rcx); // prev <- rcx
@@ -137,5 +136,17 @@ namespace N64::Cpu_detail::Dynarec
 		return DecodedToken::End;
 	}
 
-	void CallBreakPoint(const AssembleContext& ctx, uint64 code = 0);
+	static void CallBreakPoint(const AssembleContext& ctx, uint64 code0 = 0)
+	{
+		static void (*func)(N64System& n64, uint64 code) = [](N64System& n64, uint64 code)
+		{
+			N64_TRACE(U"break point! n64={:16X}, code={}"_fmt(reinterpret_cast<uint64>(&n64)), code);
+		};
+
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, ctx.n64);
+		x86Asm.mov(x86::rdx, code0);
+		x86Asm.mov(x86::rax, &func);
+		x86Asm.call(x86::rax);
+	}
 }

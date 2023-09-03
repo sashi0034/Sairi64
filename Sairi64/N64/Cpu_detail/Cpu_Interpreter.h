@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Cpu.h"
-#include "Instruction.h"
+#include "N64/Instruction.h"
 
 namespace N64::Cpu_detail
 {

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Utils/Util.h"
 
-namespace N64::Cpu_detail
+namespace N64
 {
 	using namespace Utils;
 
@@ -198,9 +198,6 @@ namespace N64::Cpu_detail
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
 
-		StringView RtName() const;
-		StringView RsName() const;
-
 		String Stringify() const;
 	};
 
@@ -230,10 +227,6 @@ namespace N64::Cpu_detail
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
 
-		StringView RdName() const;
-		StringView RtName() const;
-		StringView RsName() const;
-
 		String Stringify() const;
 	};
 
@@ -251,9 +244,6 @@ namespace N64::Cpu_detail
 		uint32 ShouldBeZero() const { return GetBits<0, 10>(Raw()); }
 		uint32 Rd() const { return GetBits<11, 15>(Raw()); }
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
-
-		StringView RdName() const;
-		StringView RtName() const;
 
 		String Stringify() const;
 	};

@@ -1,5 +1,4 @@
-﻿#include "Includes/imgui/imgui.h"// v1.88
-#include <Siv3D.hpp> // OpenSiv3D v0.6.5
+﻿#include "stdafx.h"
 #include "imgui_impl_s3d.h"
 
 struct ImeWindowContext

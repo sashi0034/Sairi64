@@ -49,7 +49,7 @@ namespace N64::Cpu_detail::Dynarec
 	class RecompiledCache
 	{
 	public:
-		RecompiledCodeHandler HitBlockCodeOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc);
+		RecompiledCodeHandler HitBlockOrRecompile(N64System& n64, Cpu& cpu, PAddr32 pc);
 		void CheckInvalidatePage(PAddr32 paddr) const;
 		void CheckInvalidatePageBetween(PAddr32 beginInclusive, PAddr32 endInclusive) const;
 

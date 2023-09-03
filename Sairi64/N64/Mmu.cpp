@@ -304,7 +304,7 @@ namespace N64::Mmu
 				if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
 				if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
 				if constexpr (wire64) value >>= 32; // ?
-				const uint32 offset = paddr & 0xFFF;
+				const uint16 offset = paddr & 0xFFF;
 				// TODO: 本当にValue-bit書き込みであってる? 8, 16-bitアクセスの時はシフト量に応じて書き込み量変わる? 書き込み量はWire?
 				return Utils::WriteBytes<Value>(n64.GetRsp().Dmem(), EndianAddress<Wire>(offset), value);
 			}
@@ -313,7 +313,10 @@ namespace N64::Mmu
 				if constexpr (wire8) value <<= 8 * (0b11 - (paddr & 0b11));
 				if constexpr (wire16) value <<= 16 * !(paddr & 0b10);
 				if constexpr (wire64) value >>= 32; // ?
-				const uint32 offset = paddr & 0xFFF;
+				const uint16 offset = paddr & 0xFFF;
+				n64.GetRsp().ImemCache().InvalidBlock(ImemAddr16(EndianAddress<Wire>(offset)));
+				n64.GetRsp().ImemCache().InvalidBlock(
+					ImemAddr16(EndianAddress<Wire>(uint16()(offset + 1) & 0xFFF))); // TODO: 書き込み量はWireならここいらない
 				return Utils::WriteBytes<Value>(n64.GetRsp().Imem(), EndianAddress<Wire>(offset), value);
 			}
 			default:

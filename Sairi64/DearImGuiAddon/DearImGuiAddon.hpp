@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Includes/imgui/imgui.h"
 
 class DearImGuiAddon : public ::s3d::IAddon
 {

@@ -23,11 +23,16 @@ namespace N64
 			// CPUステップ
 			const CpuCycles taken = n64.GetCpu().Step<processor>(n64);
 
-			if (state.rspConsumableCycles += taken * 2; state.rspConsumableCycles >= 3)
+			// RSPステップ
+			if (n64.GetRsp().IsHalted() == false)
 			{
-				// CPUステップ3回につき、RSPステップ2回
-				state.rspConsumableCycles -= 3;
-				n64.GetRsp().Step(n64);
+				state.rspConsumableCycles += taken * 2;
+				while (state.rspConsumableCycles >= 3)
+				{
+					// CPUステップ3回につき、RSPステップ2回になるように
+					state.rspConsumableCycles -= 3;
+					n64.GetRsp().Step(n64);
+				}
 			}
 
 			// スケジューラステップ

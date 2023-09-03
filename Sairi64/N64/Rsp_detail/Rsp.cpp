@@ -21,12 +21,11 @@ namespace N64::Rsp_detail
 		m_status.Halt().Set(true);
 	}
 
-	void Rsp::Step(N64System& n64)
+	RspCycles Rsp::Step(N64System& n64)
 	{
-		if (m_status.Halt()) return;
-
-		// TODO
-		N64Logger::Abort();
+		const auto pc = ImemAddr16(m_pc.Curr());
+		const auto code = m_imemCache.HitBlockOrRecompile(n64, *this, pc);
+		return code();
 	}
 
 	uint32 Rsp::ReadPAddr32(PAddr32 paddr)

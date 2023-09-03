@@ -4,7 +4,7 @@
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 #include "N64/N64System.h"
-#include "N64/Cpu_detail/Instruction.h"
+#include "N64/Instruction.h"
 
 #define DYNAREC_RECOMPILER_INTERNAL
 #include "Decoder.h"

@@ -4,6 +4,8 @@
 
 namespace N64::Rsp_detail
 {
+	using namespace Utils;
+
 	namespace RspAddress
 	{
 		constexpr PAddr32 DmaSpAddr_0x04040000{0x04040000};
@@ -17,12 +19,21 @@ namespace N64::Rsp_detail
 		constexpr PAddr32 Pc_0x04080000{0x04080000};
 	}
 
-	using Utils::BitAccess;
+	constexpr uint32 SpImemSize_0x1000 = 0x1000;
+	constexpr uint16 SpImemMask_0xFFF = 0xFFF;
 
-	class SpStatus
+	using RspCycles = int16;
+
+	class ImemAddr16 : public EnumValue<uint16>
 	{
 	public:
-		SpStatus(uint32 raw = 0): m_raw(raw) { return; }
+		explicit constexpr ImemAddr16(uint16 v): EnumValue(v) { return; }
+	};
+
+	class SpStatus32
+	{
+	public:
+		SpStatus32(uint32 raw = 0): m_raw(raw) { return; }
 		operator uint32() const { return m_raw; }
 
 		auto Halt() { return BitAccess<0>(m_raw); } // 1

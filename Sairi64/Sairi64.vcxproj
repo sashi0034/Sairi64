@@ -75,7 +75,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <BuildStlModules>false</BuildStlModules>
-      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;../ExternalLibs/Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -103,7 +103,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <BuildStlModules>false</BuildStlModules>
-      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;../ExternalLibs/Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -119,79 +119,14 @@
   <ItemGroup>
     <ClCompile Include="DearImGuiAddon\DearImGuiAddon.cpp" />
     <ClCompile Include="DearImGuiAddon\imgui_impl_s3d.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64assembler.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64builder.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64compiler.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64emithelper.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64formatter.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64func.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64instapi.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64instdb.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64operand.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\a64rapass.cpp" />
-    <ClCompile Include="Includes\asmjit\arm\armformatter.cpp" />
-    <ClCompile Include="Includes\asmjit\core\archtraits.cpp" />
-    <ClCompile Include="Includes\asmjit\core\assembler.cpp" />
-    <ClCompile Include="Includes\asmjit\core\builder.cpp" />
-    <ClCompile Include="Includes\asmjit\core\codeholder.cpp" />
-    <ClCompile Include="Includes\asmjit\core\codewriter.cpp" />
-    <ClCompile Include="Includes\asmjit\core\compiler.cpp" />
-    <ClCompile Include="Includes\asmjit\core\constpool.cpp" />
-    <ClCompile Include="Includes\asmjit\core\cpuinfo.cpp" />
-    <ClCompile Include="Includes\asmjit\core\emithelper.cpp" />
-    <ClCompile Include="Includes\asmjit\core\emitter.cpp" />
-    <ClCompile Include="Includes\asmjit\core\emitterutils.cpp" />
-    <ClCompile Include="Includes\asmjit\core\environment.cpp" />
-    <ClCompile Include="Includes\asmjit\core\errorhandler.cpp" />
-    <ClCompile Include="Includes\asmjit\core\formatter.cpp" />
-    <ClCompile Include="Includes\asmjit\core\func.cpp" />
-    <ClCompile Include="Includes\asmjit\core\funcargscontext.cpp" />
-    <ClCompile Include="Includes\asmjit\core\globals.cpp" />
-    <ClCompile Include="Includes\asmjit\core\inst.cpp" />
-    <ClCompile Include="Includes\asmjit\core\jitallocator.cpp" />
-    <ClCompile Include="Includes\asmjit\core\jitruntime.cpp" />
-    <ClCompile Include="Includes\asmjit\core\logger.cpp" />
-    <ClCompile Include="Includes\asmjit\core\operand.cpp" />
-    <ClCompile Include="Includes\asmjit\core\osutils.cpp" />
-    <ClCompile Include="Includes\asmjit\core\ralocal.cpp" />
-    <ClCompile Include="Includes\asmjit\core\rapass.cpp" />
-    <ClCompile Include="Includes\asmjit\core\rastack.cpp" />
-    <ClCompile Include="Includes\asmjit\core\string.cpp" />
-    <ClCompile Include="Includes\asmjit\core\support.cpp" />
-    <ClCompile Include="Includes\asmjit\core\target.cpp" />
-    <ClCompile Include="Includes\asmjit\core\type.cpp" />
-    <ClCompile Include="Includes\asmjit\core\virtmem.cpp" />
-    <ClCompile Include="Includes\asmjit\core\zone.cpp" />
-    <ClCompile Include="Includes\asmjit\core\zonehash.cpp" />
-    <ClCompile Include="Includes\asmjit\core\zonelist.cpp" />
-    <ClCompile Include="Includes\asmjit\core\zonestack.cpp" />
-    <ClCompile Include="Includes\asmjit\core\zonetree.cpp" />
-    <ClCompile Include="Includes\asmjit\core\zonevector.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86assembler.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86builder.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86compiler.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86emithelper.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86formatter.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86func.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86instapi.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86instdb.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86operand.cpp" />
-    <ClCompile Include="Includes\asmjit\x86\x86rapass.cpp" />
-    <ClCompile Include="Includes\imgui\imgui.cpp" />
-    <ClCompile Include="Includes\imgui\imgui_demo.cpp" />
-    <ClCompile Include="Includes\imgui\imgui_draw.cpp" />
-    <ClCompile Include="Includes\imgui\imgui_tables.cpp" />
-    <ClCompile Include="Includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cop0.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cop1.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu.cpp" />
     <ClCompile Include="N64\Cpu_detail\Cpu_Interpreter.cpp" />
-    <ClCompile Include="N64\Cpu_detail\Dynarec\JitUtil.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\RecompiledCache.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\Recompiler.cpp" />
-    <ClCompile Include="N64\Cpu_detail\Gpr.cpp" />
-    <ClCompile Include="N64\Cpu_detail\Instruction.cpp" />
+    <ClCompile Include="N64\Instruction.cpp" />
     <ClCompile Include="N64\Interrupt.cpp" />
     <ClCompile Include="N64\Joybus\Controller.cpp" />
     <ClCompile Include="N64\Joybus\JoybusDevice.cpp" />
@@ -210,11 +145,11 @@
     <ClCompile Include="N64\N64Logger.cpp" />
     <ClCompile Include="N64\N64Singleton.cpp" />
     <ClCompile Include="N64\N64System.cpp" />
-    <ClCompile Include="N64\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\Display.cpp" />
+    <ClCompile Include="N64\Rsp_detail\Dynarec\ImemCache.cpp" />
+    <ClCompile Include="N64\Rsp_detail\Dynarec\SpRecompiler.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
-    <ClCompile Include="N64\Rsp_detail\RspAddress.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp_Interface.cpp" />
     <ClCompile Include="N64\Scheduler.cpp" />
     <ClCompile Include="Tests\AnyTests.cpp" />
@@ -424,104 +359,6 @@
   <ItemGroup>
     <ClInclude Include="DearImGuiAddon\DearImGuiAddon.hpp" />
     <ClInclude Include="DearImGuiAddon\imgui_impl_s3d.h" />
-    <ClInclude Include="Includes\asmjit\a64.h" />
-    <ClInclude Include="Includes\asmjit\arm.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64archtraits_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64assembler.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64builder.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64compiler.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64emithelper_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64emitter.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64formatter_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64func_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64globals.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64instapi_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64instdb.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64instdb_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64operand.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64rapass_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\a64utils.h" />
-    <ClInclude Include="Includes\asmjit\arm\armformatter_p.h" />
-    <ClInclude Include="Includes\asmjit\arm\armglobals.h" />
-    <ClInclude Include="Includes\asmjit\arm\armoperand.h" />
-    <ClInclude Include="Includes\asmjit\asmjit-scope-begin.h" />
-    <ClInclude Include="Includes\asmjit\asmjit-scope-end.h" />
-    <ClInclude Include="Includes\asmjit\asmjit.h" />
-    <ClInclude Include="Includes\asmjit\core.h" />
-    <ClInclude Include="Includes\asmjit\core\api-build_p.h" />
-    <ClInclude Include="Includes\asmjit\core\api-config.h" />
-    <ClInclude Include="Includes\asmjit\core\archcommons.h" />
-    <ClInclude Include="Includes\asmjit\core\archtraits.h" />
-    <ClInclude Include="Includes\asmjit\core\assembler.h" />
-    <ClInclude Include="Includes\asmjit\core\builder.h" />
-    <ClInclude Include="Includes\asmjit\core\builder_p.h" />
-    <ClInclude Include="Includes\asmjit\core\codebuffer.h" />
-    <ClInclude Include="Includes\asmjit\core\codeholder.h" />
-    <ClInclude Include="Includes\asmjit\core\codewriter_p.h" />
-    <ClInclude Include="Includes\asmjit\core\compiler.h" />
-    <ClInclude Include="Includes\asmjit\core\compilerdefs.h" />
-    <ClInclude Include="Includes\asmjit\core\constpool.h" />
-    <ClInclude Include="Includes\asmjit\core\cpuinfo.h" />
-    <ClInclude Include="Includes\asmjit\core\emithelper_p.h" />
-    <ClInclude Include="Includes\asmjit\core\emitter.h" />
-    <ClInclude Include="Includes\asmjit\core\emitterutils_p.h" />
-    <ClInclude Include="Includes\asmjit\core\environment.h" />
-    <ClInclude Include="Includes\asmjit\core\errorhandler.h" />
-    <ClInclude Include="Includes\asmjit\core\formatter.h" />
-    <ClInclude Include="Includes\asmjit\core\formatter_p.h" />
-    <ClInclude Include="Includes\asmjit\core\func.h" />
-    <ClInclude Include="Includes\asmjit\core\funcargscontext_p.h" />
-    <ClInclude Include="Includes\asmjit\core\globals.h" />
-    <ClInclude Include="Includes\asmjit\core\inst.h" />
-    <ClInclude Include="Includes\asmjit\core\jitallocator.h" />
-    <ClInclude Include="Includes\asmjit\core\jitruntime.h" />
-    <ClInclude Include="Includes\asmjit\core\logger.h" />
-    <ClInclude Include="Includes\asmjit\core\misc_p.h" />
-    <ClInclude Include="Includes\asmjit\core\operand.h" />
-    <ClInclude Include="Includes\asmjit\core\osutils.h" />
-    <ClInclude Include="Includes\asmjit\core\osutils_p.h" />
-    <ClInclude Include="Includes\asmjit\core\raassignment_p.h" />
-    <ClInclude Include="Includes\asmjit\core\rabuilders_p.h" />
-    <ClInclude Include="Includes\asmjit\core\radefs_p.h" />
-    <ClInclude Include="Includes\asmjit\core\ralocal_p.h" />
-    <ClInclude Include="Includes\asmjit\core\rapass_p.h" />
-    <ClInclude Include="Includes\asmjit\core\rastack_p.h" />
-    <ClInclude Include="Includes\asmjit\core\string.h" />
-    <ClInclude Include="Includes\asmjit\core\support.h" />
-    <ClInclude Include="Includes\asmjit\core\support_p.h" />
-    <ClInclude Include="Includes\asmjit\core\target.h" />
-    <ClInclude Include="Includes\asmjit\core\type.h" />
-    <ClInclude Include="Includes\asmjit\core\virtmem.h" />
-    <ClInclude Include="Includes\asmjit\core\zone.h" />
-    <ClInclude Include="Includes\asmjit\core\zonehash.h" />
-    <ClInclude Include="Includes\asmjit\core\zonelist.h" />
-    <ClInclude Include="Includes\asmjit\core\zonestack.h" />
-    <ClInclude Include="Includes\asmjit\core\zonestring.h" />
-    <ClInclude Include="Includes\asmjit\core\zonetree.h" />
-    <ClInclude Include="Includes\asmjit\core\zonevector.h" />
-    <ClInclude Include="Includes\asmjit\x86.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86archtraits_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86assembler.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86builder.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86compiler.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86emithelper_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86emitter.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86formatter_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86func_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86globals.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86instapi_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86instdb.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86instdb_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86opcode_p.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86operand.h" />
-    <ClInclude Include="Includes\asmjit\x86\x86rapass_p.h" />
-    <ClInclude Include="Includes\imgui\imconfig.h" />
-    <ClInclude Include="Includes\imgui\imgui.h" />
-    <ClInclude Include="Includes\imgui\imgui_internal.h" />
-    <ClInclude Include="Includes\imgui\imstb_rectpack.h" />
-    <ClInclude Include="Includes\imgui\imstb_textedit.h" />
-    <ClInclude Include="Includes\imgui\imstb_truetype.h" />
-    <ClInclude Include="Includes\nameof\nameof.hpp" />
     <ClInclude Include="N64\Cpu.h" />
     <ClInclude Include="N64\Cpu_detail\Cop0.h" />
     <ClInclude Include="N64\Cpu_detail\Cop1.h" />
@@ -537,7 +374,7 @@
     <ClInclude Include="N64\Cpu_detail\Dynarec\RecompiledCache.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\Recompiler.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
-    <ClInclude Include="N64\Cpu_detail\Instruction.h" />
+    <ClInclude Include="N64\Instruction.h" />
     <ClInclude Include="N64\Interrupt.h" />
     <ClInclude Include="N64\Joybus\Controller.h" />
     <ClInclude Include="N64\Joybus\JoybusDevice.h" />
@@ -562,10 +399,16 @@
     <ClInclude Include="N64\Rdp_detail\Rdp.h" />
     <ClInclude Include="N64\Rdp_detail\Display.h" />
     <ClInclude Include="N64\Rsp.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\Decoder.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\ImemCache.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\Jit.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\JitForward.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\SpRecompiler.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp.h" />
     <ClInclude Include="N64\Forward.h" />
     <ClInclude Include="N64\Rsp_detail\RspAddress.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp_Interface.h" />
+    <ClInclude Include="N64\Rsp_detail\Rsp_Process.h" />
     <ClInclude Include="N64\Scheduler.h" />
     <ClInclude Include="Ui\UiManager.h" />
     <ClInclude Include="Utils\Util.h" />
@@ -685,7 +528,11 @@
     <Content Include="App\asset\rom\dillonb-n64-tests\xori_simpleboot.z64" />
     <Content Include="App\asset\rom\dillonb-n64-tests\xor_simpleboot.z64" />
     <Content Include="DearImGuiAddon\credit.txt" />
-    <Content Include="Includes\nameof\LICENSE" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExternalLibs\ExternalLibs.vcxproj">
+      <Project>{72804c81-57cb-4b5e-aeb0-fc855f9a6626}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

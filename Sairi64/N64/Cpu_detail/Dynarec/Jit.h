@@ -1,8 +1,7 @@
 ﻿#pragma once
 
 #include "JitUtil.h"
-
-#include "../Cpu_Interpreter_Op_Cop.h"
+#include "N64/Cpu_detail/Cpu_Process.h"
 
 #ifndef DYNAREC_RECOMPILER_INTERNAL
 #error "This file is an internal file used by Recompiler"

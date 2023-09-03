@@ -84,5 +84,12 @@ namespace N64
 
 	using Memory = Memory_detail::Memory;
 
+	namespace Rsp_detail
+	{
+		class Rsp;
+	}
+
+	using Rsp = Rsp_detail::Rsp;
+
 	class N64System;
 }

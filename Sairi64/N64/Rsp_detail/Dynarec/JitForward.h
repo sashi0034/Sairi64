@@ -1,9 +1,14 @@
 ﻿#pragma once
 #include "N64/N64Logger.h"
+#include "../Rsp_Process.h"
+
+#define OFFSET_TO(type, base, target) (offsetof(type, target) - offsetof(type, base))
 
 namespace N64::Rsp_detail::Dynarec
 {
 	namespace x86 = asmjit::x86;
+
+	using Process = Rsp::Process;
 
 	struct AssembleState
 	{

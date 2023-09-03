@@ -33,6 +33,8 @@ namespace N64::Rsp_detail
 			m_raw.next = m_raw.curr + 4;
 		}
 
+		PcRaw& Raw() { return m_raw; }
+
 	private:
 		PcRaw m_raw{};
 	};
@@ -74,6 +76,8 @@ namespace N64::Rsp_detail
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
+
+		class Process;
 
 	private:
 		class Interface;

@@ -23,9 +23,9 @@ namespace N64::Rsp_detail
 
 	RspCycles Rsp::Step(N64System& n64)
 	{
-		// TODO
-		N64Logger::Abort();
-		return 1;
+		const auto pc = ImemAddr16(m_pc.Curr());
+		const auto code = m_imemCache.HitBlockOrRecompile(n64, *this, pc);
+		return code();
 	}
 
 	uint32 Rsp::ReadPAddr32(PAddr32 paddr)

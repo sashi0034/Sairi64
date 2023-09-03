@@ -570,6 +570,7 @@
     <ClInclude Include="N64\Forward.h" />
     <ClInclude Include="N64\Rsp_detail\RspAddress.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp_Interface.h" />
+    <ClInclude Include="N64\Rsp_detail\Rsp_Process.h" />
     <ClInclude Include="N64\Scheduler.h" />
     <ClInclude Include="Ui\UiManager.h" />
     <ClInclude Include="Utils\Util.h" />

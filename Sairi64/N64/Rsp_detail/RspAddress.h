@@ -20,6 +20,7 @@ namespace N64::Rsp_detail
 	}
 
 	constexpr uint32 SpImemSize_0x1000 = 0x1000;
+	constexpr uint16 SpImemMask_0xFFF = 0xFFF;
 
 	using RspCycles = int16;
 

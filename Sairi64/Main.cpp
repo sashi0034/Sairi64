@@ -25,8 +25,8 @@ void setupWindow()
 }
 
 N64::N64Config debugConfig{
-	.rom = {U"asset\\rom\\mimi-6126231.z64"}
-	//.rom = {U"asset\\rom\\zelda-oot.z64"}
+	// .rom = {U"asset\\rom\\mimi-6126231.z64"}
+	.rom = {U"asset\\rom\\zelda-oot.z64"}
 };
 
 void Main()

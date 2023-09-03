@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "JitForward.h"
-#ifndef DYNAREC_SP_RECOMPILER_INTERNAL
+#ifndef RSP_PROCESS_INTERNAL
 #error "This file is an internal file used by SpRecompiler"
 #endif
 

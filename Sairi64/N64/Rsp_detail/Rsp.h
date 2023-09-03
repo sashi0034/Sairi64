@@ -52,7 +52,6 @@ namespace N64::Rsp_detail
 	};
 
 	constexpr uint32 SpDmemSize_0x1000 = 0x1000;
-	constexpr uint32 SpImemSize_0x1000 = Dynarec::SpImemSize_0x1000;
 
 	using SpDmem = std::array<uint8, SpDmemSize_0x1000>;
 	using SpImem = std::array<uint8, SpImemSize_0x1000>;
@@ -72,6 +71,7 @@ namespace N64::Rsp_detail
 
 		SpDmem& Dmem() { return m_dmem; }
 		SpImem& Imem() { return m_imem; }
+		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
 
@@ -80,6 +80,7 @@ namespace N64::Rsp_detail
 
 		SpDmem m_dmem{};
 		SpImem m_imem{};
+		Dynarec::ImemCache m_imemCache{};
 
 		Pc m_pc{};
 		SpDmaLength32 m_dmaLength{};

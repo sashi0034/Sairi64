@@ -6,16 +6,6 @@
 
 namespace N64::Rsp_detail
 {
-	template <int n>
-	inline void bitClearSet(Utils::BitAccessor<n, n, uint32> bit, bool clear, bool set)
-	{
-		if (clear && !set) bit.Set(false);
-		if (set && !clear) bit.Set(true);
-	}
-}
-
-namespace N64::Rsp_detail
-{
 	Rsp::Rsp()
 	{
 		m_status.Halt().Set(true);

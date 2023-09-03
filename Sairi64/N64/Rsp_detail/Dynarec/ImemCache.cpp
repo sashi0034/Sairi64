@@ -45,7 +45,7 @@ namespace N64::Rsp_detail::Dynarec
 		{
 			// 先頭情報更新
 			if (m_headList[i] == invalidHead_0xFFFF || m_headList[i] > pcIndex)
-				m_headList[i] = i;
+				m_headList[i] = pcIndex;
 		}
 		return recompiled.code;
 	}
@@ -53,7 +53,7 @@ namespace N64::Rsp_detail::Dynarec
 	void ImemCache::InvalidBlock(ImemAddr16 addr)
 	{
 		const uint8 index = GetBlockIndex(addr);
-		if (m_tagList[index] == InvalidTag_0xFF) [[likely]] return;
+		if (m_headList[index] == invalidHead_0xFFFF) [[likely]] return;
 
 		const int headCursor = m_headList[index];
 		int currentCursor = index;

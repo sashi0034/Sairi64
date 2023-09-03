@@ -4,7 +4,7 @@
 
 namespace N64::Rsp_detail::Dynarec
 {
-	using BlockIndex = int16;
+	using BlockIndex = uint16;
 	using BlockTag = uint8;
 
 	constexpr int BlockSize_0x400 = SpImemSize_0x1000 / 4;

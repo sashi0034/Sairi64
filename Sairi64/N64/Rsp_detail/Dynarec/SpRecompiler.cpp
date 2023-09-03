@@ -10,11 +10,11 @@ namespace N64::Rsp_detail::Dynarec
 {
 	namespace x86 = asmjit::x86;
 
-	uint32 assembleCodeInternal(const AssembleContext& ctx, const SpRecompilingTarget& target)
+	uint32 assembleCodeInternal(const AssembleContext& ctx, ImemAddr16 startPc)
 	{
 		AssembleState state{
 			.recompiledLength = 0,
-			.scanPc = target.startPc
+			.scanPc = startPc
 		};
 
 		while (true)
@@ -35,7 +35,7 @@ namespace N64::Rsp_detail::Dynarec
 		return state.recompiledLength;
 	}
 
-	uint16 assembleCode(N64System& n64, Rsp& rsp, const SpRecompilingTarget& target, x86::Assembler& x86Asm)
+	uint16 assembleCode(N64System& n64, Rsp& rsp, ImemAddr16 startPc, x86::Assembler& x86Asm)
 	{
 		constexpr int stackSize = 40;
 		x86Asm.sub(x86::rsp, stackSize);
@@ -46,7 +46,7 @@ namespace N64::Rsp_detail::Dynarec
 			.x86Asm = &x86Asm,
 			.endLabel = x86Asm.newLabel()
 		};
-		const uint16 recompiledLength = assembleCodeInternal(ctx, target);
+		const uint16 recompiledLength = assembleCodeInternal(ctx, startPc);
 
 		x86Asm.mov(x86::rax, recompiledLength);
 		x86Asm.bind(ctx.endLabel); // @end
@@ -56,20 +56,21 @@ namespace N64::Rsp_detail::Dynarec
 		return recompiledLength;
 	}
 
-	void SpRecompileFreshCode(N64System& n64, Rsp& rsp, const SpRecompilingTarget& target)
+	SpRecompileResult SpRecompileFreshCode(N64System& n64, Rsp& rsp, ImemAddr16 startPc)
 	{
+		SpRecompileResult result{};
 		asmjit::CodeHolder code{};
 		auto&& jit = n64.GetJit();
 		code.init(jit.environment());
 		x86::Assembler x86Asm(&code);
 
-		uint16 recompiledLength = assembleCode(n64, rsp, target, x86Asm);
-		auto&& destArray = *target.destArray;
-		const uint32 error = jit.add(&destArray[target.startPc].code, &code);
+		result.recompiledLength = assembleCode(n64, rsp, startPc, x86Asm);
+
+		const uint32 error = jit.add(&result.code, &code);
 		if (error != 0)
 		{
 			N64Logger::Abort(U"failed to rsp-recompile: error={}"_fmt(error));
 		}
-		N64_TRACE(U"rsp-recompile completed: length={}"_fmt(recompiledLength));
+		return result;
 	}
 }

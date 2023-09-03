@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Utils/Util.h"
 
-namespace N64::Cpu_detail
+namespace N64
 {
 	using namespace Utils;
 

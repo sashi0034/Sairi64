@@ -47,7 +47,6 @@ namespace N64
 	};
 
 	using CpuCycles = int32;
-	using RspCycles = int32;
 
 	enum class ProcessorType
 	{

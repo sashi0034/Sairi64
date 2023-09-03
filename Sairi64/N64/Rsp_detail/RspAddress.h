@@ -21,6 +21,8 @@ namespace N64::Rsp_detail
 
 	constexpr uint32 SpImemSize_0x1000 = 0x1000;
 
+	using RspCycles = int16;
+
 	class ImemAddr16 : public EnumValue<uint16>
 	{
 	public:

@@ -28,7 +28,7 @@ namespace Tests
 
 	TEST_CASE("N64Test_Instruction")
 	{
-		using namespace N64::Cpu_detail;
+		using namespace N64;
 		const InstructionI instr1 = {0x3C'04'BF'C0};
 		const sint32 instr1_imm = static_cast<sint16>(instr1.Imm());
 		REQUIRE(instr1_imm == 0xFF'FF'BF'C0);

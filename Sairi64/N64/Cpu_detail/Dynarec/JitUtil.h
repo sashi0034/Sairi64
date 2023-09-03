@@ -60,30 +60,6 @@ namespace N64::Cpu_detail::Dynarec
 		x86Asm->mov(x86::byte_ptr(x86::rax, 0), x86::cl); // curr <- cl
 	}
 
-	static void FlashPc(const AssembleContext& ctx,
-	                    uint64 prevPc, uint64 currPc, uint64 nextPc)
-	{
-		auto&& x86Asm = ctx.x86Asm;
-		auto&& raw = &ctx.cpu->GetPc().Raw();
-		x86Asm->mov(x86::rax, (uint64)&raw->curr);
-		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), prevPc);
-		x86Asm->mov(x86::qword_ptr(x86::rax, 0), currPc);
-		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), nextPc);
-	}
-
-	static void FlashPc(const AssembleContext& ctx, const Pc& pc)
-	{
-		return FlashPc(ctx, pc.Prev(), pc.Curr(), pc.Next());
-	}
-
-	static void FlashDelaySlot(const AssembleContext& ctx, const DelaySlot& delaySlot)
-	{
-		auto&& x86Asm = ctx.x86Asm;
-		x86Asm->mov(x86::rax, (uint64)&ctx.cpu->GetDelaySlot().Raw().curr);
-		x86Asm->mov(x86::qword_ptr(x86::rax, OFFSET_TO(DelaySlotRow, curr, prev)), delaySlot.Prev());
-		x86Asm->mov(x86::qword_ptr(x86::rax, 0), delaySlot.Curr());
-	}
-
 	template <typename Instr, typename Unit>
 	using InterpretOp1 = Unit (*)(Cpu& cpu, Instr instr);
 

@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Instruction.h"
 
-namespace N64::Cpu_detail
+namespace N64
 {
 	String Instruction::OpName() const
 	{

@@ -191,7 +191,6 @@
     <ClCompile Include="N64\Cpu_detail\Dynarec\Recompiler.cpp" />
     <ClCompile Include="N64\Instruction.cpp" />
     <ClCompile Include="N64\Interrupt.cpp" />
-    <ClCompile Include="N64\JitCommon.cpp" />
     <ClCompile Include="N64\Joybus\Controller.cpp" />
     <ClCompile Include="N64\Joybus\JoybusDevice.cpp" />
     <ClCompile Include="N64\Memory_detail\Memory.cpp" />
@@ -562,8 +561,10 @@
     <ClInclude Include="N64\Rdp_detail\Rdp.h" />
     <ClInclude Include="N64\Rdp_detail\Display.h" />
     <ClInclude Include="N64\Rsp.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\Decoder.h" />
     <ClInclude Include="N64\Rsp_detail\Dynarec\ImemCache.h" />
     <ClInclude Include="N64\Rsp_detail\Dynarec\Jit.h" />
+    <ClInclude Include="N64\Rsp_detail\Dynarec\JitForward.h" />
     <ClInclude Include="N64\Rsp_detail\Dynarec\SpRecompiler.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp.h" />
     <ClInclude Include="N64\Forward.h" />

@@ -66,6 +66,16 @@ namespace Utils
 			(((value) & 0x0000FF00u) << 8u) | (((value) & 0x000000FFu) << 24u);
 	}
 
+	inline void ByteSwapArrayData(std::span<uint8> span)
+	{
+		const bool notAligned = span.size() & 0b11;
+		for (uint64 i = 0; i < span.size() - notAligned * 4; i += 4)
+		{
+			const uint32 original = *reinterpret_cast<uint32*>(&span[i]);
+			*reinterpret_cast<uint32*>(&span[i]) = Utils::ByteSwap32(original);
+		}
+	}
+
 	template <typename Wire>
 	inline Wire ReadBytes(std::span<const uint8_t> span, uint64_t offset)
 	{

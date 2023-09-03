@@ -155,6 +155,7 @@
     <ClCompile Include="Tests\AnyTests.cpp" />
     <ClCompile Include="Tests\DynarecTest.cpp" />
     <ClCompile Include="Tests\N64Test.cpp" />
+    <ClCompile Include="Tests\RspTest.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
     <ClCompile Include="Ui\UiManager.cpp" />
     <ClCompile Include="Utils\Util.cpp" />
@@ -527,6 +528,7 @@
     <Content Include="App\asset\rom\dillonb-n64-tests\subu_simpleboot.z64" />
     <Content Include="App\asset\rom\dillonb-n64-tests\xori_simpleboot.z64" />
     <Content Include="App\asset\rom\dillonb-n64-tests\xor_simpleboot.z64" />
+    <Content Include="App\tests\list_file_names.py" />
     <Content Include="App\tests\rsp\compelt.golden" />
     <Content Include="App\tests\rsp\compelt.input" />
     <Content Include="App\tests\rsp\compelt.rsp" />

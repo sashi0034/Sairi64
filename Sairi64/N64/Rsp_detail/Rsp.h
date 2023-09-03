@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "N64/Forward.h"
 #include "RspAddress.h"
+#include "SpMemory.h"
 #include "Dynarec/ImemCache.h"
 
 namespace N64::Rsp_detail
@@ -52,11 +53,6 @@ namespace N64::Rsp_detail
 	private:
 		std::array<uint32, GprSize_32> m_reg{};
 	};
-
-	constexpr uint32 SpDmemSize_0x1000 = 0x1000;
-
-	using SpDmem = std::array<uint8, SpDmemSize_0x1000>;
-	using SpImem = std::array<uint8, SpImemSize_0x1000>;
 
 	// https://n64brew.dev/wiki/Reality_Signal_Processor
 	// https://n64brew.dev/wiki/Reality_Signal_Processor/CPU_Core

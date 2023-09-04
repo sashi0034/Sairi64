@@ -10,34 +10,56 @@ namespace N64::Rsp_detail
 	{
 	public:
 		using addr_t = uint32;
-		void SetSpByte(addr_t addr, uint8 value) { spByte(addr) = value; }
-		uint8 GetSpByte(uint8 addr) const { return spByte(addr); }
+		void WriteSpByte(addr_t addr, uint8 value) { spByte(addr) = value; }
+		uint8 ReadSpByte(uint8 addr) const { return spByte(addr); }
 
-		uint16 GetSpHalf(addr_t addr)
+		uint16 ReadSpHalf(addr_t addr) const
 		{
 			return (spByte(addr) << 8) | spByte(addr + 1);
 		}
 
-		void SetSpHalf(addr_t addr, uint16 value)
+		void WriteSpHalf(addr_t addr, uint16 value)
 		{
 			spByte(addr) = (value >> 8) & 0xFF;
 			spByte(addr + 1) = value & 0xFF;
 		}
 
-		uint32 GetSpWord(addr_t addr)
+		uint32 ReadSpWord(addr_t addr) const
 		{
-			return (GetSpHalf(addr) << 16) | GetSpHalf(addr + 2);
+			return (ReadSpHalf(addr) << 16) | ReadSpHalf(addr + 2);
 		}
 
-		void SetSpWord(addr_t addr, uint32 value)
+		void WriteSpWord(addr_t addr, uint32 value)
 		{
-			SetSpHalf(addr, ((value) >> 16) & 0xFFFF);
-			SetSpHalf(addr + 2, value & 0xFFFF);
+			WriteSpHalf(addr, ((value) >> 16) & 0xFFFF);
+			WriteSpHalf(addr + 2, value & 0xFFFF);
+		}
+
+		template <typename Wire>
+		Wire ReadSpData(addr_t addr) const
+		{
+			if constexpr (std::same_as<Wire, uint8>) return ReadSpByte(addr);
+			else if constexpr (std::same_as<Wire, uint16>) return ReadSpHalf(addr);
+			else if constexpr (std::same_as<Wire, uint32>) return ReadSpWord(addr);
+			else
+			{
+				static_assert(AlwaysFalse<Wire>);
+				return {};
+			}
+		}
+
+		template <typename Wire>
+		void WriteSpData(addr_t addr, Wire value)
+		{
+			if constexpr (std::same_as<Wire, uint8>) WriteSpByte(addr, value);
+			else if constexpr (std::same_as<Wire, uint16>) WriteSpHalf(addr, value);
+			else if constexpr (std::same_as<Wire, uint32>) WriteSpWord(addr, value);
+			else static_assert(AlwaysFalse<Wire>);
 		}
 
 	private:
-		uint8& spByte(addr_t addr) { return *this[addr & SpImemMask_0xFFF]; };
-		uint8 spByte(addr_t addr) const { return *this[addr & SpImemMask_0xFFF]; };
+		uint8& spByte(addr_t addr) { return (*this)[addr & SpImemMask_0xFFF]; };
+		uint8 spByte(addr_t addr) const { return (*this)[addr & SpImemMask_0xFFF]; };
 	};
 
 	using SpDmem = SpMemory<SpDmemSize_0x1000>;

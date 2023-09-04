@@ -80,7 +80,7 @@ public:
 		case Opcode::LWL:
 			break;
 		case Opcode::LW:
-			break;
+			return Jit::L_load<Opcode::LW>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
 			break;
 		case Opcode::LHU:
@@ -88,7 +88,7 @@ public:
 		case Opcode::LWR:
 			break;
 		case Opcode::LWU:
-			break;
+			return Jit::L_load<Opcode::LWU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SB:
 			break;
 		case Opcode::SH:

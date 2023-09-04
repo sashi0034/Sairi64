@@ -72,5 +72,44 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <Opcode op> [[nodiscard]]
+	static DecodedToken L_load(const AssembleContext& ctx, InstructionI instr)
+	{
+		JIT_SP;
+		const uint8 rt = instr.Rt();
+		if (rt == 0) return DecodedToken::Continue;
+
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.rsp->GetGpr();
+		const uint8 rs = instr.Rs();
+		const sint32 offset = (sint32)static_cast<sint16>(instr.Imm());
+
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
+		x86Asm.mov(x86::edx, x86::eax);
+		x86Asm.add(x86::edx, offset); // edx <- address
+		x86Asm.mov(x86::rcx, (uint64)&ctx.rsp->Dmem()); // rcx <- *dmem
+
+		if constexpr (op == Opcode::LW || op == Opcode::LWU)
+		{
+			x86Asm.mov(x86::rax, &readDmem<uint32>);
+			x86Asm.call(x86::rax);
+		}
+		else static_assert(AlwaysFalseValue<Opcode, op>);
+
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt])), x86::eax);
+		return DecodedToken::Continue;
+	}
+
 private:
+	template <typename Wire>
+	static Wire readDmem(SpDmem& dmem, uint32 addr)
+	{
+		return dmem.ReadSpData<Wire>(addr & 0xFFF);
+	}
+
+	template <typename Wire>
+	static void writeDmem(SpDmem& dmem, uint32 addr, Wire value)
+	{
+		dmem.WriteSpData<Wire>(addr & 0xFFF, value);
+	}
 };

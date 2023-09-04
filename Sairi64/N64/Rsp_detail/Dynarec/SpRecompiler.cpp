@@ -14,8 +14,8 @@ namespace N64::Rsp_detail::Dynarec
 	{
 		if (pc & 0b11)
 		{
-			// TODO: アラインメントずれが許可されてるかもしれないので対処
-			N64Logger::Abort();
+			// アラインメントずれが許可されてるかもしれないので対処
+			return rsp.Imem().ReadSpWord(pc);
 		}
 		return ReadBytes32(rsp.Imem(), pc);
 	}

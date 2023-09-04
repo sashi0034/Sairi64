@@ -4,7 +4,7 @@
 namespace N64::Rsp_detail
 {
 	// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/backend/core/RSP.hpp#L8
-	// big endian
+	// アラインメントずれに注意
 	template <uint32 memorySize>
 	class SpMemory : public std::array<uint8, memorySize>
 	{
@@ -58,8 +58,8 @@ namespace N64::Rsp_detail
 		}
 
 	private:
-		uint8& spByte(addr_t addr) { return (*this)[addr & SpImemMask_0xFFF]; };
-		uint8 spByte(addr_t addr) const { return (*this)[addr & SpImemMask_0xFFF]; };
+		uint8& spByte(addr_t addr) { return (*this)[EndianAddress<uint8>(addr) & SpImemMask_0xFFF]; };
+		uint8 spByte(addr_t addr) const { return (*this)[EndianAddress<uint8>(addr) & SpImemMask_0xFFF]; };
 	};
 
 	using SpDmem = SpMemory<SpDmemSize_0x1000>;

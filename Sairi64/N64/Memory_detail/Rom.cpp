@@ -76,7 +76,7 @@ namespace N64::Memory_detail
 		{
 		case SupportedExtension::Z64:
 			// ビッグエンディアンからリトルエンディアンに
-			Utils::ByteSwapArrayData(rom);
+			Utils::ByteSwapWordArray(rom);
 			break;
 		default: ;
 			N64Logger::Abort(U"unsupported extension: {}"_fmt(extensionName));

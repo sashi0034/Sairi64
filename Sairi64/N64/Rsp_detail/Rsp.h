@@ -71,6 +71,8 @@ namespace N64::Rsp_detail
 		SpImem& Imem() { return m_imem; }
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
+		SpStatus32& Status() { return m_status; }
+
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
 
 		class Process;

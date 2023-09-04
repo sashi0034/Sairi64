@@ -4,6 +4,7 @@
 namespace N64::Rsp_detail
 {
 	// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/backend/core/RSP.hpp#L8
+	// big endian
 	template <uint32 memorySize>
 	class SpMemory : public std::array<uint8, memorySize>
 	{

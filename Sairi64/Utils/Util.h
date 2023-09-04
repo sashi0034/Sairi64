@@ -66,10 +66,13 @@ namespace Utils
 			(((value) & 0x0000FF00u) << 8u) | (((value) & 0x000000FFu) << 24u);
 	}
 
-	inline void ByteSwapArrayData(std::span<uint8> span)
+	inline void ByteSwapWordArray(std::span<uint8> span)
 	{
-		const bool notAligned = span.size() & 0b11;
-		for (uint64 i = 0; i < span.size() - notAligned * 4; i += 4)
+		if (span.size() & 0b11)
+		{
+			throw std::invalid_argument("The size of the array is not a multiple of 4.");
+		}
+		for (uint64 i = 0; i < span.size(); i += 4)
 		{
 			const uint32 original = *reinterpret_cast<uint32*>(&span[i]);
 			*reinterpret_cast<uint32*>(&span[i]) = Utils::ByteSwap32(original);

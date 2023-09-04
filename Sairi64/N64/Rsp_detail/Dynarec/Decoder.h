@@ -107,8 +107,8 @@ public:
 			break;
 		case Opcode::LL:
 			break;
-		case Opcode::LWC1:
-			break;
+		case Opcode::LWC2:
+			return assembleLWC2(ctx, state, static_cast<InstructionV>(instr));
 		case Opcode::LLD:
 			break;
 		case Opcode::LDC1:
@@ -117,7 +117,7 @@ public:
 			break;
 		case Opcode::SC:
 			break;
-		case Opcode::SWC1:
+		case Opcode::SWC2:
 			break;
 		case Opcode::SCD:
 			break;
@@ -255,6 +255,39 @@ private:
 		case OpCopSub::CTC:
 			return Jit::Vector::CTC2(ctx, instr);
 		default: break;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	static DecodedToken assembleLWC2(
+		const AssembleContext& ctx, const AssembleState& state, InstructionV instr)
+	{
+		switch (instr.Funct())
+		{
+		case OpLwc2Funct::LBV:
+			break;
+		case OpLwc2Funct::LSV:
+			break;
+		case OpLwc2Funct::LLV:
+			break;
+		case OpLwc2Funct::LDV:
+			break;
+		case OpLwc2Funct::LQV:
+			break;
+		case OpLwc2Funct::LRV:
+			break;
+		case OpLwc2Funct::LPV:
+			break;
+		case OpLwc2Funct::LUV:
+			break;
+		case OpLwc2Funct::LHV:
+			break;
+		case OpLwc2Funct::LFV:
+			break;
+		case OpLwc2Funct::LTV:
+			break;
+		default: ;
 		}
 
 		return AssumeNotImplemented(ctx, instr);

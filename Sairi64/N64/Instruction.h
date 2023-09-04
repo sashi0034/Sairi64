@@ -54,11 +54,13 @@ namespace N64
 		CACHE = 0b101111,
 		LL = 0b110000,
 		LWC1 = 0b110001,
+		LWC2 = 0b110010, // RSP
 		LLD = 0b110100,
 		LDC1 = 0b110101,
 		LD = 0b110111,
 		SC = 0b111000,
 		SWC1 = 0b111001,
+		SWC2 = 0b111010, // RSP
 		SCD = 0b111100,
 		SDC1 = 0b111101,
 		SD = 0b111111,
@@ -145,8 +147,7 @@ namespace N64
 		MTC = 0b00100,
 		DMTC = 0b00101,
 		CFC = 0b00010,
-		CTC = 0b00110,
-		// 0b10000
+		CTC = 0b00110, // 0b10000
 		CO_0x10 = 0x10,
 		CO_0x11 = 0x11,
 		CO_0x12 = 0x12,
@@ -162,8 +163,7 @@ namespace N64
 		CO_0x1C = 0x1C,
 		CO_0x1D = 0x1D,
 		CO_0x1E = 0x1E,
-		// 0b11111
-		CO_0x1F = 0x1F,
+		CO_0x1F = 0x1F, // 0b11111
 	};
 
 	enum class OpCop0CoFunct : uint8
@@ -221,6 +221,21 @@ namespace N64
 		VRSQL = 0b110101,
 		VRSQH = 0b110110,
 		VNOP = 0b110111,
+	};
+
+	enum class OpLwc2Funct
+	{
+		LBV = 0b00000,
+		LSV = 0b00001,
+		LLV = 0b00010,
+		LDV = 0b00011,
+		LQV = 0b00100,
+		LRV = 0b00101,
+		LPV = 0b00110,
+		LUV = 0b00111,
+		LHV = 0b01000,
+		LFV = 0b01001,
+		LTV = 0b01011,
 	};
 
 	class Instruction
@@ -348,6 +363,17 @@ namespace N64
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Ft() const { return Rt(); }
 		uint32 Base() const { return GetBits<21, 25>(Raw()); }
+		String Stringify() const;
+	};
+
+	class InstructionV : public Instruction
+	{
+	public:
+		uint8 Offset() const { return GetBits<0, 6>(Raw()); }
+		uint8 Element() const { return GetBits<7, 10>(Raw()); }
+		OpLwc2Funct Funct() const { return static_cast<OpLwc2Funct>(GetBits<11, 15>(Raw())); }
+		uint8 Vt() const { return GetBits<16, 20>(Raw()); }
+		uint8 Base() const { return GetBits<21, 25>(Raw()); }
 		String Stringify() const;
 	};
 

@@ -11,7 +11,7 @@ namespace N64
 
 	String Instruction::Stringify() const
 	{
-		return U"{} ({:08X})"_fmt(OpName(), Raw());
+		return U"{} ({:08X}h)"_fmt(OpName(), Raw());
 	}
 
 	String InstructionI::Stringify() const
@@ -21,7 +21,7 @@ namespace N64
 
 	String InstructionRegimm::Stringify() const
 	{
-		return U"{} rs:{}, imm:{:04X}"_fmt(StringifyEnum(Sub()), Rs(), Imm());
+		return U"{} rs:{}, imm:{:04X}h"_fmt(StringifyEnum(Sub()), Rs(), Imm());
 	}
 
 	String InstructionR::Stringify() const
@@ -48,7 +48,7 @@ namespace N64
 
 	String InstructionCop0Co::Stringify() const
 	{
-		return U"{} ({:08X})"_fmt(StringifyEnum(Funct()), Raw());
+		return U"{} ({:08X}h)"_fmt(StringifyEnum(Funct()), Raw());
 	}
 
 	String InstructionCop2VecFunct::Stringify() const
@@ -63,6 +63,12 @@ namespace N64
 
 	String InstructionFi::Stringify() const
 	{
-		return U"{} ft:{}, offset:{:04X}, base:{}"_fmt(OpName(), Ft(), Offset(), Base());
+		return U"{} base:{}, ft:{}, offset:{:04X}h"_fmt(OpName(), Base(), Ft(), Offset());
+	}
+
+	String InstructionV::Stringify() const
+	{
+		return U"{} base:{}, vt:{}, element:{}, offset:{:02X}h"_fmt(
+			StringifyEnum(Funct()), Base(), Vt(), Element(), Offset());
 	}
 }

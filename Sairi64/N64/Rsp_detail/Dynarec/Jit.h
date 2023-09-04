@@ -8,6 +8,8 @@
 
 #define JIT_SP N64_TRACE(U"JIT-SP => " + instr.Stringify())
 
+// https://hack64.net/docs/VR43XX.pdf
+
 namespace N64::Rsp_detail::Dynarec
 {
 	class Jit;

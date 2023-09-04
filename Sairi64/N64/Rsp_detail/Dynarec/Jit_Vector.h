@@ -35,23 +35,23 @@ private:
 		{
 			for (int i = 0; i < 8; ++i)
 			{
-				vu.vco.h.elements[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
-				vu.vco.l.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
+				vu.vcO.h.elements[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
+				vu.vcO.l.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
 		else if constexpr (control == VuControl::VcC)
 		{
 			for (int i = 0; i < 8; ++i)
 			{
-				vu.vcc.h.elements[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
-				vu.vcc.l.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
+				vu.vcC.h.elements[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
+				vu.vcC.l.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
 		else if constexpr (control == VuControl::VcE)
 		{
 			for (int i = 0; i < 8; ++i)
 			{
-				vu.vce.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
+				vu.vcE.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
 	}

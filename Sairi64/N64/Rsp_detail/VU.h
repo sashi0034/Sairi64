@@ -37,9 +37,9 @@ namespace N64::Rsp_detail
 	struct VU
 	{
 		std::array<Vpr_t, 32> reg;
-		VprDouble vco;
-		VprDouble vcc;
-		Vpr_t vce;
+		VprDouble vcO;
+		VprDouble vcC;
+		Vpr_t vcE;
 		VprTriple accum;
 	};
 

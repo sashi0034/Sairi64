@@ -146,8 +146,8 @@ namespace N64
 		DMTC = 0b00101,
 		CFC = 0b00010,
 		CTC = 0b00110,
-		CO_0x10 = 0x10,
 		// 0b10000
+		CO_0x10 = 0x10,
 		CO_0x11 = 0x11,
 		CO_0x12 = 0x12,
 		CO_0x13 = 0x13,
@@ -162,8 +162,8 @@ namespace N64
 		CO_0x1C = 0x1C,
 		CO_0x1D = 0x1D,
 		CO_0x1E = 0x1E,
-		CO_0x1F = 0x1F,
 		// 0b11111
+		CO_0x1F = 0x1F,
 	};
 
 	enum class OpCop0CoFunct : uint8
@@ -173,6 +173,54 @@ namespace N64
 		TLBWR = 0x06,
 		TLBP = 0x08,
 		ERET = 0x18,
+	};
+
+	enum class OpCop2VecFunct : uint8
+	{
+		VMULF = 0b000000,
+		VMULU = 0b000001,
+		VRNDP = 0b000010,
+		VMULQ = 0b000011,
+		VMUDL = 0b000100,
+		VMUDM = 0b000101,
+		VMUDN = 0b000110,
+		VMUDH = 0b000111,
+		VMACF = 0b001000,
+		VMACU = 0b001001,
+		VRNDN = 0b001010,
+		VMACQ = 0b001011,
+		VMADL = 0b001100,
+		VMADM = 0b001101,
+		VMADN = 0b001110,
+		VMADH = 0b001111,
+		VADD = 0b010000,
+		VSUB = 0b010001,
+		VABS = 0b010011,
+		VADDC = 0b010100,
+		VSUBC = 0b010101,
+		VSAR = 0b011101,
+		VLT = 0b100000,
+		VEQ = 0b100001,
+		VNE = 0b100010,
+		VGE = 0b100011,
+		VCL = 0b100100,
+		VCH = 0b100101,
+		VCR = 0b100110,
+		VMRG = 0b100111,
+		VAND = 0b101000,
+		VNAND = 0b101001,
+		VOR = 0b101010,
+		VNOR = 0b101011,
+		VXOR = 0b101100,
+		VNXOR = 0b101101,
+		VRCP = 0b110000,
+		VRCPL = 0b110001,
+		VRCPH = 0b110010,
+		VMOV = 0b110011,
+		VRSQ = 0b110100,
+		VRSQL = 0b110101,
+		VRSQH = 0b110110,
+		VNOP = 0b110111,
 	};
 
 	class Instruction
@@ -260,6 +308,36 @@ namespace N64
 	public:
 		OpCop0CoFunct Funct() const { return static_cast<OpCop0CoFunct>(GetBits<0, 5>(Raw())); }
 		uint32 ShouldBeZero() const { return GetBits<6, 24>(Raw()); }
+		String Stringify() const;
+	};
+
+	class InstructionCop2Vec : public Instruction
+	{
+	public:
+		bool IsFunct() const { return GetBits<25>(Raw()); }
+	};
+
+	class InstructionCop2VecFunct : public InstructionCop2Vec
+	{
+	public:
+		OpCop2VecFunct Funct() const { return static_cast<OpCop2VecFunct>(GetBits<0, 5>(Raw())); }
+		uint32 Vd() const { return GetBits<6, 10>(Raw()); }
+		uint32 Vs() const { return GetBits<11, 15>(Raw()); }
+		uint32 Vt() const { return GetBits<16, 20>(Raw()); }
+		uint32 Element() const { return GetBits<21, 24>(Raw()); }
+
+		String Stringify() const;
+	};
+
+	class InstructionCop2VecSub : public InstructionCop2Vec
+	{
+	public:
+		uint8 ShouldBeZero() const { return GetBits<0, 6>(Raw()); }
+		uint32 Element() const { return GetBits<7, 10>(Raw()); }
+		uint32 Vs() const { return GetBits<11, 15>(Raw()); }
+		uint32 Vt() const { return GetBits<16, 20>(Raw()); }
+		OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
+
 		String Stringify() const;
 	};
 

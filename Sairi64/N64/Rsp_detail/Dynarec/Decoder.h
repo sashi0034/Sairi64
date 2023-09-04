@@ -52,7 +52,7 @@ public:
 		case Opcode::CP1:
 			break;
 		case Opcode::CP2:
-			break;
+			return assembleCP2(ctx, state, static_cast<InstructionCop2Vec>(instr));
 		case Opcode::CP3:
 			break;
 		case Opcode::BEQL:
@@ -134,4 +134,129 @@ public:
 	}
 
 private:
+	static DecodedToken assembleCP2(const AssembleContext& ctx, const AssembleState& state, InstructionCop2Vec instr)
+	{
+		if (instr.IsFunct())
+			return assembleCP2_funct(ctx, state, static_cast<InstructionCop2VecFunct>(instr));
+		else
+			return assembleCP2_sub(ctx, state, static_cast<InstructionCop2VecSub>(instr));
+	}
+
+	static DecodedToken assembleCP2_funct(
+		const AssembleContext& ctx, const AssembleState& state, InstructionCop2VecFunct instr)
+	{
+		switch (instr.Funct())
+		{
+		case OpCop2VecFunct::VMULF:
+			break;
+		case OpCop2VecFunct::VMULU:
+			break;
+		case OpCop2VecFunct::VRNDP:
+			break;
+		case OpCop2VecFunct::VMULQ:
+			break;
+		case OpCop2VecFunct::VMUDL:
+			break;
+		case OpCop2VecFunct::VMUDM:
+			break;
+		case OpCop2VecFunct::VMUDN:
+			break;
+		case OpCop2VecFunct::VMUDH:
+			break;
+		case OpCop2VecFunct::VMACF:
+			break;
+		case OpCop2VecFunct::VMACU:
+			break;
+		case OpCop2VecFunct::VRNDN:
+			break;
+		case OpCop2VecFunct::VMACQ:
+			break;
+		case OpCop2VecFunct::VMADL:
+			break;
+		case OpCop2VecFunct::VMADM:
+			break;
+		case OpCop2VecFunct::VMADN:
+			break;
+		case OpCop2VecFunct::VMADH:
+			break;
+		case OpCop2VecFunct::VADD:
+			break;
+		case OpCop2VecFunct::VSUB:
+			break;
+		case OpCop2VecFunct::VABS:
+			break;
+		case OpCop2VecFunct::VADDC:
+			break;
+		case OpCop2VecFunct::VSUBC:
+			break;
+		case OpCop2VecFunct::VSAR:
+			break;
+		case OpCop2VecFunct::VLT:
+			break;
+		case OpCop2VecFunct::VEQ:
+			break;
+		case OpCop2VecFunct::VNE:
+			break;
+		case OpCop2VecFunct::VGE:
+			break;
+		case OpCop2VecFunct::VCL:
+			break;
+		case OpCop2VecFunct::VCH:
+			break;
+		case OpCop2VecFunct::VCR:
+			break;
+		case OpCop2VecFunct::VMRG:
+			break;
+		case OpCop2VecFunct::VAND:
+			break;
+		case OpCop2VecFunct::VNAND:
+			break;
+		case OpCop2VecFunct::VOR:
+			break;
+		case OpCop2VecFunct::VNOR:
+			break;
+		case OpCop2VecFunct::VXOR:
+			break;
+		case OpCop2VecFunct::VNXOR:
+			break;
+		case OpCop2VecFunct::VRCP:
+			break;
+		case OpCop2VecFunct::VRCPL:
+			break;
+		case OpCop2VecFunct::VRCPH:
+			break;
+		case OpCop2VecFunct::VMOV:
+			break;
+		case OpCop2VecFunct::VRSQ:
+			break;
+		case OpCop2VecFunct::VRSQL:
+			break;
+		case OpCop2VecFunct::VRSQH:
+			break;
+		case OpCop2VecFunct::VNOP:
+			break;
+		default: ;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	static DecodedToken assembleCP2_sub(
+		const AssembleContext& ctx, const AssembleState& state, InstructionCop2VecSub instr)
+	{
+		switch (instr.Sub())
+		{
+		case OpCopSub::MFC:
+			break;
+		case OpCopSub::MTC:
+			break;
+		case OpCopSub::CFC:
+			break;
+		case OpCopSub::CTC:
+			break;
+		default: break;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
 };

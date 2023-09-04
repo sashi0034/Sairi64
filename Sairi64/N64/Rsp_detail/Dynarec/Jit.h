@@ -13,6 +13,8 @@
 namespace N64::Rsp_detail::Dynarec
 {
 	class Jit;
+
+	constexpr uint32 StackSizeRequirement = 56;
 }
 
 class N64::Rsp_detail::Dynarec::Jit

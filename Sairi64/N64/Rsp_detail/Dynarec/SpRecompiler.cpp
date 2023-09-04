@@ -61,8 +61,7 @@ namespace N64::Rsp_detail::Dynarec
 
 	uint16 assembleCode(N64System& n64, Rsp& rsp, ImemAddr16 startPc, x86::Assembler& x86Asm)
 	{
-		constexpr int stackSize = 40;
-		x86Asm.sub(x86::rsp, stackSize);
+		x86Asm.sub(x86::rsp, StackSizeRequirement);
 
 		const AssembleContext ctx{
 			.n64 = &n64,
@@ -74,7 +73,7 @@ namespace N64::Rsp_detail::Dynarec
 
 		x86Asm.mov(x86::rax, recompiledLength);
 		x86Asm.bind(ctx.endLabel); // @end
-		x86Asm.add(x86::rsp, stackSize);
+		x86Asm.add(x86::rsp, StackSizeRequirement);
 		x86Asm.ret();
 
 		return recompiledLength;

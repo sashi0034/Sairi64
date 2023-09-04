@@ -8,6 +8,7 @@ class N64::Rsp_detail::Dynarec::Jit::Vector
 {
 public:
 	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L603
+	[[nodiscard]]
 	static DecodedToken CTC2(const AssembleContext& ctx, InstructionCop2VecSub instr)
 	{
 		JIT_SP;
@@ -27,9 +28,29 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L1668
+	[[nodiscard]]
+	static DecodedToken VXOR(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		auto&& vu = rsp.GetVU();
+
+		x86Asm.mov(x86::rcx, (uint64)&vu);
+		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vd()]);
+		x86Asm.mov(x86::r8, (uint64)&vu.regs[instr.Vs()]);
+		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vt()]);
+		x86Asm.mov(x86::al, instr.Element());
+		x86Asm.mov(x86::byte_ptr(x86::rsp, 32), x86::al);
+		x86Asm.mov(x86::rax, (uint64)&helperVXOR);
+		x86Asm.call(x86::rax);
+		return DecodedToken::Continue;
+	}
+
 private:
 	template <VuControl control>
-	static void helperCTC2(VU& vu, uint16 value)
+	N64_ABI static void helperCTC2(VU& vu, uint16 value)
 	{
 		if constexpr (control == VuControl::VcO)
 		{
@@ -53,6 +74,16 @@ private:
 			{
 				vu.vcE.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
+		}
+	}
+
+	N64_ABI static void helperVXOR(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 e)
+	{
+		const Vpr_t vte = GetVtE(vt, e);
+		for (int i = 0; i < 8; ++i)
+		{
+			vu.accum.l.elements[i] = vte.elements[i] ^ vs.elements[i];
+			vd.elements[i] = vu.accum.l.elements[i];
 		}
 	}
 };

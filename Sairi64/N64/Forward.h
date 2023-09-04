@@ -4,6 +4,9 @@
 // デバッグ無しのリリースビルド設定
 #define N64_RELEASE_ENABLE false
 
+// Assembly Binary Interface
+#define N64_ABI
+
 namespace N64
 {
 	constexpr uint32 CpuFreq_93750000 = 93750000;

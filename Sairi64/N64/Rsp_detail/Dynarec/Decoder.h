@@ -216,7 +216,7 @@ private:
 		case OpCop2VecFunct::VNOR:
 			break;
 		case OpCop2VecFunct::VXOR:
-			break;
+			return Jit::Vector::VXOR(ctx, instr);
 		case OpCop2VecFunct::VNXOR:
 			break;
 		case OpCop2VecFunct::VRCP:

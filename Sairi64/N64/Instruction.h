@@ -334,8 +334,8 @@ namespace N64
 	public:
 		uint8 ShouldBeZero() const { return GetBits<0, 6>(Raw()); }
 		uint32 Element() const { return GetBits<7, 10>(Raw()); }
-		uint32 Vs() const { return GetBits<11, 15>(Raw()); }
-		uint32 Vt() const { return GetBits<16, 20>(Raw()); }
+		uint32 Vs() const { return GetBits<11, 15>(Raw()); } // same as Rd
+		uint32 Vt() const { return GetBits<16, 20>(Raw()); } // same as Rt
 		OpCopSub Sub() const { return static_cast<OpCopSub>(GetBits<21, 25>(Raw())); }
 
 		String Stringify() const;

@@ -253,7 +253,7 @@ private:
 		case OpCopSub::CFC:
 			break;
 		case OpCopSub::CTC:
-			break;
+			return Jit::Vector::CTC2(ctx, instr);
 		default: break;
 		}
 

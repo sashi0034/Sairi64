@@ -3,7 +3,7 @@
 
 namespace N64::Rsp_detail
 {
-	inline uint8 VuElementIndex(uint8 index) { return 8 - index; };
+	inline uint8 VuElementIndex(uint8 index) { return 7 - index; };
 	inline uint8 VuByteIndex(uint8 index) { return 15 - index; };
 
 	template <typename T>
@@ -37,9 +37,16 @@ namespace N64::Rsp_detail
 	struct VU
 	{
 		std::array<Vpr_t, 32> reg;
-		VprDouble vcc;
 		VprDouble vco;
+		VprDouble vcc;
 		Vpr_t vce;
-		VprTriple acc;
+		VprTriple accum;
+	};
+
+	enum class VuControl
+	{
+		VcO,
+		VcC,
+		VcE
 	};
 }

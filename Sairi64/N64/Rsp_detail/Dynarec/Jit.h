@@ -100,6 +100,8 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	class Vector;
+
 private:
 	template <typename Wire>
 	static Wire readDmem(SpDmem& dmem, uint32 addr)

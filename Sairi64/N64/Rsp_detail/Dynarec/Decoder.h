@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Jit.h"
+#include "Jit_Vector.h"
 #include "N64/Instruction.h"
 
 namespace N64::Rsp_detail::Dynarec

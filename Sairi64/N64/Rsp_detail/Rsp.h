@@ -2,6 +2,7 @@
 #include "N64/Forward.h"
 #include "RspAddress.h"
 #include "SpMemory.h"
+#include "VU.h"
 #include "Dynarec/ImemCache.h"
 
 namespace N64::Rsp_detail
@@ -72,6 +73,7 @@ namespace N64::Rsp_detail
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
 		Gpr& GetGpr() { return m_gpr; }
+		VU& GetVU() { return m_vu; }
 		SpStatus32& Status() { return m_status; }
 
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
@@ -87,6 +89,7 @@ namespace N64::Rsp_detail
 
 		Pc m_pc{};
 		Gpr m_gpr{};
+		VU m_vu{};
 		SpDmaLength32 m_dmaLength{};
 		SpStatus32 m_status{};
 		bool m_semaphore{};

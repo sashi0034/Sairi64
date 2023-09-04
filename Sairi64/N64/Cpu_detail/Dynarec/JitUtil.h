@@ -116,13 +116,13 @@ namespace N64::Cpu_detail::Dynarec
 	{
 		static void (*func)(N64System& n64, uint64 code) = [](N64System& n64, uint64 code)
 		{
-			N64_TRACE(U"break point! n64={:16X}, code={}"_fmt(reinterpret_cast<uint64>(&n64)), code);
+			N64_TRACE(U"break point! n64={:016X}, code={}"_fmt(reinterpret_cast<uint64>(&n64), code));
 		};
 
 		auto&& x86Asm = *ctx.x86Asm;
 		x86Asm.mov(x86::rcx, ctx.n64);
 		x86Asm.mov(x86::rdx, code0);
-		x86Asm.mov(x86::rax, &func);
+		x86Asm.mov(x86::rax, func);
 		x86Asm.call(x86::rax);
 	}
 }

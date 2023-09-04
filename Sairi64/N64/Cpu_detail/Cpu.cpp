@@ -140,7 +140,7 @@ namespace N64::Cpu_detail
 	{
 		const bool oldExl = m_cop0.Reg().status.Exl();
 
-		N64_TRACE(U"exception thrown: pc={:16X}, code={}, coprocessor={}"_fmt(
+		N64_TRACE(U"exception thrown: pc={:016X}, code={}, coprocessor={}"_fmt(
 			pc, static_cast<uint32>(code), coprocessorError));
 
 		if (oldExl == false)

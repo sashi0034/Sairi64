@@ -32,19 +32,19 @@ public:
 		case Opcode::BGTZ:
 			break;
 		case Opcode::ADDI:
-			break;
+			return Jit::I_immediateArithmetic<Opcode::ADDI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ADDIU:
-			break;
+			return Jit::I_immediateArithmetic<Opcode::ADDIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SLTI:
 			break;
 		case Opcode::SLTIU:
 			break;
 		case Opcode::ANDI:
-			break;
+			return Jit::I_immediateArithmetic<Opcode::ANDI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ORI:
-			break;
+			return Jit::I_immediateArithmetic<Opcode::ORI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::XORI:
-			break;
+			return Jit::I_immediateArithmetic<Opcode::XORI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LUI:
 			return Jit::LUI(ctx, static_cast<InstructionI>(instr));
 		case Opcode::CP0:

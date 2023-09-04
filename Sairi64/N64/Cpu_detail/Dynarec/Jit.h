@@ -389,8 +389,7 @@ public:
 		x86Asm.or_(x86::rax, target);
 		x86Asm.mov(x86::rdx, x86::rax);
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
-		x86Asm.mov(x86::rax, &Process::StaticBranchVAddr64<BranchType::Normal, true>);
-		x86Asm.call(x86::rax);
+		x86Asm.call((uint64)&Process::StaticBranchVAddr64<BranchType::Normal, true>);
 		return DecodedToken::Branch;
 	}
 
@@ -530,14 +529,14 @@ private:
 			x86Asm.mov(dest, x86::qword_ptr(base, gprIndex * 8)); // gp <- gpr[index]
 	}
 
-	static uint32 callResolveVAddr(Cpu* cpu, uint64 vaddr)
+	N64_ABI static uint32 callResolveVAddr(Cpu* cpu, uint64 vaddr)
 	{
 		// to disable hidden pointer return value
 		return Mmu::ResolveVAddr(*cpu, vaddr).value();
 	}
 
 	template <BusAccess access, int cop>
-	static void handleResolvingError(Cpu& cpu, uint64 vaddr)
+	N64_ABI static void handleResolvingError(Cpu& cpu, uint64 vaddr)
 	{
 		cpu.GetCop0().HandleTlbException(vaddr);
 		Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);

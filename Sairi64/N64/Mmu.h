@@ -39,7 +39,7 @@ namespace N64
 		}
 
 		[[nodiscard]]
-		ResolvedPAddr32 ResolveVAddr(Cpu& cpu, uint64 vaddr);
+		N64_ABI ResolvedPAddr32 ResolveVAddr(Cpu& cpu, uint64 vaddr);
 
 		namespace PMap
 		{
@@ -59,14 +59,14 @@ namespace N64
 			constexpr AddressRange<uint32> Rom{0x10000000, 0x1FBFFFFF};
 		}
 
-		uint64 ReadPaddr64(N64System& n64, PAddr32 paddr);
-		uint32 ReadPaddr32(N64System& n64, PAddr32 paddr);
-		uint16 ReadPaddr16(N64System& n64, PAddr32 paddr);
-		uint8 ReadPaddr8(N64System& n64, PAddr32 paddr);
+		N64_ABI uint64 ReadPaddr64(N64System& n64, PAddr32 paddr);
+		N64_ABI uint32 ReadPaddr32(N64System& n64, PAddr32 paddr);
+		N64_ABI uint16 ReadPaddr16(N64System& n64, PAddr32 paddr);
+		N64_ABI uint8 ReadPaddr8(N64System& n64, PAddr32 paddr);
 
-		void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value64);
-		void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value32);
-		void WritePaddr16(N64System& n64, PAddr32 paddr, uint32 value32);
-		void WritePaddr8(N64System& n64, PAddr32 paddr, uint32 value32);
+		N64_ABI void WritePaddr64(N64System& n64, PAddr32 paddr, uint64 value64);
+		N64_ABI void WritePaddr32(N64System& n64, PAddr32 paddr, uint32 value32);
+		N64_ABI void WritePaddr16(N64System& n64, PAddr32 paddr, uint32 value32);
+		N64_ABI void WritePaddr8(N64System& n64, PAddr32 paddr, uint32 value32);
 	}
 }

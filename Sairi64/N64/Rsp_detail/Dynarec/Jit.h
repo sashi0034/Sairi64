@@ -108,13 +108,13 @@ public:
 
 private:
 	template <typename Wire>
-	static Wire readDmem(SpDmem& dmem, uint32 addr)
+	N64_ABI static Wire readDmem(SpDmem& dmem, uint32 addr)
 	{
 		return dmem.ReadSpData<Wire>(addr & 0xFFF);
 	}
 
 	template <typename Wire>
-	static void writeDmem(SpDmem& dmem, uint32 addr, Wire value)
+	N64_ABI static void writeDmem(SpDmem& dmem, uint32 addr, Wire value)
 	{
 		dmem.WriteSpData<Wire>(addr & 0xFFF, value);
 	}

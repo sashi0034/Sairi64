@@ -58,22 +58,22 @@ public:
 	}
 
 private:
-	static uint32 cop0Read32(const Cop0& cop0, uint8 reg)
+	N64_ABI static uint32 cop0Read32(const Cop0& cop0, uint8 reg)
 	{
 		return cop0.Read32(reg);
 	}
 
-	static uint64 cop0Read64(const Cop0& cop0, uint8 reg)
+	N64_ABI static uint64 cop0Read64(const Cop0& cop0, uint8 reg)
 	{
 		return cop0.Read64(reg);
 	}
 
-	static void cop0Write32(Cop0& cop0, uint8 reg, uint32 value)
+	N64_ABI static void cop0Write32(Cop0& cop0, uint8 reg, uint32 value)
 	{
 		cop0.Write32(reg, value);
 	}
 
-	static void cop0Write64(Cop0& cop0, uint8 reg, uint64 value)
+	N64_ABI static void cop0Write64(Cop0& cop0, uint8 reg, uint64 value)
 	{
 		cop0.Write64(reg, value);
 	}

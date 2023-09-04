@@ -2,6 +2,7 @@
 #include "ImemCache.h"
 
 #include "SpRecompiler.h"
+#include "N64/N64Logger.h"
 #include "N64/N64System.h"
 #include "N64/Rsp_detail/Rsp.h"
 
@@ -26,6 +27,8 @@ namespace N64::Rsp_detail::Dynarec
 		if (m_tagList[pcIndex] == pcTag && m_codeList[pcIndex].code != nullptr)
 		{
 			// キャッシュヒット
+			N64_TRACE(U"hit imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
+				pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
 			return m_codeList[pcIndex].code;
 		}
 
@@ -34,8 +37,12 @@ namespace N64::Rsp_detail::Dynarec
 		if (m_codeList[pcIndex].code != nullptr)
 		{
 			// コード開放
+			N64_TRACE(U"release imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
+				pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
 			n64.GetJit().release(m_codeList[pcIndex].code);
 		}
+
+		N64_TRACE(U"sp-recompile start: pc={:04X}"_fmt(pc));
 
 		// 再コンパイル処理
 		const auto recompiled = SpRecompileFreshCode(n64, rsp, pc);
@@ -47,6 +54,9 @@ namespace N64::Rsp_detail::Dynarec
 			if (m_headList[i] == invalidHead_0xFFFF || m_headList[i] > pcIndex)
 				m_headList[i] = pcIndex;
 		}
+
+		N64_TRACE(U"sp-recompile finished: length={}"_fmt(recompiled.recompiledLength));
+
 		return recompiled.code;
 	}
 
@@ -67,5 +77,7 @@ namespace N64::Rsp_detail::Dynarec
 			// 以前に無効にした領域に入るので打ち切り
 			if (m_headList[currentCursor] == invalidHead_0xFFFF) break;
 		}
+
+		N64_TRACE(U"invalidated imem cache from index={:04X} to index={:04X}"_fmt(index, currentCursor + 1));
 	}
 }

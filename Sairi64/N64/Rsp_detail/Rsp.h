@@ -71,6 +71,7 @@ namespace N64::Rsp_detail
 		SpImem& Imem() { return m_imem; }
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
+		Gpr& GetGpr() { return m_gpr; }
 		SpStatus32& Status() { return m_status; }
 
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }
@@ -85,6 +86,7 @@ namespace N64::Rsp_detail
 		Dynarec::ImemCache m_imemCache{};
 
 		Pc m_pc{};
+		Gpr m_gpr{};
 		SpDmaLength32 m_dmaLength{};
 		SpStatus32 m_status{};
 		bool m_semaphore{};

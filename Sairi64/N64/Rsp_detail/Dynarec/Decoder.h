@@ -46,7 +46,7 @@ public:
 		case Opcode::XORI:
 			break;
 		case Opcode::LUI:
-			break;
+			return Jit::LUI(ctx, static_cast<InstructionI>(instr));
 		case Opcode::CP0:
 			break;
 		case Opcode::CP1:

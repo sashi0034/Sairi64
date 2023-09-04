@@ -45,7 +45,7 @@ namespace N64::Rsp_detail::Dynarec
 		{
 			if (state.scanPc >= SpImemSize_0x1000) break;
 
-			const Instruction fetchedInstr = fetchInstruction(rsp, ImemAddr16(startPc));
+			const Instruction fetchedInstr = fetchInstruction(rsp, ImemAddr16(state.scanPc));
 
 			state.recompiledLength += 1;
 			state.scanPc += 4;

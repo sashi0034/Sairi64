@@ -6,18 +6,6 @@
 
 namespace N64::Rsp_detail::Dynarec
 {
-	constexpr uint8 ShiftAmount_LBV_SBV = 0;
-	constexpr uint8 ShiftAmount_LSV_SSV = 1;
-	constexpr uint8 ShiftAmount_LLV_SLV = 2;
-	constexpr uint8 ShiftAmount_LDV_SDV = 3;
-	constexpr uint8 ShiftAmount_LQV_SQV = 4;
-	constexpr uint8 ShiftAmount_LRV_SRV = 4;
-	constexpr uint8 ShiftAmount_LPV_SPV = 3;
-	constexpr uint8 ShiftAmount_LUV_SUV = 3;
-	constexpr uint8 ShiftAmount_LHV_SHV = 4;
-	constexpr uint8 ShiftAmount_LFV_SFV = 4;
-	constexpr uint8 ShiftAmount_LTV_STV = 4;
-	constexpr uint8 ShiftAmount_SWV = 4;
 }
 
 class N64::Rsp_detail::Dynarec::Jit::Vector
@@ -64,26 +52,18 @@ public:
 		return DecodedToken::Continue;
 	}
 
-	[[nodiscard]]
-	static DecodedToken SQV(const AssembleContext& ctx, InstructionSv instr)
+	template <OpLwc2Funct funct> [[nodiscard]]
+	static DecodedToken LWC2_funct(const AssembleContext& ctx, InstructionLv instr)
 	{
 		JIT_SP;
-		auto&& x86Asm = *ctx.x86Asm;
-		auto&& rsp = *ctx.rsp;
-		auto&& vu = Process::AccessVU(rsp);
+		return wordCop2Funct<funct, OpSwc2Funct::Invalid_0xFF>(ctx, instr);
+	}
 
-		const uint8 e = instr.Element();
-		const sint32 offset = signExtend7bitOffset(instr.Offset(), ShiftAmount_LQV_SQV);
-
-		x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
-		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[instr.Base()])));
-		x86Asm.add(x86::eax, offset);
-		x86Asm.mov(x86::edx, x86::eax); // edx <- startAddr
-		x86Asm.mov(x86::r8, (uint64)&vu.regs[instr.Vt()]); // r8 <- *vt
-		x86Asm.mov(x86::r9b, e); // r9b <- e
-		x86Asm.call((uint64)&helperSQV);
-
-		return DecodedToken::Continue;
+	template <OpSwc2Funct funct> [[nodiscard]]
+	static DecodedToken SWC2_funct(const AssembleContext& ctx, InstructionSv instr)
+	{
+		JIT_SP;
+		return wordCop2Funct<OpLwc2Funct::Invalid_0xFF, funct>(ctx, instr);
 	}
 
 private:
@@ -124,6 +104,33 @@ private:
 		}
 	}
 
+	template <OpLwc2Funct lwc2, OpSwc2Funct swc2, typename Instr> [[nodiscard]]
+	static DecodedToken wordCop2Funct(const AssembleContext& ctx, Instr instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		auto&& vu = Process::AccessVU(rsp);
+
+		const uint8 e = instr.Element();
+		constexpr uint8 shiftAmount = lwc2 != OpLwc2Funct::Invalid_0xFF
+		                              ? Lwc2FunctShiftAmount<lwc2>()
+		                              : Swc2FunctShiftAmount<swc2>();
+		const sint32 offset = signExtend7bitOffset(instr.Offset(), shiftAmount);
+
+		x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[instr.Base()])));
+		x86Asm.add(x86::eax, offset);
+		x86Asm.mov(x86::edx, x86::eax); // edx <- startAddr
+		x86Asm.mov(x86::r8, reinterpret_cast<uint64>(&vu.regs[instr.Vt()])); // r8 <- *vt
+		x86Asm.mov(x86::r9b, e); // r9b <- e
+		if constexpr (lwc2 == OpLwc2Funct::LQV) x86Asm.call((uint64)&helperLQV);
+		else if constexpr (swc2 == OpSwc2Funct::SQV) x86Asm.call((uint64)&helperSQV);
+		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
+
+		return DecodedToken::Continue;
+	}
+
 	N64_ABI static void helperVXOR(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 e)
 	{
 		const Vpr_t vte = GetVtE(vt, e);
@@ -134,12 +141,21 @@ private:
 		}
 	}
 
-	N64_ABI static void helperSQV(SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
+	N64_ABI static void helperLQV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
+	{
+		const uint32 endAddr = ((startAddr & ~15) + 15);
+		for (int i = 0; startAddr + i <= endAddr && i + e < 16; ++i)
+		{
+			vt.bytes[VuByteIndex(i + e)] = dmem.ReadSpByte(startAddr + i);
+		}
+	}
+
+	N64_ABI static void helperSQV(SpDmem& dmem, uint32 startAddr, const Vpr_t& vt, uint8 e)
 	{
 		const uint32 endAddr = ((startAddr & ~15) + 15);
 		for (int i = 0; startAddr + i <= endAddr; ++i)
 		{
-			writeDmem<uint8>(dmem, startAddr + i, vt.bytes[VuByteIndex((i + e) & 15)]);
+			dmem.WriteSpByte(startAddr + i, vt.bytes[VuByteIndex((i + e) & 15)]);
 		}
 	}
 };

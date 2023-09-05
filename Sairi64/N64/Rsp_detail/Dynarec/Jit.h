@@ -173,13 +173,13 @@ private:
 	template <typename Wire>
 	N64_ABI static Wire readDmem(SpDmem& dmem, uint32 addr)
 	{
-		return dmem.ReadSpData<Wire>(addr & 0xFFF);
+		return dmem.ReadSpData<Wire>(addr);
 	}
 
 	template <typename Wire>
 	N64_ABI static void writeDmem(SpDmem& dmem, uint32 addr, Wire value)
 	{
-		dmem.WriteSpData<Wire>(addr & 0xFFF, value);
+		dmem.WriteSpData<Wire>(addr, value);
 	}
 
 	static void loadGpr32(

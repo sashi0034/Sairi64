@@ -237,6 +237,7 @@ namespace N64
 		LHV = 0b01000,
 		LFV = 0b01001,
 		LTV = 0b01011,
+		Invalid_0xFF = 0xFF,
 	};
 
 	enum class OpSwc2Funct
@@ -253,6 +254,7 @@ namespace N64
 		SFV = 0b01001,
 		SWV = 0b01010,
 		STV = 0b01011,
+		Invalid_0xFF = 0xFF,
 	};
 
 	class Instruction

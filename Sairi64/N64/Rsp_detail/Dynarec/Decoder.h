@@ -403,7 +403,7 @@ private:
 		case OpSwc2Funct::SDV:
 			break;
 		case OpSwc2Funct::SQV:
-			break;
+			return Jit::Vector::SQV(ctx, instr);
 		case OpSwc2Funct::SRV:
 			break;
 		case OpSwc2Funct::SPV:

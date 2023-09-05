@@ -154,6 +154,34 @@ public:
 	}
 
 	template <Opcode op> [[nodiscard]]
+	static DecodedToken S_store(const AssembleContext& ctx, InstructionI instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
+		const uint8 rs = instr.Rs();
+		const uint8 rt = instr.Rt();
+		const sint32 offset = (sint32)static_cast<sint16>(instr.Imm());
+
+		if (rt != 0)
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rt])));
+		else
+			x86Asm.xor_(x86::eax, x86::eax);
+		x86Asm.mov(x86::r8d, x86::eax); // r8d <- value
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
+		x86Asm.mov(x86::edx, x86::eax);
+		x86Asm.add(x86::edx, offset); // edx <- address
+		x86Asm.mov(x86::rcx, (uint64)&ctx.rsp->Dmem()); // rcx <- *dmem
+
+		if constexpr (op == Opcode::SW)
+		{
+			x86Asm.call(&writeDmem<uint32>);
+		}
+		else static_assert(AlwaysFalseValue<Opcode, op>);
+		return DecodedToken::Continue;
+	}
+
+	template <Opcode op> [[nodiscard]]
 	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionI instr)
 	{
 		JIT_SP;

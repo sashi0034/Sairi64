@@ -96,7 +96,7 @@ public:
 		case Opcode::SWL:
 			break;
 		case Opcode::SW:
-			break;
+			return Jit::S_store<Opcode::SW>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SDL:
 			break;
 		case Opcode::SDR:

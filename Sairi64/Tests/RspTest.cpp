@@ -35,7 +35,7 @@ bool inspectResult(Rsp& rsp, const Array<uint8>& goldenData)
 		{
 			if (i + x >= goldenSize) break;
 			const uint8 actual = rsp.Dmem()[N64::EndianAddress<uint8>(checkBaseAddr + x)];
-			const uint8 expected = goldenData[i];
+			const uint8 expected = goldenData[i + x];
 			actualLine += U"{:02X} "_fmt(actual);
 			expectedLine += U"{:02X} "_fmt(expected);
 			if (actual != expected)
@@ -64,6 +64,7 @@ bool inspectResult(Rsp& rsp, const Array<uint8>& goldenData)
 bool runRsp(N64System& n64System, Rsp& rsp)
 {
 	rsp.Status().Halt().Set(false);
+	rsp.GetPc().Reset(0);
 	int cycles = 0;
 	while (true)
 	{
@@ -104,14 +105,14 @@ bool rspTest(const String& fileName)
 	for (int i = 0; i < numTestcases; ++i)
 	{
 		inputBinary.read(rsp.Dmem().data(), inputSingle * i, inputSingle);
-		Utils::ByteSwapWordArray(rsp.Dmem());
+		// Utils::ByteSwapWordArray(rsp.Dmem());
 
 		Array<uint8> golden(goldenSingle);
 		goldenBinary.read(golden.data(), goldenSingle * i, goldenSingle);
 
 		if (runRsp(n64System, rsp) == false) return false;
 
-		Console.writeln(U"\nfinished test [ {} / {} ]\n"_fmt(i, numTestcases - 1));
+		Console.writeln(U"\nfinished subset [ {} / {} ]\n"_fmt(i, numTestcases - 1));
 		ok &= inspectResult(rsp, golden);
 	}
 
@@ -120,7 +121,7 @@ bool rspTest(const String& fileName)
 
 TEST_CASE("RspTest")
 {
-	REQUIRE(rspTest(U"lqv_sqv"));
+	REQUIRE(rspTest(U"lqv_sqv")); // OK
 	REQUIRE(rspTest(U"vadd"));
 	REQUIRE(rspTest(U"lhv_shv"));
 	REQUIRE(rspTest(U"vrcp"));

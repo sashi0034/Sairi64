@@ -11,6 +11,26 @@ namespace N64::Rsp_detail::Dynarec
 class N64::Rsp_detail::Dynarec::Jit::Vector
 {
 public:
+	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L581
+	[[nodiscard]]
+	static DecodedToken CFC2(const AssembleContext& ctx, InstructionCop2VecSub instr)
+	{
+		JIT_SP;
+		const uint8 vt = instr.Vt();
+		if (vt == 0) return DecodedToken::Continue;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		x86Asm.mov(x86::rcx, (uint64)&Process::AccessVU(rsp));
+		const uint8 control = instr.Vs() & 3;
+		auto helper =
+			control == 0 ? helperCFC2<VuControl::VcO> :
+			control == 1 ? helperCFC2<VuControl::VcC> :
+			helperCFC2<VuControl::VcE>;
+		x86Asm.call((uint64)helper);
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[vt])), x86::eax);
+		return DecodedToken::Continue;
+	}
+
 	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L603
 	[[nodiscard]]
 	static DecodedToken CTC2(const AssembleContext& ctx, InstructionCop2VecSub instr)
@@ -27,8 +47,7 @@ public:
 			control == 0 ? helperCTC2<VuControl::VcO> :
 			control == 1 ? helperCTC2<VuControl::VcC> :
 			helperCTC2<VuControl::VcE>;
-		x86Asm.mov(x86::rax, (uint64)helper);
-		x86Asm.call(x86::rax);
+		x86Asm.call((uint64)helper);
 		return DecodedToken::Continue;
 	}
 
@@ -109,6 +128,48 @@ private:
 		if (value < 0) return 0;
 		if (value > 32767) return 65535;
 		return value;
+	}
+
+	template <VuControl control>
+	N64_ABI static sint32 helperCFC2(VU& vu)
+	{
+		uint16 value{};
+		if constexpr (control == VuControl::VcO)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				const bool h = vu.vcO.h.uE[VuElementIndex(i)] != 0;
+				const bool l = vu.vcO.l.uE[VuElementIndex(i)] != 0;
+				const uint32 mask = (l << i) | (h << (i + 8));
+				value |= mask;
+			}
+			return (sint32)static_cast<sint16>(value);
+		}
+		else if constexpr (control == VuControl::VcC)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				const bool h = vu.vcC.h.uE[VuElementIndex(i)] != 0;
+				const bool l = vu.vcC.l.uE[VuElementIndex(i)] != 0;
+				const uint32 mask = (l << i) | (h << (i + 8));
+				value |= mask;
+			}
+			return (sint32)static_cast<sint16>(value);
+		}
+		else if constexpr (control == VuControl::VcE)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				const bool l = vu.vcE.uE[VuElementIndex(i)] != 0;
+				value |= (l << i);
+			}
+			return (sint32)static_cast<sint16>(value);
+		}
+		else
+		{
+			static_assert(AlwaysFalseValue<VuControl, control>);
+			return {};
+		}
 	}
 
 	template <VuControl control>

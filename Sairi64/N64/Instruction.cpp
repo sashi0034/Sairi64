@@ -66,9 +66,20 @@ namespace N64
 		return U"{} base:{}, ft:{}, offset:{:04X}h"_fmt(OpName(), Base(), Ft(), Offset());
 	}
 
-	String InstructionV::Stringify() const
+	template <typename InstrV>
+	String stringifyV(InstrV instr)
 	{
 		return U"{} base:{}, vt:{}, element:{}, offset:{:02X}h"_fmt(
-			StringifyEnum(Funct()), Base(), Vt(), Element(), Offset());
+			StringifyEnum(instr.Funct()), instr.Base(), instr.Vt(), instr.Element(), instr.Offset());
+	}
+
+	String InstructionLv::Stringify() const
+	{
+		return stringifyV(*this);
+	}
+
+	String InstructionSv::Stringify() const
+	{
+		return stringifyV(*this);
 	}
 }

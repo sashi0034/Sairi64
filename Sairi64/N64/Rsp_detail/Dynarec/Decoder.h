@@ -108,7 +108,7 @@ public:
 		case Opcode::LL:
 			break;
 		case Opcode::LWC2:
-			return assembleLWC2(ctx, state, static_cast<InstructionV>(instr));
+			return assembleLWC2(ctx, state, static_cast<InstructionLv>(instr));
 		case Opcode::LLD:
 			break;
 		case Opcode::LDC1:
@@ -118,7 +118,7 @@ public:
 		case Opcode::SC:
 			break;
 		case Opcode::SWC2:
-			break;
+			return assembleSWC2(ctx, state, static_cast<InstructionSv>(instr));
 		case Opcode::SCD:
 			break;
 		case Opcode::SDC1:
@@ -357,7 +357,7 @@ private:
 	}
 
 	static DecodedToken assembleLWC2(
-		const AssembleContext& ctx, const AssembleState& state, InstructionV instr)
+		const AssembleContext& ctx, const AssembleState& state, InstructionLv instr)
 	{
 		switch (instr.Funct())
 		{
@@ -382,6 +382,41 @@ private:
 		case OpLwc2Funct::LFV:
 			break;
 		case OpLwc2Funct::LTV:
+			break;
+		default: ;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	static DecodedToken assembleSWC2(
+		const AssembleContext& ctx, const AssembleState& state, InstructionSv instr)
+	{
+		switch (instr.Funct())
+		{
+		case OpSwc2Funct::SBV:
+			break;
+		case OpSwc2Funct::SSV:
+			break;
+		case OpSwc2Funct::SLV:
+			break;
+		case OpSwc2Funct::SDV:
+			break;
+		case OpSwc2Funct::SQV:
+			break;
+		case OpSwc2Funct::SRV:
+			break;
+		case OpSwc2Funct::SPV:
+			break;
+		case OpSwc2Funct::SUV:
+			break;
+		case OpSwc2Funct::SHV:
+			break;
+		case OpSwc2Funct::SFV:
+			break;
+		case OpSwc2Funct::SWV:
+			break;
+		case OpSwc2Funct::STV:
 			break;
 		default: ;
 		}

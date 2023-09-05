@@ -239,6 +239,22 @@ namespace N64
 		LTV = 0b01011,
 	};
 
+	enum class OpSwc2Funct
+	{
+		SBV = 0b00000,
+		SSV = 0b00001,
+		SLV = 0b00010,
+		SDV = 0b00011,
+		SQV = 0b00100,
+		SRV = 0b00101,
+		SPV = 0b00110,
+		SUV = 0b00111,
+		SHV = 0b01000,
+		SFV = 0b01001,
+		SWV = 0b01010,
+		STV = 0b01011,
+	};
+
 	class Instruction
 	{
 	public:
@@ -367,12 +383,23 @@ namespace N64
 		String Stringify() const;
 	};
 
-	class InstructionV : public Instruction
+	class InstructionLv : public Instruction
 	{
 	public:
 		uint8 Offset() const { return GetBits<0, 6>(Raw()); }
 		uint8 Element() const { return GetBits<7, 10>(Raw()); }
 		OpLwc2Funct Funct() const { return static_cast<OpLwc2Funct>(GetBits<11, 15>(Raw())); }
+		uint8 Vt() const { return GetBits<16, 20>(Raw()); }
+		uint8 Base() const { return GetBits<21, 25>(Raw()); }
+		String Stringify() const;
+	};
+
+	class InstructionSv : public Instruction
+	{
+	public:
+		uint8 Offset() const { return GetBits<0, 6>(Raw()); }
+		uint8 Element() const { return GetBits<7, 10>(Raw()); }
+		OpSwc2Funct Funct() const { return static_cast<OpSwc2Funct>(GetBits<11, 15>(Raw())); }
 		uint8 Vt() const { return GetBits<16, 20>(Raw()); }
 		uint8 Base() const { return GetBits<21, 25>(Raw()); }
 		String Stringify() const;

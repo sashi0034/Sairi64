@@ -22,14 +22,14 @@ namespace N64::Rsp_detail::Dynarec
 
 	void assembleStepPc(x86::Assembler& x86Asm, const PcRaw& pc)
 	{
-		x86Asm.mov(x86::ax, (uint64)&pc.curr);
-		x86Asm.mov(x86::cx, x86::word_ptr(x86::ax, 0));
-		x86Asm.mov(x86::word_ptr(x86::ax, OFFSET_TO(PcRaw, curr, prev)), x86::cx);
-		x86Asm.mov(x86::cx, x86::word_ptr(x86::ax, OFFSET_TO(PcRaw, curr, next)));
-		x86Asm.mov(x86::word_ptr(x86::ax, 0), x86::cx);
+		x86Asm.mov(x86::rax, (uint64)&pc.curr);
+		x86Asm.mov(x86::cx, x86::word_ptr(x86::rax, 0));
+		x86Asm.mov(x86::word_ptr(x86::rax, OFFSET_TO(PcRaw, curr, prev)), x86::cx);
+		x86Asm.mov(x86::cx, x86::word_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)));
+		x86Asm.mov(x86::word_ptr(x86::rax, 0), x86::cx);
 		x86Asm.add(x86::cx, 4);
 		x86Asm.and_(x86::cx, SpImemMask_0xFFF);
-		x86Asm.mov(x86::word_ptr(x86::ax, OFFSET_TO(PcRaw, curr, next)), x86::cx);
+		x86Asm.mov(x86::word_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), x86::cx);
 	}
 
 	uint32 assembleCodeInternal(const AssembleContext& ctx, ImemAddr16 startPc)

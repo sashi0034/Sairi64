@@ -71,7 +71,6 @@ namespace N64::Rsp_detail
 		SpImem& Imem() { return m_imem; }
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
-		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
 		VU& GetVU() { return m_vu; }
 		SpStatus32& Status() { return m_status; }

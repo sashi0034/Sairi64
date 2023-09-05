@@ -199,8 +199,8 @@ private:
 	{
 		auto&& x86Asm = *ctx.x86Asm;
 		auto&& gpr = ctx.rsp->GetGpr();
-		auto&& pc = ctx.rsp->GetPc().Raw();
-		const uint32 offset = instr.Imm() << 2;
+		auto&& pc = Process::AccessPc(*ctx.rsp);
+		const uint16 offset = static_cast<uint16>(instr.Imm() << 2);
 		const auto failureLabel = x86Asm.newLabel();
 
 		if (instr.Rs() != 0)

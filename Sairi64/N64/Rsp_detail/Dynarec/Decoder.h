@@ -286,7 +286,7 @@ private:
 		case OpCop2VecFunct::VSUBC:
 			break;
 		case OpCop2VecFunct::VSAR:
-			break;
+			return Jit::Vector::VSAR(ctx, instr);
 		case OpCop2VecFunct::VLT:
 			break;
 		case OpCop2VecFunct::VEQ:

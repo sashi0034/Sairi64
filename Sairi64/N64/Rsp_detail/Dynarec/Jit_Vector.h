@@ -32,6 +32,24 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	[[nodiscard]]
+	static DecodedToken VSAR(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		const uint8 e = instr.Element();
+		auto helper =
+			e == 0x8 ? helperVSAR<0x8> :
+			e == 0x9 ? helperVSAR<0x9> :
+			e == 0xA ? helperVSAR<0xA> :
+			helperVSAR<0>;
+		if (helper != helperVSAR<0>) x86Asm.mov(x86::rcx, (uint64)&Process::AccessVU(rsp));
+		x86Asm.mov(x86::rdx, (uint64)&Process::AccessVU(rsp).regs[instr.Vd()]);
+		x86Asm.call((uint64)helper);
+		return DecodedToken::Continue;
+	}
+
 	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L1668
 	template <OpCop2VecFunct funct> [[nodiscard]]
 	static DecodedToken CP2_arithmetic(const AssembleContext& ctx, InstructionCop2VecFunct instr)
@@ -124,7 +142,6 @@ private:
 	template <OpLwc2Funct lwc2, OpSwc2Funct swc2, typename Instr> [[nodiscard]]
 	static DecodedToken wordCop2Funct(const AssembleContext& ctx, Instr instr)
 	{
-		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
 		auto&& rsp = *ctx.rsp;
 		auto&& vu = Process::AccessVU(rsp);
@@ -168,6 +185,27 @@ private:
 				vd.uE[i] = vu.accum.l.uE[i];
 			}
 			else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
+		}
+	}
+
+	template <uint8 e>
+	N64_ABI static void helperVSAR(VU& vu, Vpr_t& vd)
+	{
+		if constexpr (e == 0x8)
+		{
+			vd.single = vu.accum.h.single;
+		}
+		else if constexpr (e == 0x9)
+		{
+			vd.single = vu.accum.m.single;
+		}
+		else if constexpr (e == 0xA)
+		{
+			vd.single = vu.accum.l.single;
+		}
+		else
+		{
+			vd.single = 0;
 		}
 	}
 

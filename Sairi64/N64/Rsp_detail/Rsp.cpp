@@ -19,7 +19,7 @@ namespace N64::Rsp_detail
 		const auto code = m_imemCache.HitBlockOrRecompile(n64, *this, pc);
 
 		const RspCycles taken = code();
-		N64_TRACE(U"rsp step finished pc=0x{:04X} cycles={}"_fmt(m_pc.Curr()), taken);
+		N64_TRACE(U"rsp step finished pc=0x{:04X} cycles={}"_fmt(m_pc.Curr(), taken));
 		return taken;
 	}
 

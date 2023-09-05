@@ -34,6 +34,10 @@ namespace N64
 					n64.GetRsp().Step(n64);
 				}
 			}
+			else
+			{
+				state.rspConsumableCycles = 0;
+			}
 
 			// スケジューラステップ
 			n64.GetScheduler().Step(taken);

@@ -167,6 +167,17 @@ public:
 		return branchOffsetInternal<Opcode::Invalid_0xFF, sub>(ctx, instr);
 	}
 
+	[[nodiscard]]
+	static DecodedToken BREAK(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, ctx.n64);
+		x86Asm.mov(x86::rdx, ctx.rsp);
+		x86Asm.call((uint64)&Process::SpBreak);
+		return DecodedToken::End;
+	}
+
 	class Vector;
 
 private:

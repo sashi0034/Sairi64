@@ -9,6 +9,9 @@ constexpr int maxCycles = 100000;
 
 using namespace N64;
 
+#define WAIT_ENABLE true
+
+#if 1
 bool inspectResult(Rsp& rsp, BinaryReader goldenBinary)
 {
 	const uint32 goldenSize = goldenBinary.size();
@@ -87,11 +90,17 @@ bool rspTest(const String& fileName)
 	const BinaryReader goldenBinary{testDir + fileName + U".golden"};
 
 	const bool ok = inspectResult(rsp, goldenBinary);
+
+#if WAIT_ENABLE
+	Utils::WaitAnyKeyOnConsole();
+#endif
+
 	return ok;
 }
 
 TEST_CASE("RspTest")
 {
+	REQUIRE(rspTest(U"lqv_sqv"));
 	REQUIRE(rspTest(U"vadd"));
 	REQUIRE(rspTest(U"lhv_shv"));
 	REQUIRE(rspTest(U"vrcp"));
@@ -104,7 +113,6 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"lsv_ssv"));
 	REQUIRE(rspTest(U"vrcpl"));
 	REQUIRE(rspTest(U"lpv_spv"));
-	REQUIRE(rspTest(U"README"));
 	REQUIRE(rspTest(U"ldv_sdv"));
 	REQUIRE(rspTest(U"mtc2"));
 	REQUIRE(rspTest(U"luv_suv"));
@@ -125,7 +133,6 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"vmadn"));
 	REQUIRE(rspTest(U"vsubc"));
 	REQUIRE(rspTest(U"lrv_srv"));
-	REQUIRE(rspTest(U"lqv_sqv"));
 	REQUIRE(rspTest(U"vmudl"));
 	REQUIRE(rspTest(U"vne"));
 	REQUIRE(rspTest(U"vrsq"));
@@ -141,3 +148,4 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"mfc2"));
 	REQUIRE(rspTest(U"vlogical"));
 }
+#endif

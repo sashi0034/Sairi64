@@ -155,7 +155,7 @@ private:
 		case OpSpecialFunct::JALR:
 			break;
 		case OpSpecialFunct::BREAK:
-			break;
+			return Jit::BREAK(ctx, instr);
 		case OpSpecialFunct::SYNC:
 			break;
 		case OpSpecialFunct::MFHI:

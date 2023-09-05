@@ -16,7 +16,7 @@ public:
 		switch (instr.Op())
 		{
 		case Opcode::SPECIAL:
-			break;
+			return assembleSPECIAL(ctx, state, static_cast<InstructionR>(instr));
 		case Opcode::REGIMM:
 			break;
 		case Opcode::J:
@@ -134,6 +134,102 @@ public:
 	}
 
 private:
+	static DecodedToken assembleSPECIAL(const AssembleContext& ctx, const AssembleState& state, InstructionR instr)
+	{
+		switch (instr.Funct())
+		{
+		case OpSpecialFunct::SLL:
+			break;
+		case OpSpecialFunct::SRL:
+			break;
+		case OpSpecialFunct::SRA:
+			break;
+		case OpSpecialFunct::SLLV:
+			break;
+		case OpSpecialFunct::SRLV:
+			break;
+		case OpSpecialFunct::SRAV:
+			break;
+		case OpSpecialFunct::JR:
+			break;
+		case OpSpecialFunct::JALR:
+			break;
+		case OpSpecialFunct::BREAK:
+			break;
+		case OpSpecialFunct::SYNC:
+			break;
+		case OpSpecialFunct::MFHI:
+			break;
+		case OpSpecialFunct::MTHI:
+			break;
+		case OpSpecialFunct::MFLO:
+			break;
+		case OpSpecialFunct::MTLO:
+			break;
+		case OpSpecialFunct::DSLLV:
+			break;
+		case OpSpecialFunct::DSRLV:
+			break;
+		case OpSpecialFunct::DSRAV:
+			break;
+		case OpSpecialFunct::MULT:
+			break;
+		case OpSpecialFunct::MULTU:
+			break;
+		case OpSpecialFunct::DIV:
+			break;
+		case OpSpecialFunct::DIVU:
+			break;
+		case OpSpecialFunct::ADD:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::ADD>(ctx, instr);
+		case OpSpecialFunct::ADDU:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::ADDU>(ctx, instr);
+		case OpSpecialFunct::SUB:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::SUB>(ctx, instr);
+		case OpSpecialFunct::SUBU:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::SUBU>(ctx, instr);
+		case OpSpecialFunct::AND:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::AND>(ctx, instr);
+		case OpSpecialFunct::OR:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::OR>(ctx, instr);
+		case OpSpecialFunct::XOR:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::XOR>(ctx, instr);
+		case OpSpecialFunct::NOR:
+			return Jit::SPECIAL_arithmetic<OpSpecialFunct::NOR>(ctx, instr);
+		case OpSpecialFunct::SLT:
+			break;
+		case OpSpecialFunct::SLTU:
+			break;
+		case OpSpecialFunct::TGE:
+			break;
+		case OpSpecialFunct::TGEU:
+			break;
+		case OpSpecialFunct::TLT:
+			break;
+		case OpSpecialFunct::TLTU:
+			break;
+		case OpSpecialFunct::TEQ:
+			break;
+		case OpSpecialFunct::TNE:
+			break;
+		case OpSpecialFunct::DSLL:
+			break;
+		case OpSpecialFunct::DSRL:
+			break;
+		case OpSpecialFunct::DSRA:
+			break;
+		case OpSpecialFunct::DSLL32:
+			break;
+		case OpSpecialFunct::DSRL32:
+			break;
+		case OpSpecialFunct::DSRA32:
+			break;
+		default: ;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
 	static DecodedToken assembleCP2(const AssembleContext& ctx, const AssembleState& state, InstructionCop2Vec instr)
 	{
 		if (instr.IsFunct())

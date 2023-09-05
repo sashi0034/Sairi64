@@ -76,6 +76,53 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken SPECIAL_arithmetic(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		const uint8 rd = instr.Rd();
+		if (rd == 0) return DecodedToken::Continue;
+
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.rsp->GetGpr();
+		const uint8 rs = instr.Rs();
+		const uint8 rt = instr.Rt();
+
+		x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
+		loadGpr32(x86Asm, x86::ecx, x86::rax, rs); // rcx <- rs
+		loadGpr32(x86Asm, x86::edx, x86::rax, rt); // rdx <- rt
+
+		if constexpr (funct == OpSpecialFunct::ADD || funct == OpSpecialFunct::ADDU)
+		{
+			x86Asm.add(x86::ecx, x86::edx);
+		}
+		else if constexpr (funct == OpSpecialFunct::SUB || funct == OpSpecialFunct::SUBU)
+		{
+			x86Asm.sub(x86::ecx, x86::edx);
+		}
+		else if constexpr (funct == OpSpecialFunct::AND)
+		{
+			x86Asm.and_(x86::ecx, x86::edx);
+		}
+		else if constexpr (funct == OpSpecialFunct::OR)
+		{
+			x86Asm.or_(x86::ecx, x86::edx);
+		}
+		else if constexpr (funct == OpSpecialFunct::XOR)
+		{
+			x86Asm.xor_(x86::ecx, x86::edx);
+		}
+		else if constexpr (funct == OpSpecialFunct::NOR)
+		{
+			x86Asm.or_(x86::ecx, x86::edx);
+			x86Asm.not_(x86::ecx);
+		}
+		else static_assert(Utils::AlwaysFalseValue<OpSpecialFunct, funct>);
+
+		x86Asm.mov(x86::dword_ptr(x86::rax, rd * 4), x86::ecx); // gpr[rd] <- ecx
+		return DecodedToken::Continue;
+	}
+
 	template <Opcode op> [[nodiscard]]
 	static DecodedToken L_load(const AssembleContext& ctx, InstructionI instr)
 	{
@@ -117,5 +164,17 @@ private:
 	N64_ABI static void writeDmem(SpDmem& dmem, uint32 addr, Wire value)
 	{
 		dmem.WriteSpData<Wire>(addr & 0xFFF, value);
+	}
+
+	static void loadGpr32(
+		x86::Assembler& x86Asm,
+		const x86::Gpd& dest,
+		const x86::Gpq& base,
+		const uint8 gprIndex)
+	{
+		if (gprIndex == 0)
+			x86Asm.xor_(dest, dest); // gp <- 0
+		else
+			x86Asm.mov(dest, x86::dword_ptr(base, gprIndex * 4)); // gp <- gpr[index]
 	}
 };

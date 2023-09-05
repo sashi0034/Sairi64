@@ -16,7 +16,7 @@ namespace N64
 
 	String InstructionI::Stringify() const
 	{
-		return U"{} rs:{}, rt:{}, imm:{:04X}"_fmt(OpName(), Rs(), Rt(), Imm());
+		return U"{} rs:{}, rt:{}, imm:{:04X}h"_fmt(OpName(), Rs(), Rt(), Imm());
 	}
 
 	String InstructionRegimm::Stringify() const

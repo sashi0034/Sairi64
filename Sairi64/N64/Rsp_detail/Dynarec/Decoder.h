@@ -378,7 +378,7 @@ private:
 		case OpLwc2Funct::LUV:
 			break;
 		case OpLwc2Funct::LHV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LHV>(ctx, instr);
 		case OpLwc2Funct::LFV:
 			break;
 		case OpLwc2Funct::LTV:

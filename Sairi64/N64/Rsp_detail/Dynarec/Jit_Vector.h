@@ -221,6 +221,7 @@ private:
 		x86Asm.mov(x86::r9b, e); // r9b <- e
 		if constexpr (lwc2 == OpLwc2Funct::LQV) x86Asm.call((uint64)&helperLQV);
 		else if constexpr (swc2 == OpSwc2Funct::SQV) x86Asm.call((uint64)&helperSQV);
+		else if constexpr (lwc2 == OpLwc2Funct::LHV) x86Asm.call((uint64)&helperLHV);
 		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
 
 		return DecodedToken::Continue;
@@ -267,6 +268,20 @@ private:
 		else
 		{
 			vd.single = 0;
+		}
+	}
+
+	N64_ABI static void helperLHV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
+	{
+		const uint32 addr3 = startAddr & 0x7;
+		startAddr &= ~0x7;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const sint32 offset = ((16 - e) + (i * 2) + addr3) & 0xF;
+			uint16 value = dmem.ReadSpByte(startAddr + offset);
+			value <<= 7;
+			vt.uE[VuElementIndex(i)] = value;
 		}
 	}
 

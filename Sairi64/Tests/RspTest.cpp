@@ -104,6 +104,8 @@ bool rspTest(const String& fileName)
 	bool ok = true;
 	for (int i = 0; i < numTestcases; ++i)
 	{
+		Console.writeln(U"\nnext subset [ {} / {} ]\n"_fmt(i, numTestcases - 1));
+
 		inputBinary.read(rsp.Dmem().data(), inputSingle * i, inputSingle);
 		// Utils::ByteSwapWordArray(rsp.Dmem());
 
@@ -115,6 +117,8 @@ bool rspTest(const String& fileName)
 		Console.writeln(U"\nfinished subset [ {} / {} ]\n"_fmt(i, numTestcases - 1));
 		ok &= inspectResult(rsp, golden);
 	}
+
+	Console.writeln(U"*-*-*-*-*-*-*-*-*-*-*-* [ finished {}: ok={} ] *-*-*-*-*-*-*-*-*-*-*-*\n"_fmt(fileName, ok));
 
 	return ok;
 }

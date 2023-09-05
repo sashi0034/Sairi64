@@ -33,8 +33,8 @@ public:
 	}
 
 	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L1668
-	[[nodiscard]]
-	static DecodedToken VXOR(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	template <OpCop2VecFunct funct> [[nodiscard]]
+	static DecodedToken CP2_arithmetic(const AssembleContext& ctx, InstructionCop2VecFunct instr)
 	{
 		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -47,8 +47,7 @@ public:
 		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vt()]);
 		x86Asm.mov(x86::al, instr.Element());
 		x86Asm.mov(x86::byte_ptr(x86::rsp, 32), x86::al);
-		x86Asm.mov(x86::rax, (uint64)&helperVXOR);
-		x86Asm.call(x86::rax);
+		x86Asm.call(reinterpret_cast<uint64>(&helperCP2_arithmetic<funct>));
 		return DecodedToken::Continue;
 	}
 
@@ -76,6 +75,24 @@ private:
 		return static_cast<sint32>(offset2 << shiftAmount);
 	}
 
+	// https://github.com/SimoneN64/Kaizen/blob/56ab73865271635d887eab96a0e51873347abe77/src/backend/core/rsp/instructions.cpp#L705
+	static sint16 signedClamp(sint64 value)
+	{
+		// if ((value & 0xFFFF) == 0) return value; // TODO: あってるか検証
+		// if (value < 0) return -32768;
+		// return 32767;
+		if (value < -32768) return -32768;
+		if (value > 32767) return 32767;
+		return static_cast<int16_t>(value);
+	}
+
+	static uint16 unsignedClamp(sint64 value)
+	{
+		if (value < 0) return 0;
+		if (value > 32767) return 65535;
+		return value;
+	}
+
 	template <VuControl control>
 	N64_ABI static void helperCTC2(VU& vu, uint16 value)
 	{
@@ -83,23 +100,23 @@ private:
 		{
 			for (int i = 0; i < 8; ++i)
 			{
-				vu.vcO.h.elements[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
-				vu.vcO.l.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
+				vu.vcO.h.uE[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
+				vu.vcO.l.uE[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
 		else if constexpr (control == VuControl::VcC)
 		{
 			for (int i = 0; i < 8; ++i)
 			{
-				vu.vcC.h.elements[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
-				vu.vcC.l.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
+				vu.vcC.h.uE[VuElementIndex(i)] = VuFlag16(((value >> (i + 8)) & 1) == 1);
+				vu.vcC.l.uE[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
 		else if constexpr (control == VuControl::VcE)
 		{
 			for (int i = 0; i < 8; ++i)
 			{
-				vu.vcE.elements[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
+				vu.vcE.uE[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
 	}
@@ -131,13 +148,26 @@ private:
 		return DecodedToken::Continue;
 	}
 
-	N64_ABI static void helperVXOR(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 e)
+	template <OpCop2VecFunct funct>
+	N64_ABI static void helperCP2_arithmetic(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 e)
 	{
 		const Vpr_t vte = GetVtE(vt, e);
 		for (int i = 0; i < 8; ++i)
 		{
-			vu.accum.l.elements[i] = vte.elements[i] ^ vs.elements[i];
-			vd.elements[i] = vu.accum.l.elements[i];
+			if constexpr (funct == OpCop2VecFunct::VADD)
+			{
+				const sint32 result = vs.sE[i] + vte.sE[i] + (vu.vcO.l.sE[i] != 0);
+				vu.accum.l.uE[i] = result;
+				vd.uE[i] = static_cast<uint16>(signedClamp(result));
+				vu.vcO.l.uE[i] = 0;
+				vu.vcO.h.uE[i] = 0;
+			}
+			else if constexpr (funct == OpCop2VecFunct::VXOR)
+			{
+				vu.accum.l.uE[i] = vte.uE[i] ^ vs.uE[i];
+				vd.uE[i] = vu.accum.l.uE[i];
+			}
+			else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
 		}
 	}
 

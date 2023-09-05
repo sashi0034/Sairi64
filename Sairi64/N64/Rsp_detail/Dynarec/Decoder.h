@@ -276,7 +276,7 @@ private:
 		case OpCop2VecFunct::VMADH:
 			break;
 		case OpCop2VecFunct::VADD:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VADD>(ctx, instr);
 		case OpCop2VecFunct::VSUB:
 			break;
 		case OpCop2VecFunct::VABS:
@@ -312,7 +312,7 @@ private:
 		case OpCop2VecFunct::VNOR:
 			break;
 		case OpCop2VecFunct::VXOR:
-			return Jit::Vector::VXOR(ctx, instr);
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VXOR>(ctx, instr);
 		case OpCop2VecFunct::VNXOR:
 			break;
 		case OpCop2VecFunct::VRCP:

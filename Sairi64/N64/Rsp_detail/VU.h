@@ -11,8 +11,8 @@ namespace N64::Rsp_detail
 
 	union Vpr_t
 	{
-		std::array<sint16, 8> signedElements;
-		std::array<uint16, 8> elements;
+		std::array<sint16, 8> sE;
+		std::array<uint16, 8> uE;
 		std::array<uint8, 16> bytes;
 		uint128 single;
 	};
@@ -54,14 +54,14 @@ namespace N64::Rsp_detail
 	inline Vpr_t BroadcastVt(const Vpr_t& vt, int l0, int l1, int l2, int l3, int l4, int l5, int l6, int l7)
 	{
 		Vpr_t vte{};
-		vte.elements[VuElementIndex(0)] = vt.elements[VuElementIndex(l0)];
-		vte.elements[VuElementIndex(1)] = vt.elements[VuElementIndex(l1)];
-		vte.elements[VuElementIndex(2)] = vt.elements[VuElementIndex(l2)];
-		vte.elements[VuElementIndex(3)] = vt.elements[VuElementIndex(l3)];
-		vte.elements[VuElementIndex(4)] = vt.elements[VuElementIndex(l4)];
-		vte.elements[VuElementIndex(5)] = vt.elements[VuElementIndex(l5)];
-		vte.elements[VuElementIndex(6)] = vt.elements[VuElementIndex(l6)];
-		vte.elements[VuElementIndex(7)] = vt.elements[VuElementIndex(l7)];
+		vte.uE[VuElementIndex(0)] = vt.uE[VuElementIndex(l0)];
+		vte.uE[VuElementIndex(1)] = vt.uE[VuElementIndex(l1)];
+		vte.uE[VuElementIndex(2)] = vt.uE[VuElementIndex(l2)];
+		vte.uE[VuElementIndex(3)] = vt.uE[VuElementIndex(l3)];
+		vte.uE[VuElementIndex(4)] = vt.uE[VuElementIndex(l4)];
+		vte.uE[VuElementIndex(5)] = vt.uE[VuElementIndex(l5)];
+		vte.uE[VuElementIndex(6)] = vt.uE[VuElementIndex(l6)];
+		vte.uE[VuElementIndex(7)] = vt.uE[VuElementIndex(l7)];
 		return vte;
 	}
 
@@ -88,7 +88,7 @@ namespace N64::Rsp_detail
 			const int index = VuElementIndex(e - 8);
 			for (int i = 0; i < 8; ++i)
 			{
-				vte.elements[i] = vt.elements[index];
+				vte.uE[i] = vt.uE[index];
 			}
 			return vte;
 		}

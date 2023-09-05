@@ -89,6 +89,12 @@ namespace N64::Rsp_detail
 		VU m_vu{};
 		SpDmaLength32 m_dmaLength{};
 		SpStatus32 m_status{};
+
+		SpDmaDramAddr32 m_dmaDramAddr{};
+		SpDmaSpAddr32 m_dmaSpAddr{};
+		SpDmaDramAddr32 m_shadowDmaDramAddr{};
+		SpDmaSpAddr32 m_shadowDmaSpAddr{};
+
 		bool m_semaphore{};
 	};
 }

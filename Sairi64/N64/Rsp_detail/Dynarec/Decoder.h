@@ -48,7 +48,7 @@ public:
 		case Opcode::LUI:
 			return Jit::LUI(ctx, static_cast<InstructionI>(instr));
 		case Opcode::CP0:
-			break;
+			return assembleCP0(ctx, state, static_cast<InstructionCop>(instr));
 		case Opcode::CP1:
 			break;
 		case Opcode::CP2:
@@ -225,6 +225,20 @@ private:
 		case OpSpecialFunct::DSRA32:
 			break;
 		default: ;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	static DecodedToken assembleCP0(const AssembleContext& ctx, const AssembleState& state, InstructionCop instr)
+	{
+		switch (instr.Sub())
+		{
+		case OpCopSub::MTC:
+			break;
+		case OpCopSub::MFC:
+			break;
+		default: break;
 		}
 
 		return AssumeNotImplemented(ctx, instr);

@@ -23,7 +23,7 @@ public:
 		return rsp.m_vu;
 	}
 
-	static void SpBreak(N64System& n64, Rsp& rsp)
+	N64_ABI static void SpBreak(N64System& n64, Rsp& rsp)
 	{
 		rsp.Status().Halt().Set(true);
 		rsp.Status().Broke().Set(true);

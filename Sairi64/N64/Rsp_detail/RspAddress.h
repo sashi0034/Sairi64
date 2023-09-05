@@ -105,4 +105,27 @@ namespace N64::Rsp_detail
 	private:
 		uint32 m_raw{};
 	};
+
+	class SpDmaSpAddr32
+	{
+	public:
+		SpDmaSpAddr32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
+
+		auto Address() { return BitAccess<0, 11>(m_raw); } // 12
+		auto Bank() { return BitAccess<12>(m_raw); } // 1
+	private:
+		uint32 m_raw{};
+	};
+
+	class SpDmaDramAddr32
+	{
+	public:
+		SpDmaDramAddr32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
+
+		auto Address() { return BitAccess<0, 23>(m_raw); } // 24
+	private:
+		uint32 m_raw{};
+	};
 }

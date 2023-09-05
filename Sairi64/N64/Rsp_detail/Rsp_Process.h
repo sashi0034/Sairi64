@@ -14,5 +14,15 @@ namespace N64::Rsp_detail
 		{
 			return rsp.m_pc.Raw();
 		}
+
+		static GprRaw& AccessGpr(Rsp& rsp)
+		{
+			return rsp.m_gpr.Raw();
+		}
+
+		static VU& AccessVU(Rsp& rsp)
+		{
+			return rsp.m_vu;
+		}
 	};
 }

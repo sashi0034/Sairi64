@@ -41,17 +41,18 @@ namespace N64::Rsp_detail
 	};
 
 	constexpr int GprSize_32 = 32;
+	using GprRaw = std::array<uint32, GprSize_32>;
 
 	class Gpr
 	{
 	public:
 		uint32 Read(uint32 index) const { return m_reg[index]; }
 		void Write(uint32 index, uint32 value) { if (index != 0) m_reg[index] = value; }
-		std::array<uint32, GprSize_32>& Raw() { return m_reg; };
-		const std::array<uint32, GprSize_32>& Raw() const { return m_reg; };
+		GprRaw& Raw() { return m_reg; };
+		const GprRaw& Raw() const { return m_reg; };
 
 	private:
-		std::array<uint32, GprSize_32> m_reg{};
+		GprRaw m_reg{};
 	};
 
 	// https://n64brew.dev/wiki/Reality_Signal_Processor
@@ -71,8 +72,6 @@ namespace N64::Rsp_detail
 		SpImem& Imem() { return m_imem; }
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
-		Gpr& GetGpr() { return m_gpr; }
-		VU& GetVU() { return m_vu; }
 		SpStatus32& Status() { return m_status; }
 
 		template <typename Wire> Wire ReadDmem(uint32 addr) { return Utils::ReadBytes<Wire>(m_dmem, addr); }

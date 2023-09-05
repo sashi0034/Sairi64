@@ -31,9 +31,9 @@ public:
 		auto&& x86Asm = *ctx.x86Asm;
 		auto&& rsp = *ctx.rsp;
 		const uint8 vt = instr.Vt();
-		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&rsp.GetGpr().Raw()[vt])));
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[vt])));
 		x86Asm.mov(x86::dx, x86::ax);
-		x86Asm.mov(x86::rcx, (uint64)&rsp.GetVU());
+		x86Asm.mov(x86::rcx, (uint64)&Process::AccessVU(rsp));
 		const uint8 control = instr.Vs() & 3;
 		auto helper =
 			control == 0 ? helperCTC2<VuControl::VcO> :
@@ -51,7 +51,7 @@ public:
 		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
 		auto&& rsp = *ctx.rsp;
-		auto&& vu = rsp.GetVU();
+		auto&& vu = Process::AccessVU(rsp);
 
 		x86Asm.mov(x86::rcx, (uint64)&vu);
 		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vd()]);
@@ -70,13 +70,13 @@ public:
 		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
 		auto&& rsp = *ctx.rsp;
-		auto&& vu = rsp.GetVU();
+		auto&& vu = Process::AccessVU(rsp);
 
 		const uint8 e = instr.Element();
 		const sint32 offset = signExtend7bitOffset(instr.Offset(), ShiftAmount_LQV_SQV);
 
 		x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
-		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&rsp.GetGpr().Raw()[instr.Base()])));
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[instr.Base()])));
 		x86Asm.add(x86::eax, offset);
 		x86Asm.mov(x86::edx, x86::eax); // edx <- startAddr
 		x86Asm.mov(x86::r8, (uint64)&vu.regs[instr.Vt()]); // r8 <- *vt

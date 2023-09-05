@@ -30,7 +30,7 @@ public:
 		if (rt == 0) return DecodedToken::Continue;
 		const sint32 imm = (uint16)instr.Imm() << 16;
 		auto&& x86Asm = *ctx.x86Asm;
-		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&ctx.rsp->GetGpr().Raw()[rt])), imm);
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[rt])), imm);
 		return DecodedToken::Continue;
 	}
 
@@ -42,14 +42,14 @@ public:
 		if (rt == 0) return DecodedToken::Continue;
 
 		auto&& x86Asm = *ctx.x86Asm;
-		auto&& gpr = ctx.rsp->GetGpr();
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
 		const uint8 rs = instr.Rs();
 		const uint16 imm = instr.Imm();
 
 		if (rs == 0)
 			x86Asm.xor_(x86::eax, x86::eax); // eax <- 0
 		else
-			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs]))); // eax <- rs
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rs]))); // eax <- rs
 
 		if constexpr (op == Opcode::ADDI || op == Opcode::ADDIU)
 		{
@@ -72,7 +72,7 @@ public:
 			static_assert(AlwaysFalseValue<Opcode, op>);
 		}
 
-		x86Asm.mov(x86::rcx, (uint64)&gpr.Raw()[rt]);
+		x86Asm.mov(x86::rcx, (uint64)&gpr[rt]);
 		x86Asm.mov(x86::dword_ptr(x86::rcx), x86::eax);
 
 		return DecodedToken::Continue;
@@ -86,11 +86,11 @@ public:
 		if (rd == 0) return DecodedToken::Continue;
 
 		auto&& x86Asm = *ctx.x86Asm;
-		auto&& gpr = ctx.rsp->GetGpr();
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
 		const uint8 rs = instr.Rs();
 		const uint8 rt = instr.Rt();
 
-		x86Asm.mov(x86::rax, (uint64)&gpr.Raw()[0]);
+		x86Asm.mov(x86::rax, (uint64)&gpr[0]);
 		loadGpr32(x86Asm, x86::ecx, x86::rax, rs); // rcx <- rs
 		loadGpr32(x86Asm, x86::edx, x86::rax, rt); // rdx <- rt
 
@@ -133,11 +133,11 @@ public:
 		if (rt == 0) return DecodedToken::Continue;
 
 		auto&& x86Asm = *ctx.x86Asm;
-		auto&& gpr = ctx.rsp->GetGpr();
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
 		const uint8 rs = instr.Rs();
 		const sint32 offset = (sint32)static_cast<sint16>(instr.Imm());
 
-		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rs])));
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
 		x86Asm.mov(x86::edx, x86::eax);
 		x86Asm.add(x86::edx, offset); // edx <- address
 		x86Asm.mov(x86::rcx, (uint64)&ctx.rsp->Dmem()); // rcx <- *dmem
@@ -149,7 +149,7 @@ public:
 		}
 		else static_assert(AlwaysFalseValue<Opcode, op>);
 
-		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt])), x86::eax);
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rt])), x86::eax);
 		return DecodedToken::Continue;
 	}
 
@@ -198,13 +198,13 @@ private:
 	static DecodedToken branchOffsetInternal(const AssembleContext& ctx, Instr instr)
 	{
 		auto&& x86Asm = *ctx.x86Asm;
-		auto&& gpr = ctx.rsp->GetGpr();
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
 		auto&& pc = Process::AccessPc(*ctx.rsp);
 		const uint16 offset = static_cast<uint16>(instr.Imm() << 2);
 		const auto failureLabel = x86Asm.newLabel();
 
 		if (instr.Rs() != 0)
-			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64_t>(&gpr[instr.Rs()])));
 		else
 			x86Asm.xor_(x86::eax, x86::eax);
 
@@ -212,7 +212,7 @@ private:
 		{
 			x86Asm.mov(x86::ecx, x86::eax);
 			if (instr.Rt() != 0)
-				x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
+				x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64_t>(&gpr[instr.Rt()])));
 			else
 				x86Asm.xor_(x86::eax, x86::eax);
 			x86Asm.cmp(x86::eax, x86::ecx);
@@ -256,7 +256,7 @@ private:
 			// link register
 			x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
 			x86Asm.add(x86::ax, 4);
-			x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&gpr.Raw()[GprLR_31])), x86::ax);
+			x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&gpr[GprLR_31])), x86::ax);
 		}
 		return DecodedToken::Branch;
 	}

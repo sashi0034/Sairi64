@@ -27,6 +27,7 @@ bool inspectResult(Rsp& rsp, BinaryReader goldenBinary)
 	for (uint32 i = 0; i < goldenSize; i += 16)
 	{
 		const uint32 checkBaseAddr = i + 0x800;
+		if (checkBaseAddr >= Rsp_detail::SpDmemSize_0x1000) break;
 		Console.write(U"0x{:04X}:  "_fmt(checkBaseAddr));
 
 		String actualLine{};

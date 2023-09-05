@@ -26,7 +26,7 @@ public:
 		case Opcode::BEQ:
 			break;
 		case Opcode::BNE:
-			break;
+			return Jit::B_branchOffset<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
 			break;
 		case Opcode::BGTZ:

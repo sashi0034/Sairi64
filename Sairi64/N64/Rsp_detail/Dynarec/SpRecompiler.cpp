@@ -36,7 +36,8 @@ namespace N64::Rsp_detail::Dynarec
 	{
 		AssembleState state{
 			.recompiledLength = 0,
-			.scanPc = startPc
+			.scanPc = startPc,
+			.scanningDelaySlot = false
 		};
 		auto&& rsp = *ctx.rsp;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -54,6 +55,12 @@ namespace N64::Rsp_detail::Dynarec
 
 			const DecodedToken decoded = Decoder::AssembleInstr(ctx, state, fetchedInstr);
 			if (decoded == DecodedToken::End) break;
+
+			// 遅延スロットのデコードをした後は終了
+			if (decoded != DecodedToken::Branch && state.scanningDelaySlot) break;
+
+			// 分岐命令の次回は遅延スロット
+			if (decoded == DecodedToken::Branch) state.scanningDelaySlot = true;
 		}
 
 		return state.recompiledLength;

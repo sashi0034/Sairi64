@@ -15,6 +15,8 @@ namespace N64::Rsp_detail::Dynarec
 	class Jit;
 
 	constexpr uint32 StackSizeRequirement = 56;
+
+	constexpr uint8 GprLR_31 = 31;
 }
 
 class N64::Rsp_detail::Dynarec::Jit
@@ -151,6 +153,20 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <Opcode op> [[nodiscard]]
+	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionI instr)
+	{
+		JIT_SP;
+		return branchOffsetInternal<op, OpRegimm::Invalid_0xFF>(ctx, instr);
+	}
+
+	template <OpRegimm sub> [[nodiscard]]
+	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionRegimm instr)
+	{
+		JIT_SP;
+		return branchOffsetInternal<Opcode::Invalid_0xFF, sub>(ctx, instr);
+	}
+
 	class Vector;
 
 private:
@@ -176,5 +192,72 @@ private:
 			x86Asm.xor_(dest, dest); // gp <- 0
 		else
 			x86Asm.mov(dest, x86::dword_ptr(base, gprIndex * 4)); // gp <- gpr[index]
+	}
+
+	template <Opcode op, OpRegimm sub, typename Instr> [[nodiscard]]
+	static DecodedToken branchOffsetInternal(const AssembleContext& ctx, Instr instr)
+	{
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.rsp->GetGpr();
+		auto&& pc = ctx.rsp->GetPc().Raw();
+		const uint32 offset = instr.Imm() << 2;
+		const auto failureLabel = x86Asm.newLabel();
+
+		if (instr.Rs() != 0)
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rs()])));
+		else
+			x86Asm.xor_(x86::eax, x86::eax);
+
+		if constexpr (op == Opcode::BEQ || op == Opcode::BNE)
+		{
+			x86Asm.mov(x86::ecx, x86::eax);
+			if (instr.Rt() != 0)
+				x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64_t>(&gpr.Raw()[instr.Rt()])));
+			else
+				x86Asm.xor_(x86::eax, x86::eax);
+			x86Asm.cmp(x86::eax, x86::ecx);
+			if constexpr (op == Opcode::BEQ) x86Asm.sete(x86::r8d);
+			else x86Asm.setne(x86::r8d);
+		}
+		else if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZAL)
+		{
+			x86Asm.shr(x86::eax, 31);
+			x86Asm.mov(x86::r8d, x86::eax);
+		}
+		else if constexpr (op == Opcode::BLEZ)
+		{
+			x86Asm.test(x86::eax, x86::eax);
+			x86Asm.setle(x86::r8d);
+		}
+		else if constexpr (op == Opcode::BGTZ)
+		{
+			x86Asm.test(x86::eax, x86::eax);
+			x86Asm.setg(x86::r8d);
+		}
+		else if constexpr (sub == OpRegimm::BGEZ || sub == OpRegimm::BGEZAL)
+		{
+			x86Asm.shr(x86::eax, 31);
+			x86Asm.xor_(x86::eax, 1);
+			x86Asm.mov(x86::r8d, x86::eax);
+		}
+		else static_assert(AlwaysFalseValue<OpRegimm, sub>);
+		// now, r8d <- condition
+		x86Asm.test(x86::r8d, x86::r8d); // if condition is false
+		x86Asm.je(failureLabel); // then goto @failure
+		// now, branch accepted
+		x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
+		x86Asm.add(x86::ax, offset);
+		x86Asm.and_(x86::ax, SpImemMask_0xFFF);
+		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), x86::ax);
+		// @failure
+		x86Asm.bind(failureLabel);
+		if constexpr (sub == OpRegimm::BLTZAL || sub == OpRegimm::BGEZAL)
+		{
+			// link register
+			x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
+			x86Asm.add(x86::ax, 4);
+			x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&gpr.Raw()[GprLR_31])), x86::ax);
+		}
+		return DecodedToken::Branch;
 	}
 };

@@ -19,7 +19,6 @@ namespace N64::Rsp_detail
 	public:
 		uint16 Curr() const { return m_raw.curr; }
 		uint16 Next() const { return m_raw.next; }
-		void SetNext(uint16 next) { m_raw.next = next; }
 
 		void Step()
 		{
@@ -72,6 +71,7 @@ namespace N64::Rsp_detail
 		SpImem& Imem() { return m_imem; }
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
 
+		Pc& GetPc() { return m_pc; }
 		Gpr& GetGpr() { return m_gpr; }
 		VU& GetVU() { return m_vu; }
 		SpStatus32& Status() { return m_status; }

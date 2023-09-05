@@ -14,6 +14,7 @@ namespace N64::Rsp_detail::Dynarec
 	{
 		uint16 recompiledLength;
 		uint16 scanPc;
+		bool scanningDelaySlot;
 	};
 
 	struct AssembleContext

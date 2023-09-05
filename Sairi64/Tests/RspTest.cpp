@@ -12,11 +12,9 @@ using namespace N64;
 #define WAIT_ENABLE true
 
 #if 1
-bool inspectResult(Rsp& rsp, BinaryReader goldenBinary)
+bool inspectResult(Rsp& rsp, const Array<uint8>& goldenData)
 {
-	const uint32 goldenSize = goldenBinary.size();
-	Array<uint8> goldenData(goldenSize);
-	goldenBinary.read(goldenData.data(), goldenSize);
+	const auto goldenSize = goldenData.size();
 
 	// @formatter:off
 	Console.writeln(U"         [actual]                                                [expected]                                     ");
@@ -55,26 +53,16 @@ bool inspectResult(Rsp& rsp, BinaryReader goldenBinary)
 	}
 	if (ok) Console.writeln(U"\npassed test!\n");
 	else Console.writeln(U"\nfailed test!\n");
+
+#if WAIT_ENABLE
+	if (ok == false) Utils::WaitAnyKeyOnConsole();
+#endif
+
 	return ok;
 }
 
-// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/tests/test_rsp.c#L44
-bool rspTest(const String& fileName)
+bool runRsp(N64System& n64System, Rsp& rsp)
 {
-	const auto n64 = std::make_unique<N64Singleton>();
-	N64System& n64System = n64->GetSystem();
-	auto&& rsp = n64System.GetRsp();
-
-	Console.writeln(U"start rsp test: {}"_fmt(fileName));
-
-	BinaryReader rspBinary{testDir + fileName + U".rsp"};
-	rspBinary.read(rsp.Imem().data(), rspBinary.size());
-	Utils::ByteSwapWordArray(rsp.Imem());
-
-	BinaryReader dmemBinary{testDir + fileName + U".input"};
-	dmemBinary.read(rsp.Dmem().data(), dmemBinary.size());
-	Utils::ByteSwapWordArray(rsp.Dmem());
-
 	rsp.Status().Halt().Set(false);
 	int cycles = 0;
 	while (true)
@@ -87,14 +75,45 @@ bool rspTest(const String& fileName)
 			return false;
 		}
 	}
+	return true;
+}
 
-	const BinaryReader goldenBinary{testDir + fileName + U".golden"};
+// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/tests/test_rsp.c#L44
+bool rspTest(const String& fileName)
+{
+	const auto n64 = std::make_unique<N64Singleton>();
+	N64System& n64System = n64->GetSystem();
+	auto&& rsp = n64System.GetRsp();
 
-	const bool ok = inspectResult(rsp, goldenBinary);
+	Console.writeln(U"start rsp test: {}"_fmt(fileName));
 
-#if WAIT_ENABLE
-	Utils::WaitAnyKeyOnConsole();
-#endif
+	// 命令読み込み
+	BinaryReader rspBinary{testDir + fileName + U".rsp"};
+	rspBinary.read(rsp.Imem().data(), rspBinary.size());
+	Utils::ByteSwapWordArray(rsp.Imem());
+
+	const TOMLReader toml{testDir + U"input/" + fileName + U".toml"};
+	const size_t numTestcases = toml[U"test"].arrayCount();
+
+	BinaryReader goldenBinary{testDir + fileName + U".golden"};
+	const size_t goldenSingle = goldenBinary.size() / numTestcases;
+	BinaryReader inputBinary{testDir + fileName + U".input"};
+	const size_t inputSingle = inputBinary.size() / numTestcases;
+
+	bool ok = true;
+	for (int i = 0; i < numTestcases; ++i)
+	{
+		inputBinary.read(rsp.Dmem().data(), inputSingle * i, inputSingle);
+		Utils::ByteSwapWordArray(rsp.Dmem());
+
+		Array<uint8> golden(goldenSingle);
+		goldenBinary.read(golden.data(), goldenSingle * i, goldenSingle);
+
+		if (runRsp(n64System, rsp) == false) return false;
+
+		Console.writeln(U"\nfinished test [ {} / {} ]\n"_fmt(i, numTestcases - 1));
+		ok &= inspectResult(rsp, golden);
+	}
 
 	return ok;
 }

@@ -411,7 +411,7 @@ private:
 		case OpSwc2Funct::SUV:
 			break;
 		case OpSwc2Funct::SHV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SHV>(ctx, instr);
 		case OpSwc2Funct::SFV:
 			break;
 		case OpSwc2Funct::SWV:

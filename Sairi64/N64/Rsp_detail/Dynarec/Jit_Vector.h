@@ -115,9 +115,6 @@ private:
 	// https://github.com/SimoneN64/Kaizen/blob/56ab73865271635d887eab96a0e51873347abe77/src/backend/core/rsp/instructions.cpp#L705
 	static sint16 signedClamp(sint64 value)
 	{
-		// if ((value & 0xFFFF) == 0) return value; // TODO: あってるか検証
-		// if (value < 0) return -32768;
-		// return 32767;
 		if (value < -32768) return -32768;
 		if (value > 32767) return 32767;
 		return static_cast<int16_t>(value);
@@ -222,6 +219,7 @@ private:
 		if constexpr (lwc2 == OpLwc2Funct::LQV) x86Asm.call((uint64)&helperLQV);
 		else if constexpr (swc2 == OpSwc2Funct::SQV) x86Asm.call((uint64)&helperSQV);
 		else if constexpr (lwc2 == OpLwc2Funct::LHV) x86Asm.call((uint64)&helperLHV);
+		else if constexpr (swc2 == OpSwc2Funct::SHV) x86Asm.call((uint64)&helperSHV);
 		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
 
 		return DecodedToken::Continue;
@@ -271,20 +269,6 @@ private:
 		}
 	}
 
-	N64_ABI static void helperLHV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
-	{
-		const uint32 addr3 = startAddr & 0x7;
-		startAddr &= ~0x7;
-
-		for (int i = 0; i < 8; i++)
-		{
-			const sint32 offset = ((16 - e) + (i * 2) + addr3) & 0xF;
-			uint16 value = dmem.ReadSpByte(startAddr + offset);
-			value <<= 7;
-			vt.uE[VuElementIndex(i)] = value;
-		}
-	}
-
 	N64_ABI static void helperLQV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
 	{
 		const uint32 endAddr = ((startAddr & ~15) + 15);
@@ -300,6 +284,37 @@ private:
 		for (int i = 0; startAddr + i <= endAddr; ++i)
 		{
 			dmem.WriteSpByte(startAddr + i, vt.bytes[VuByteIndex((i + e) & 15)]);
+		}
+	}
+
+	N64_ABI static void helperLHV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
+	{
+		const uint32 addr3 = startAddr & 0x7;
+		startAddr &= ~0x7;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const sint32 offset = ((16 - e) + (i * 2) + addr3) & 0xF;
+			uint16 value = dmem.ReadSpByte(startAddr + offset);
+			value <<= 7;
+			vt.uE[VuElementIndex(i)] = value;
+		}
+	}
+
+	N64_ABI static void helperSHV(SpDmem& dmem, uint32 startAddr, const Vpr_t& vt, uint8 e)
+	{
+		const uint32 addr3 = startAddr & 0x7;
+		startAddr &= ~0x7;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const uint8 byteIndex = (i * 2) + e;
+			uint16 val = vt.bytes[VuByteIndex(byteIndex & 15)] << 1;
+			val |= vt.bytes[VuByteIndex((byteIndex + 1) & 15)] >> 7;
+			const uint8 b = val & 0xFF;
+
+			const uint32 offset = addr3 + (i * 2);
+			dmem.WriteSpByte(startAddr + (offset & 0xF), b);
 		}
 	}
 };

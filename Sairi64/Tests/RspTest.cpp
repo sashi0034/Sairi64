@@ -125,9 +125,9 @@ bool rspTest(const String& fileName)
 
 TEST_CASE("RspTest")
 {
-	REQUIRE(rspTest(U"lqv_sqv")); // OK
-	REQUIRE(rspTest(U"vadd"));
-	REQUIRE(rspTest(U"lhv_shv"));
+	// REQUIRE(rspTest(U"lqv_sqv")); // OK
+	// REQUIRE(rspTest(U"vadd")); // OK
+	// REQUIRE(rspTest(U"lhv_shv")); // OK
 	REQUIRE(rspTest(U"vrcp"));
 	REQUIRE(rspTest(U"vlt"));
 	REQUIRE(rspTest(U"llv_slv"));

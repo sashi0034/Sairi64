@@ -13,13 +13,13 @@ namespace N64::Rsp_detail
 
 	RspCycles Rsp::Step(N64System& n64)
 	{
-		N64_TRACE(U"rsp step starts pc=0x{:04X}"_fmt(m_pc.Curr()));
+		N64_TRACE(Rsp, U"rsp step starts pc=0x{:04X}"_fmt(m_pc.Curr()));
 
 		const auto pc = ImemAddr16(m_pc.Curr());
 		const auto code = m_imemCache.HitBlockOrRecompile(n64, *this, pc);
 
 		const RspCycles taken = code();
-		N64_TRACE(U"rsp step finished pc=0x{:04X} cycles={}"_fmt(m_pc.Curr(), taken));
+		N64_TRACE(Rsp, U"rsp step finished pc=0x{:04X} cycles={}"_fmt(m_pc.Curr(), taken));
 		return taken;
 	}
 

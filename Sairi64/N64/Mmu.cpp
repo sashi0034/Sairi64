@@ -28,7 +28,7 @@ namespace N64::Mmu
 	ResolvedPAddr32 ResolveVAddr(Cpu& cpu, uint64 vaddr)
 	{
 		const ResolvedPAddr32 paddr = resolveVAddrInternal(cpu, vaddr);
-		N64_TRACE(paddr.has_value()
+		N64_TRACE(Mmu, paddr.has_value()
 			? U"address translation vaddr:{:#018x} => paddr:{:#010x}"_fmt(vaddr, static_cast<uint32>(paddr.value()))
 			: U"address translation vaddr:{:#018x} => failed"_fmt(vaddr));
 		return paddr;

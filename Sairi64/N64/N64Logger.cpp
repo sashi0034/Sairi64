@@ -12,6 +12,21 @@ namespace N64
 		static N64Logger& Instance() { return N64Singleton::Instance().GetLogger(); }
 		bool isTraceEnabled{};
 
+		static consteval std::array<uint8, static_cast<int>(LogTag::Max)> TraceFlag()
+		{
+			std::array<uint8, static_cast<int>(LogTag::Max)> flag{};
+
+			flag[en(LogTag::True)] = true;
+			flag[en(LogTag::General)] = false;
+			flag[en(LogTag::Cpu)] = false;
+			flag[en(LogTag::Mmio)] = false;
+			flag[en(LogTag::Mmu)] = false;
+			flag[en(LogTag::Rsp)] = false;
+			flag[en(LogTag::Rdp)] = false;
+
+			return flag;
+		}
+
 		void UpdateTraceEnabled()
 		{
 #if 0
@@ -38,6 +53,9 @@ namespace N64
 			if (Scene::FrameCount() > 5) isTraceEnabled = true;
 #endif
 		}
+
+	private:
+		template <typename E> static constexpr int en(E e) { return static_cast<int>(e); };
 	};
 
 	N64Logger::N64Logger() :
@@ -86,8 +104,11 @@ namespace N64
 		Abort(U"aborted!", location);
 	}
 
-	bool N64Logger::IsTraceEnabled()
+	bool N64Logger::IsTraceEnabled(LogTag tag)
 	{
+		static constexpr auto flag = Impl::TraceFlag();
+		if (flag[static_cast<int>(tag)] == false) return false;
+
 		auto&& impl = Impl::Instance().m_impl;
 		impl->UpdateTraceEnabled();
 		return impl->isTraceEnabled;

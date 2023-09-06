@@ -30,7 +30,7 @@ namespace N64::Cpu_detail
 			{
 				cpu.m_delaySlot.Set();
 				cpu.m_pc.SetNext(vaddr);
-				N64_TRACE(U"branch accepted vaddr={:016X}"_fmt(vaddr));
+				N64_TRACE(Cpu, U"branch accepted vaddr={:016X}"_fmt(vaddr));
 			}
 			else
 			{
@@ -43,7 +43,7 @@ namespace N64::Cpu_detail
 					// likelyのときは、遅延スロットを実行しないようにする
 					cpu.m_pc.Change64(cpu.m_pc.Curr() + 4);
 				}
-				N64_TRACE(U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
+				N64_TRACE(Cpu, U"branch not accepted (vaddr={:016X})"_fmt(vaddr));
 			}
 		}
 

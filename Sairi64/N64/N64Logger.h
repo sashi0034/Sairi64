@@ -4,6 +4,18 @@
 
 namespace N64
 {
+	enum class LogTag
+	{
+		True,
+		General,
+		Cpu,
+		Mmio,
+		Mmu,
+		Rsp,
+		Rdp,
+		Max,
+	};
+
 	class N64Logger
 	{
 	public:
@@ -17,7 +29,7 @@ namespace N64
 		                  const std::source_location& location = std::source_location::current());
 		static void Abort(const std::source_location& location = std::source_location::current());
 
-		static bool IsTraceEnabled();
+		static bool IsTraceEnabled(LogTag tag);
 
 	private:
 		// @formatter:off
@@ -36,7 +48,7 @@ namespace N64
 #endif
 
 #ifdef N64LOGGER_TRACE_ENABLE
-#define N64_TRACE(message) do {if (N64Logger::IsTraceEnabled()) N64Logger::Trace(message); } while (0)
+#define N64_TRACE(tag, message) do {if (N64Logger::IsTraceEnabled(LogTag:: tag)) N64Logger::Trace(message); } while (0)
 #else
 #define N64_TRACE(message) ((void)0)
 #endif

@@ -7,7 +7,7 @@
 #error "This file is an internal file used by Recompiler"
 #endif
 
-#define JIT_ENTRY N64_TRACE(U"JIT => " + instr.Stringify())
+#define JIT_ENTRY N64_TRACE(Cpu, U"JIT => " + instr.Stringify())
 
 namespace N64::Cpu_detail::Dynarec
 {

@@ -100,7 +100,7 @@ namespace N64::Mmio
 		const uint32 cartAddr = m_cartAddr;
 		const uint32 transferLength = (wrLen & 0x00FF'FFFF) + 1;
 
-		N64_TRACE(U"start PI DMA write: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr));
+		N64_TRACE(Mmio, U"start PI DMA write: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr));
 
 		if (cartAddr < 0x1000'0000 || 0xFFFF'FFFF < cartAddr)
 			N64Logger::Abort(U"PI DMA transfer card address is out of range: {}"_fmt(cartAddr));
@@ -121,7 +121,7 @@ namespace N64::Mmio
 
 		n64.GetScheduler().ScheduleEvent(transferLength / 8, [&n64, this]()
 		{
-			N64_TRACE(U"completed PI DMA write");
+			N64_TRACE(Mmio, U"completed PI DMA write");
 
 			m_status.DmaBusy().Set(false);
 			m_status.Interrupt().Set(true);

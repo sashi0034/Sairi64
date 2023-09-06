@@ -54,7 +54,7 @@ namespace N64::Mmio
 	template <SI::DmaType dma>
 	void SI::startDma(N64System& n64, uint32 pifAddr)
 	{
-		N64_TRACE(
+		N64_TRACE(Mmio,
 			dma == DmaType::DramToPif ? U"SI DMA start DRAM to PIF" :
 			dma == DmaType::PifToDram ? U"SI DMA start PIF to DRAM" : U"");
 
@@ -71,7 +71,7 @@ namespace N64::Mmio
 	template <SI::DmaType dma>
 	void SI::achieveDma(N64System& n64, uint32 pifAddr)
 	{
-		N64_TRACE(
+		N64_TRACE(Mmio,
 			dma == DmaType::DramToPif ? U"SI DMA achieved DRAM to PIF" :
 			dma == DmaType::PifToDram ? U"SI DMA achieved PIF to DRAM" : U"");
 

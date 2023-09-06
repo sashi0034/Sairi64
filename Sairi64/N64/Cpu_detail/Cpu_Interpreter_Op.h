@@ -9,7 +9,7 @@
 #include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 
-#define BEGIN_OP N64_TRACE(U"# " + instr.Stringify())
+#define BEGIN_OP N64_TRACE(Cpu, U"# " + instr.Stringify())
 #define END_OP return {}
 
 // 命令ドキュメント

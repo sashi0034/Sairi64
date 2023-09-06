@@ -70,7 +70,7 @@ namespace N64::Cpu_detail::Dynarec
 	DecodedToken UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp1<Instr1, Unit> op)
 	{
 		static_assert(std::is_convertible<Instr1, Instr>::value);
-		N64_TRACE(U"use interpreter => " + instr.Stringify());
+		N64_TRACE(Cpu, U"use interpreter => " + instr.Stringify());
 		auto&& x86Asm = ctx.x86Asm;
 
 		x86Asm->mov(x86::rcx, ctx.cpu);
@@ -85,7 +85,7 @@ namespace N64::Cpu_detail::Dynarec
 	static DecodedToken UseInterpreter(const AssembleContext& ctx, Instr instr, InterpretOp2<Instr1, Unit> op)
 	{
 		static_assert(std::is_convertible<Instr1, Instr>::value);
-		N64_TRACE(U"use interpreter => " + instr.Stringify());
+		N64_TRACE(Cpu, U"use interpreter => " + instr.Stringify());
 		auto&& x86Asm = ctx.x86Asm;
 
 		x86Asm->mov(x86::rcx, ctx.n64);
@@ -116,7 +116,7 @@ namespace N64::Cpu_detail::Dynarec
 	{
 		static void (*func)(N64System& n64, uint64 code) = [](N64System& n64, uint64 code)
 		{
-			N64_TRACE(U"break point! n64={:016X}, code={}"_fmt(reinterpret_cast<uint64>(&n64), code));
+			N64_TRACE(Cpu, U"break point! n64={:016X}, code={}"_fmt(reinterpret_cast<uint64>(&n64), code));
 		};
 
 		auto&& x86Asm = *ctx.x86Asm;

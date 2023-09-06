@@ -167,7 +167,7 @@ namespace N64::Mmio
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/mem/pif.c#L593
 	void Pif::ProcessCommands()
 	{
-		N64_TRACE(U"pif control write");
+		N64_TRACE(Mmio, U"pif control write");
 
 		const uint8 control = m_ram[63];
 		if (control & 1)

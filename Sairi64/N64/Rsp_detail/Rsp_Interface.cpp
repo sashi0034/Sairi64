@@ -109,9 +109,9 @@ public:
 
 		const bool isImemTarget = rsp.m_dmaSpAddr.Bank();
 		if constexpr (dma == DmaType::SpToRdram)
-			N64_TRACE(U"dma {} -> rdram"_fmt(isImemTarget ? U"imem" : U"dmem"));
+			N64_TRACE(Rsp, U"dma {} -> rdram"_fmt(isImemTarget ? U"imem" : U"dmem"));
 		else if constexpr (dma == DmaType::RdramToSp)
-			N64_TRACE(U"dma rdram -> {}"_fmt(isImemTarget ? U"imem" : U"dmem"));
+			N64_TRACE(Rsp, U"dma rdram -> {}"_fmt(isImemTarget ? U"imem" : U"dmem"));
 
 		const uint32 transferLength = ((dmaLength.Length() + 1) + 0x7) & ~0x7;
 

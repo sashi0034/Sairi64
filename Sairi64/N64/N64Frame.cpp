@@ -47,7 +47,7 @@ namespace N64
 				if (breakPoint()) return true;
 			}
 
-			N64_TRACE(U"end current step: {}\n"_fmt(takenCpu));
+			N64_TRACE(General, U"end current step: {}\n"_fmt(takenCpu));
 
 			// 終了チェック
 			state.cpuEarnedCycles += takenCpu;

@@ -89,7 +89,7 @@ namespace N64::Cpu_detail
 	// インタプリタ実行
 	void Cpu::stepInterpreter(N64System& n64)
 	{
-		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
+		N64_TRACE(Cpu, U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
 		// update delay slot
 		m_delaySlot.Step();
@@ -110,7 +110,7 @@ namespace N64::Cpu_detail
 			return;
 		}
 		const Instruction fetchedInstr = {Mmu::ReadPaddr32(n64, paddrOfPc.value())};
-		N64_TRACE(U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), m_pc.Curr()));
+		N64_TRACE(Cpu, U"fetched instr={:08X} from pc={:016X}"_fmt(fetchedInstr.Raw(), m_pc.Curr()));
 
 		// update pc
 		m_pc.Step();
@@ -125,7 +125,7 @@ namespace N64::Cpu_detail
 	// 動的再コンパイラ実行
 	CpuCycles Cpu::stepDynarec(N64System& n64)
 	{
-		N64_TRACE(U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
+		N64_TRACE(Cpu, U"cpu cycle starts pc={:#018x}"_fmt(m_pc.Curr()));
 
 		const CpuCycles taken = Impl::takeDynarecCycle(n64, *this);
 
@@ -140,7 +140,7 @@ namespace N64::Cpu_detail
 	{
 		const bool oldExl = m_cop0.Reg().status.Exl();
 
-		N64_TRACE(U"exception thrown: pc={:016X}, code={}, coprocessor={}"_fmt(
+		N64_TRACE(Cpu, U"exception thrown: pc={:016X}, code={}, coprocessor={}"_fmt(
 			pc, static_cast<uint32>(code), coprocessorError));
 
 		if (oldExl == false)

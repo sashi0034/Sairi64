@@ -27,7 +27,7 @@ namespace N64::Rsp_detail::Dynarec
 		if (m_tagList[pcIndex] == pcTag && m_codeList[pcIndex].code != nullptr)
 		{
 			// キャッシュヒット
-			N64_TRACE(U"hit imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
+			N64_TRACE(Rsp, U"hit imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
 				pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
 			return m_codeList[pcIndex].code;
 		}
@@ -37,12 +37,12 @@ namespace N64::Rsp_detail::Dynarec
 		if (m_codeList[pcIndex].code != nullptr)
 		{
 			// コード開放
-			N64_TRACE(U"release imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
+			N64_TRACE(Rsp, U"release imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
 				pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
 			n64.GetJit().release(m_codeList[pcIndex].code);
 		}
 
-		N64_TRACE(U"sp-recompile start: pc={:04X}"_fmt(pc));
+		N64_TRACE(Rsp, U"sp-recompile start: pc={:04X}"_fmt(pc));
 
 		// 再コンパイル処理
 		const auto recompiled = SpRecompileFreshCode(n64, rsp, pc);
@@ -55,7 +55,7 @@ namespace N64::Rsp_detail::Dynarec
 				m_headList[i] = pcIndex;
 		}
 
-		N64_TRACE(U"sp-recompile finished: length={}"_fmt(recompiled.recompiledLength));
+		N64_TRACE(Rsp, U"sp-recompile finished: length={}"_fmt(recompiled.recompiledLength));
 
 		return recompiled.code;
 	}
@@ -78,7 +78,7 @@ namespace N64::Rsp_detail::Dynarec
 			if (m_headList[currentCursor] == invalidHead_0xFFFF) break;
 		}
 
-		N64_TRACE(U"invalidated imem cache from index={:04X} to {:04X}"_fmt(index, currentCursor + 1));
+		N64_TRACE(Rsp, U"invalidated imem cache from index={:04X} to {:04X}"_fmt(index, currentCursor + 1));
 	}
 
 	void ImemCache::InvalidBlockBetween(ImemAddr16 beginInclusive, ImemAddr16 endInclusive)

@@ -133,7 +133,7 @@ namespace N64::Rsp_detail::Dynarec
 	{
 		static void (*func)(N64System& n64, uint64 code) = [](N64System& n64, uint64 code)
 		{
-			N64_TRACE(U"break point! n64={:016X}, code={}"_fmt(reinterpret_cast<uint64>(&n64), code));
+			N64_TRACE(Rsp, U"break point! n64={:016X}, code={}"_fmt(reinterpret_cast<uint64>(&n64), code));
 		};
 
 		auto&& x86Asm = *ctx.x86Asm;

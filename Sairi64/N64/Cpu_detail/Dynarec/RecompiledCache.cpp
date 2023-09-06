@@ -30,7 +30,7 @@ namespace N64::Cpu_detail::Dynarec
 		auto&& code = page->codeList[pageOffset];
 		if (code.HasCode() == false)
 		{
-			N64_TRACE(U"recompile a new code: page index={:05X} offset={:03X}"_fmt(
+			N64_TRACE(Cpu, U"recompile a new code: page index={:05X} offset={:03X}"_fmt(
 				GetPageIndex(pc), GetPageOffset(pc)));
 
 			// 新しいコード作成
@@ -44,7 +44,7 @@ namespace N64::Cpu_detail::Dynarec
 				page->infoList[pageOffset + i].info = -i; // 先頭以外にはコード先頭の位置を記す
 			}
 
-			N64_TRACE(U"recompiled finished: length={}"_fmt(recompiled.recompiledLength));
+			N64_TRACE(Cpu, U"recompiled finished: length={}"_fmt(recompiled.recompiledLength));
 		}
 		return code.code;
 	}

@@ -241,7 +241,7 @@ public:
 			x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[GprLR_31])), x86::eax);
 		}
 		const uint16 target = instr.Target() << 2;
-		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), target);
+		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), target & SpImemMask_0xFFF);
 		return DecodedToken::Branch;
 	}
 

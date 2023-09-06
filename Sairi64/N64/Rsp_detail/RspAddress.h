@@ -9,7 +9,7 @@ namespace N64::Rsp_detail
 	namespace RspAddress
 	{
 		constexpr PAddr32 DmaSpAddr_0x04040000{0x04040000};
-		constexpr PAddr32 DmaRamAddr_0x04040004{0x04040004};
+		constexpr PAddr32 DmaDramAddr_0x04040004{0x04040004};
 		constexpr PAddr32 DmaRdLen_0x04040008{0x04040008};
 		constexpr PAddr32 DmaWrLen_0x0404000C{0x0404000C};
 		constexpr PAddr32 DmaWrStatus_0x04040010{0x04040010};

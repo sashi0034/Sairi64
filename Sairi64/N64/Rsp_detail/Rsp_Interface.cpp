@@ -12,6 +12,45 @@ namespace N64::Rsp_detail
 		RdramToSp,
 		SpToRdram,
 	};
+
+	template <DmaType dma>
+	static inline void stepDma(
+		N64System& n64,
+		std::span<uint8> spMem, uint32 spAddr,
+		std::span<uint8> rdram, uint32 dramAddr,
+		uint32 transferLength, bool isImemTarget)
+	{
+		// データ転送
+		for (int x = 0; x < transferLength; ++x)
+		{
+			const uint16 targetSpAddr = (spAddr + x) & SpMemoryMask_0xFFF;
+			if constexpr (dma == DmaType::RdramToSp)
+			{
+				spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)] = rdram[dramAddr + x];
+			}
+			else if constexpr (dma == DmaType::SpToRdram)
+			{
+				rdram[dramAddr + x] = spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)];
+			}
+			else static_assert(AlwaysFalseValue<DmaType, dma>);
+		}
+
+		// キャッシュ無効化
+		if constexpr (dma == DmaType::RdramToSp)
+		{
+			if (isImemTarget)
+			{
+				n64.GetRsp().ImemCache().InvalidBlockBetween(
+					ImemAddr16::Masked_0xFFF(spAddr), ImemAddr16::Masked_0xFFF(spAddr + transferLength - 1));
+			}
+		}
+		else if constexpr (dma == DmaType::SpToRdram)
+		{
+			// 念のため
+			n64.GetCpu().RecompiledCache().CheckInvalidatePageBetween(
+				PAddr32(dramAddr), PAddr32(dramAddr + transferLength - 1));
+		}
+	}
 }
 
 class N64::Rsp_detail::Rsp::Interface::Impl
@@ -64,17 +103,20 @@ public:
 	template <DmaType dma>
 	static void Dma(N64System& n64, Rsp& rsp, SpDmaLength32 dmaLength)
 	{
+		rsp.m_dmaLength = {dmaLength};
+		rsp.m_dmaSpAddr = rsp.m_shadowDmaSpAddr;
+		rsp.m_dmaDramAddr = rsp.m_shadowDmaDramAddr;
+
 		const bool isImemTarget = rsp.m_dmaSpAddr.Bank();
 		if constexpr (dma == DmaType::SpToRdram)
 			N64_TRACE(U"dma {} -> rdram"_fmt(isImemTarget ? U"imem" : U"dmem"));
 		else if constexpr (dma == DmaType::RdramToSp)
 			N64_TRACE(U"dma rdram -> {}"_fmt(isImemTarget ? U"imem" : U"dmem"));
 
-		rsp.m_dmaLength = {dmaLength};
 		const uint32 transferLength = ((dmaLength.Length() + 1) + 0x7) & ~0x7;
 
-		uint32 spAddr = rsp.m_shadowDmaSpAddr & 0xFF8;
-		uint32 dramAddr = rsp.m_shadowDmaDramAddr & 0xFFFFF8;
+		uint32 spAddr = rsp.m_dmaSpAddr & 0xFF8;
+		uint32 dramAddr = rsp.m_dmaDramAddr & 0xFFFFF8;
 
 		const std::span<uint8> spMem = isImemTarget ? rsp.Imem() : rsp.Dmem();
 		auto&& rdram = n64.GetMemory().Rdram();
@@ -104,45 +146,6 @@ private:
 		if (clear && !set) bit.Set(false);
 		if (set && !clear) bit.Set(true);
 	}
-
-	template <DmaType dma>
-	static inline void stepDma(
-		N64System& n64,
-		std::span<uint8> spMem, uint32 spAddr,
-		std::span<uint8> rdram, uint32 dramAddr,
-		uint32 transferLength, bool isImemTarget)
-	{
-		// データ転送
-		for (int x = 0; x < transferLength; ++x)
-		{
-			const uint16 targetSpAddr = (spAddr + x) & SpMemoryMask_0xFFF;
-			if constexpr (dma == DmaType::RdramToSp)
-			{
-				spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)] = rdram[dramAddr + x];
-			}
-			else if constexpr (dma == DmaType::SpToRdram)
-			{
-				rdram[dramAddr + x] = spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)];
-			}
-			else static_assert(AlwaysFalseValue<DmaType, dma>);
-		}
-
-		// キャッシュ無効化
-		if constexpr (dma == DmaType::RdramToSp)
-		{
-			if (isImemTarget)
-			{
-				n64.GetRsp().ImemCache().InvalidBlockBetween(
-					ImemAddr16::Masked_0xFFF(spAddr), ImemAddr16::Masked_0xFFF(spAddr + transferLength - 1));
-			}
-		}
-		else if constexpr (dma == DmaType::SpToRdram)
-		{
-			// 念のため
-			n64.GetCpu().RecompiledCache().CheckInvalidatePageBetween(
-				PAddr32(dramAddr), PAddr32(dramAddr + transferLength - 1));
-		}
-	}
 };
 
 namespace N64::Rsp_detail
@@ -152,9 +155,9 @@ namespace N64::Rsp_detail
 		switch (paddr)
 		{
 		case RspAddress::DmaSpAddr_0x04040000:
-			break;
-		case RspAddress::DmaRamAddr_0x04040004:
-			break;
+			return rsp.m_dmaSpAddr;
+		case RspAddress::DmaDramAddr_0x04040004:
+			return rsp.m_dmaDramAddr;
 		case RspAddress::DmaRdLen_0x04040008: [[fallthrough]];
 		case RspAddress::DmaWrLen_0x0404000C:
 			return rsp.m_dmaLength;
@@ -180,9 +183,11 @@ namespace N64::Rsp_detail
 		switch (paddr)
 		{
 		case RspAddress::DmaSpAddr_0x04040000:
-			break;
-		case RspAddress::DmaRamAddr_0x04040004:
-			break;
+			rsp.m_shadowDmaSpAddr = {value};
+			return;
+		case RspAddress::DmaDramAddr_0x04040004:
+			rsp.m_shadowDmaDramAddr = {value};
+			return;
 		case RspAddress::DmaRdLen_0x04040008:
 			break;
 		case RspAddress::DmaWrLen_0x0404000C:

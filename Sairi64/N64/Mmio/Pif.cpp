@@ -18,25 +18,25 @@ namespace N64::Mmio
 	class PifCmdArgs
 	{
 	public:
-		PifCmdArgs(Pif& pif, int cursor) : m_cmdPtr(&pif.Ram()[cursor]) { return; }
-		uint8 Length() const { return m_cmdPtr[0] & 0x3F; }
-		bool IsEndOfCommands() const { return m_cmdPtr[1] == 0xFE; }
-		uint8 ResultLength() const { return m_cmdPtr[1] & 0x3F; }
-		uint8 Index() const { return m_cmdPtr[2]; }
+		PifCmdArgs(Pif& pif, int cursor) : m_span(pif.Ram().data() + cursor, pif.Ram().size() - cursor) { return; }
+		uint8 Length() const { return m_span[0] & 0x3F; }
+		bool IsEndOfCommands() const { return m_span[1] == 0xFE; }
+		uint8 ResultLength() const { return m_span[1] & 0x3F; }
+		uint8 Index() const { return m_span[2]; }
 
-		template <uint8 offset> void SetAt(uint8 value) const { m_cmdPtr[offset] = value; }
-		template <uint8 offset> uint8 GetAt() const { return m_cmdPtr[offset]; }
+		template <uint8 offset> void SetAt(uint8 value) const { m_span[offset] = value; }
+		template <uint8 offset> uint8 GetAt() const { return m_span[offset]; }
 
 	private:
-		uint8* m_cmdPtr{};
+		std::span<uint8> m_span{};
 	};
 
 	class PifCmdResult
 	{
 	public:
-		PifCmdResult(Pif& pif, int cursor) : m_resultPtr(&pif.Ram()[cursor]) { return; }
-		uint8 Length() const { return m_resultPtr[0] & 0x3F; }
-		template <uint8 offset> void SetAt(uint8 value) const { m_resultPtr[offset] = value; };
+		PifCmdResult(Pif& pif, int cursor) : m_span(pif.Ram().data() + cursor, pif.Ram().size() - cursor) { return; }
+		uint8 Length() const { return m_span[0] & 0x3F; }
+		template <uint8 offset> void SetAt(uint8 value) const { m_span[offset] = value; };
 
 		template <uint8 startOffset, uint8 endIndex, typename... Values>
 		void SetBetween(Values... values) const
@@ -46,12 +46,12 @@ namespace N64::Mmio
 		}
 
 	private:
-		uint8* m_resultPtr{};
+		std::span<uint8> m_span{};
 
 		template <uint8 currentOffset, typename First, typename... Rest>
 		void setFromInternal(First value, Rest... rest) const
 		{
-			m_resultPtr[currentOffset] = static_cast<uint8>(value);
+			m_span[currentOffset] = static_cast<uint8>(value);
 			if constexpr (sizeof...(rest) > 0)
 			{
 				setFromInternal<currentOffset + 1>(rest...);

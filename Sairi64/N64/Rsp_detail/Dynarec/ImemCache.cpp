@@ -73,12 +73,12 @@ namespace N64::Rsp_detail::Dynarec
 			m_tagList[currentCursor] = InvalidTag_0xFF;
 			m_headList[currentCursor] = invalidHead_0xFFFF;
 			currentCursor--;
-			if (currentCursor <= headCursor) break;
+			if (currentCursor < headCursor) break;
 			// 以前に無効にした領域に入るので打ち切り
 			if (m_headList[currentCursor] == invalidHead_0xFFFF) break;
 		}
 
-		N64_TRACE(U"invalidated imem cache from index={:04X} to index={:04X}"_fmt(index, currentCursor + 1));
+		N64_TRACE(U"invalidated imem cache from index={:04X} to {:04X}"_fmt(index, currentCursor + 1));
 	}
 
 	void ImemCache::InvalidBlockBetween(ImemAddr16 beginInclusive, ImemAddr16 endInclusive)

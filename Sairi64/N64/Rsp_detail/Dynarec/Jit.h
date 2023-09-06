@@ -184,6 +184,25 @@ public:
 	}
 
 	template <Opcode op> [[nodiscard]]
+	static DecodedToken J_template(const AssembleContext& ctx, InstructionJ instr)
+	{
+		JIT_SP;
+		static_assert(op == Opcode::J || op == Opcode::JAL);
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& pc = Process::AccessPc(*ctx.rsp);
+		if constexpr (op == Opcode::JAL)
+		{
+			// link register
+			x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
+			x86Asm.add(x86::ax, 4);
+			x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[GprLR_31])), x86::ax);
+		}
+		const uint16 target = instr.Target() << 2;
+		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), target);
+		return DecodedToken::Branch;
+	}
+
+	template <Opcode op> [[nodiscard]]
 	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionI instr)
 	{
 		JIT_SP;

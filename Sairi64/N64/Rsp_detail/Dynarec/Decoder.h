@@ -20,9 +20,9 @@ public:
 		case Opcode::REGIMM:
 			break;
 		case Opcode::J:
-			break;
+			return Jit::J_template<Opcode::J>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::JAL:
-			break;
+			return Jit::J_template<Opcode::JAL>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::BEQ:
 			break;
 		case Opcode::BNE:

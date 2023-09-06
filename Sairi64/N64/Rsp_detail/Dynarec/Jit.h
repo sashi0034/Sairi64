@@ -195,7 +195,8 @@ public:
 			// link register
 			x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
 			x86Asm.add(x86::ax, 4);
-			x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[GprLR_31])), x86::ax);
+			x86Asm.movzx(x86::eax, x86::ax);;
+			x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[GprLR_31])), x86::eax);
 		}
 		const uint16 target = instr.Target() << 2;
 		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), target);
@@ -345,7 +346,8 @@ private:
 			// link register
 			x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
 			x86Asm.add(x86::ax, 4);
-			x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&gpr[GprLR_31])), x86::ax);
+			x86Asm.movzx(x86::eax, x86::ax);;
+			x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr[GprLR_31])), x86::eax);
 		}
 		return DecodedToken::Branch;
 	}

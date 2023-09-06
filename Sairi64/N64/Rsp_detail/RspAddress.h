@@ -30,6 +30,7 @@ namespace N64::Rsp_detail
 	{
 	public:
 		explicit constexpr ImemAddr16(uint16 v): EnumValue(v) { return; }
+		static ImemAddr16 Masked_0xFFF(uint16 v) { return ImemAddr16(v & SpImemMask_0xFFF); }
 	};
 
 	class SpStatus32

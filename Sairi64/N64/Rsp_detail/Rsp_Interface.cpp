@@ -3,6 +3,7 @@
 
 #include "N64/Interrupt.h"
 #include "N64/N64Logger.h"
+#include "N64/N64System.h"
 
 namespace N64::Rsp_detail
 {
@@ -58,10 +59,42 @@ public:
 		bitClearSet(rsp.m_status.Signal7(), write.ClearSignal7(), write.SetSignal7());
 	}
 
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp.h#L146
+	// https://github.com/SimoneN64/Kaizen/blob/56ab73865271635d887eab96a0e51873347abe77/src/backend/core/RSP.hpp#L360
 	template <DmaType dma>
-	static void Dma(N64System& n64, Rsp& rsp)
+	static void Dma(N64System& n64, Rsp& rsp, SpDmaLength32 dmaLength)
 	{
-		N64Logger::Abort();
+		const bool isImemTarget = rsp.m_dmaSpAddr.Bank();
+		if constexpr (dma == DmaType::SpToRdram)
+			N64_TRACE(U"dma {} -> rdram"_fmt(isImemTarget ? U"imem" : U"dmem"));
+		else if constexpr (dma == DmaType::RdramToSp)
+			N64_TRACE(U"dma rdram -> {}"_fmt(isImemTarget ? U"imem" : U"dmem"));
+
+		rsp.m_dmaLength = {dmaLength};
+		const uint32 transferLength = ((dmaLength.Length() + 1) + 0x7) & ~0x7;
+
+		uint32 spAddr = rsp.m_shadowDmaSpAddr & 0xFF8;
+		uint32 dramAddr = rsp.m_shadowDmaDramAddr & 0xFFFFF8;
+
+		const std::span<uint8> spMem = isImemTarget ? rsp.Imem() : rsp.Dmem();
+		auto&& rdram = n64.GetMemory().Rdram();
+
+		for (int i = 0; i < dmaLength.Count() + 1; ++i)
+		{
+			// データ転送
+			stepDma<dma>(n64, spMem, spAddr, rdram, dramAddr, transferLength, isImemTarget);
+
+			const uint32 skip = i == dmaLength.Count() ? 0 : dmaLength.Skip();
+			dramAddr += transferLength + skip;
+			dramAddr &= 0xFFFFF8;
+			spAddr += transferLength;
+			spAddr &= 0xFF8;
+		}
+
+		rsp.m_dmaDramAddr.Address().Set(dramAddr);
+		rsp.m_dmaSpAddr.Address().Set(spAddr);
+		rsp.m_dmaSpAddr.Bank().Set(isImemTarget);
+		rsp.m_dmaLength = 0xFF8 | (rsp.m_dmaLength.Skip() << 20);
 	}
 
 private:
@@ -70,6 +103,45 @@ private:
 	{
 		if (clear && !set) bit.Set(false);
 		if (set && !clear) bit.Set(true);
+	}
+
+	template <DmaType dma>
+	static inline void stepDma(
+		N64System& n64,
+		std::span<uint8> spMem, uint32 spAddr,
+		std::span<uint8> rdram, uint32 dramAddr,
+		uint32 transferLength, bool isImemTarget)
+	{
+		// データ転送
+		for (int x = 0; x < transferLength; ++x)
+		{
+			const uint16 targetSpAddr = (spAddr + x) & SpMemoryMask_0xFFF;
+			if constexpr (dma == DmaType::RdramToSp)
+			{
+				spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)] = rdram[dramAddr + x];
+			}
+			else if constexpr (dma == DmaType::SpToRdram)
+			{
+				rdram[dramAddr + x] = spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)];
+			}
+			else static_assert(AlwaysFalseValue<DmaType, dma>);
+		}
+
+		// キャッシュ無効化
+		if constexpr (dma == DmaType::RdramToSp)
+		{
+			if (isImemTarget)
+			{
+				n64.GetRsp().ImemCache().InvalidBlockBetween(
+					ImemAddr16::Masked_0xFFF(spAddr), ImemAddr16::Masked_0xFFF(spAddr + transferLength - 1));
+			}
+		}
+		else if constexpr (dma == DmaType::SpToRdram)
+		{
+			// 念のため
+			n64.GetCpu().RecompiledCache().CheckInvalidatePageBetween(
+				PAddr32(dramAddr), PAddr32(dramAddr + transferLength - 1));
+		}
 	}
 };
 
@@ -145,12 +217,10 @@ namespace N64::Rsp_detail
 			rsp.m_shadowDmaDramAddr = {value};
 			return;
 		case 2:
-			rsp.m_dmaLength = {value};
-			Impl::Dma<DmaType::RdramToSp>(n64, rsp);
+			Impl::Dma<DmaType::RdramToSp>(n64, rsp, value);
 			return;
 		case 3:
-			rsp.m_dmaLength = {value};
-			Impl::Dma<DmaType::SpToRdram>(n64, rsp);
+			Impl::Dma<DmaType::SpToRdram>(n64, rsp, value);
 			return;
 		case 4:
 			Impl::WriteStatus(n64, rsp, {value});

@@ -35,6 +35,7 @@ namespace N64::Rsp_detail::Dynarec
 		ImemCache();
 		RecompiledCodeHandler HitBlockOrRecompile(N64System& n64, Rsp& rsp, ImemAddr16 pc);
 		void InvalidBlock(ImemAddr16 addr);
+		void InvalidBlockBetween(ImemAddr16 beginInclusive, ImemAddr16 endInclusive);
 
 	private:
 		std::array<BlockTag, BlockSize_0x400> m_tagList{};

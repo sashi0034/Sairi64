@@ -80,4 +80,17 @@ namespace N64::Rsp_detail::Dynarec
 
 		N64_TRACE(U"invalidated imem cache from index={:04X} to index={:04X}"_fmt(index, currentCursor + 1));
 	}
+
+	void ImemCache::InvalidBlockBetween(ImemAddr16 beginInclusive, ImemAddr16 endInclusive)
+	{
+		uint16 beginIndex = GetBlockIndex(beginInclusive);
+		uint16 endIndex = GetBlockIndex(endInclusive);
+
+		if (beginIndex > endIndex) std::swap(beginIndex, endIndex);
+
+		for (uint16 i = beginIndex; i <= endIndex; ++i)
+		{
+			InvalidBlock(ImemAddr16(i));
+		}
+	}
 }

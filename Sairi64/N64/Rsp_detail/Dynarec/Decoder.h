@@ -139,11 +139,11 @@ private:
 		switch (instr.Funct())
 		{
 		case OpSpecialFunct::SLL:
-			break;
+			return Jit::SPECIAL_shift<OpSpecialFunct::SLL>(ctx, instr);
 		case OpSpecialFunct::SRL:
-			break;
+			return Jit::SPECIAL_shift<OpSpecialFunct::SRL>(ctx, instr);
 		case OpSpecialFunct::SRA:
-			break;
+			return Jit::SPECIAL_shift<OpSpecialFunct::SRA>(ctx, instr);
 		case OpSpecialFunct::SLLV:
 			break;
 		case OpSpecialFunct::SRLV:
@@ -211,18 +211,6 @@ private:
 		case OpSpecialFunct::TEQ:
 			break;
 		case OpSpecialFunct::TNE:
-			break;
-		case OpSpecialFunct::DSLL:
-			break;
-		case OpSpecialFunct::DSRL:
-			break;
-		case OpSpecialFunct::DSRA:
-			break;
-		case OpSpecialFunct::DSLL32:
-			break;
-		case OpSpecialFunct::DSRL32:
-			break;
-		case OpSpecialFunct::DSRA32:
 			break;
 		default: ;
 		}

@@ -127,6 +127,41 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken SPECIAL_shift(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		const uint8 rd = instr.Rd();
+		if (rd == 0) return DecodedToken::Continue;
+
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
+		const uint8 rt = instr.Rt();
+		const uint8 sa = instr.Sa();
+
+		if (rt != 0)
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rt]))); // eax <- rt
+		else
+			x86Asm.xor_(x86::eax, x86::eax);
+
+		if constexpr (funct == OpSpecialFunct::SLL)
+		{
+			x86Asm.shl(x86::eax, sa);
+		}
+		else if constexpr (funct == OpSpecialFunct::SRL)
+		{
+			x86Asm.shr(x86::eax, sa);
+		}
+		else if constexpr (funct == OpSpecialFunct::SRA)
+		{
+			x86Asm.sar(x86::eax, sa);
+		}
+		else static_assert(Utils::AlwaysFalseValue<OpSpecialFunct, funct>);
+
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rd])), x86::eax); // gpr[rd] <- eax
+		return DecodedToken::Continue;
+	}
+
 	template <Opcode op> [[nodiscard]]
 	static DecodedToken L_load(const AssembleContext& ctx, InstructionI instr)
 	{
@@ -139,8 +174,15 @@ public:
 		const uint8 rs = instr.Rs();
 		const sint32 offset = (sint32)static_cast<sint16>(instr.Imm());
 
-		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
-		x86Asm.mov(x86::edx, x86::eax);
+		if (rs != 0)
+		{
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
+			x86Asm.mov(x86::edx, x86::eax);
+		}
+		else
+		{
+			x86Asm.xor_(x86::edx, x86::edx);
+		}
 		x86Asm.add(x86::edx, offset); // edx <- address
 		x86Asm.mov(x86::rcx, (uint64)&ctx.rsp->Dmem()); // rcx <- *dmem
 

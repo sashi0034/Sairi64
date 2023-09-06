@@ -70,8 +70,8 @@ public:
 		return DecodedToken::Continue;
 	}
 
-	[[nodiscard]]
-	static DecodedToken VRCP(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	template <OpCop2VecFunct funct> [[nodiscard]]
+	static DecodedToken VRCP_template(const AssembleContext& ctx, InstructionCop2VecFunct instr)
 	{
 		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -81,7 +81,13 @@ public:
 		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vt()]);
 		x86Asm.mov(x86::r8b, instr.Element());
 		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vd()].uE[VuElementIndex(instr.De() & 7)]);
-		x86Asm.call((uint64)&helperVRCP);
+		if constexpr (funct == OpCop2VecFunct::VRCP)
+			x86Asm.call((uint64)&helperVRCP);
+		else if constexpr (funct == OpCop2VecFunct::VRCPL)
+			x86Asm.call((uint64)&helperVRCPL);
+		else if constexpr (funct == OpCop2VecFunct::VRCPH)
+			x86Asm.call((uint64)&helperVRCPH);
+		else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
 		return DecodedToken::Continue;
 	}
 
@@ -266,9 +272,48 @@ private:
 		const uint32 input = vt.sE[VuElementIndex(e & 7)];
 		const uint32 result = Rcp(input);
 		*vdE = result & 0xFFFF;
+
 		auto&& div = Process::AccessDiv(rsp);
 		div.divOut = (result >> 16) & 0xFFFF;
 		div.divInLoaded = false;
+
+		auto&& vu = Process::AccessVU(rsp);
+		const Vpr_t vte = GetVtE(vt, e);
+		vu.accum.l.single = vte.single;
+	}
+
+	N64_ABI static void helperVRCPL(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)
+	{
+		auto&& div = Process::AccessDiv(rsp);
+		sint32 input;
+		if (div.divInLoaded)
+		{
+			input = (div.divIn << 16) | vt.uE[VuElementIndex(e & 7)];
+		}
+		else
+		{
+			input = vt.sE[VuElementIndex(e & 7)];
+		}
+		const uint32 result = Rsq(input);
+		*vdE = result;
+
+		div.divOut = result >> 16;
+		div.divIn = 0;
+		div.divInLoaded = false;
+
+		auto&& vu = Process::AccessVU(rsp);
+		const Vpr_t vte = GetVtE(vt, e);
+		vu.accum.l.single = vte.single;
+	}
+
+	N64_ABI static void helperVRCPH(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)
+	{
+		auto&& div = Process::AccessDiv(rsp);
+		*vdE = div.divOut;
+
+		div.divIn = vt.uE[VuElementIndex(e & 7)];
+		div.divInLoaded = true;
+
 		auto&& vu = Process::AccessVU(rsp);
 		const Vpr_t vte = GetVtE(vt, e);
 		vu.accum.l.single = vte.single;

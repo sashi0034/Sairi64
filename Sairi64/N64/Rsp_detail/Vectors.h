@@ -54,6 +54,35 @@ namespace N64::Rsp_detail
 		return result;
 	}
 
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L171
+	inline uint32 Rsq(uint32 input)
+	{
+		if (input == 0)
+		{
+			return 0x7FFFFFFF;
+		}
+		else if (input == 0xFFFF8000)
+		{
+			return 0xFFFF0000;
+		}
+		else if (input > 0xFFFF8000)
+		{
+			input--;
+		}
+
+		const sint32 mask = static_cast<sint32>(input) >> 31;
+		input ^= mask;
+
+		const uint32 shift = Clz32(input) + 1;
+
+		const int index = (((input << shift) >> 24) | ((shift & 1) << 8));
+		const uint32 rom = (static_cast<uint32>(RsqRom[index]) << 14);
+		const int rShift = ((32 - shift) >> 1);
+		const uint32 result = (0x40000000 | rom) >> rShift;
+
+		return result ^ mask;
+	}
+
 	// https://github.com/SimoneN64/Kaizen/blob/56ab73865271635d887eab96a0e51873347abe77/src/backend/core/rsp/instructions.cpp#L705
 	inline sint16 SignedClamp(sint64 value)
 	{

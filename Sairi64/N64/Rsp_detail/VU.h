@@ -53,8 +53,8 @@ namespace N64::Rsp_detail
 	struct DivIO
 	{
 		sint16 divIn;
-		bool divInLoaded;
 		sint16 divOut;
+		bool divInLoaded;
 	};
 
 	[[nodiscard]]

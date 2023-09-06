@@ -318,11 +318,11 @@ private:
 		case OpCop2VecFunct::VNXOR:
 			break;
 		case OpCop2VecFunct::VRCP:
-			return Jit::Vector::VRCP(ctx, instr);
+			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCP>(ctx, instr);
 		case OpCop2VecFunct::VRCPL:
-			break;
+			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCPL>(ctx, instr);
 		case OpCop2VecFunct::VRCPH:
-			break;
+			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCPH>(ctx, instr);
 		case OpCop2VecFunct::VMOV:
 			break;
 		case OpCop2VecFunct::VRSQ:

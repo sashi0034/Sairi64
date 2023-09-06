@@ -50,6 +50,13 @@ namespace N64::Rsp_detail
 		VcE
 	};
 
+	struct DivIO
+	{
+		sint16 divIn;
+		bool divInLoaded;
+		sint16 divOut;
+	};
+
 	[[nodiscard]]
 	inline Vpr_t BroadcastVt(const Vpr_t& vt, int l0, int l1, int l2, int l3, int l4, int l5, int l6, int l7)
 	{

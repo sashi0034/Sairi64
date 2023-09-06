@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Jit.h"
+#include "../Vectors.h"
 
 // https://n64brew.dev/wiki/Reality_Signal_Processor/CPU_Core
 
@@ -69,6 +70,21 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	[[nodiscard]]
+	static DecodedToken VRCP(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		auto&& vu = Process::AccessVU(rsp);
+		x86Asm.mov(x86::rcx, (uint64)&rsp);
+		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vt()]);
+		x86Asm.mov(x86::r8b, instr.Element());
+		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vd()].uE[VuElementIndex(instr.De() & 7)]);
+		x86Asm.call((uint64)&helperVRCP);
+		return DecodedToken::Continue;
+	}
+
 	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L1668
 	template <OpCop2VecFunct funct> [[nodiscard]]
 	static DecodedToken CP2_arithmetic(const AssembleContext& ctx, InstructionCop2VecFunct instr)
@@ -103,30 +119,6 @@ public:
 	}
 
 private:
-	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L141
-	static sint32 signExtend7bitOffset(uint8 offset, uint8 shiftAmount)
-	{
-		const sint8 signedOffset = ((offset << 1) & 0x80) | offset;
-		const sint32 offset1 = (sint32)signedOffset;
-		const uint32 offset2 = offset1;
-		return static_cast<sint32>(offset2 << shiftAmount);
-	}
-
-	// https://github.com/SimoneN64/Kaizen/blob/56ab73865271635d887eab96a0e51873347abe77/src/backend/core/rsp/instructions.cpp#L705
-	static sint16 signedClamp(sint64 value)
-	{
-		if (value < -32768) return -32768;
-		if (value > 32767) return 32767;
-		return static_cast<int16_t>(value);
-	}
-
-	static uint16 unsignedClamp(sint64 value)
-	{
-		if (value < 0) return 0;
-		if (value > 32767) return 65535;
-		return value;
-	}
-
 	template <VuControl control>
 	N64_ABI static sint32 helperCFC2(VU& vu)
 	{
@@ -208,7 +200,7 @@ private:
 		constexpr uint8 shiftAmount = lwc2 != OpLwc2Funct::Invalid_0xFF
 		                              ? Lwc2FunctShiftAmount<lwc2>()
 		                              : Swc2FunctShiftAmount<swc2>();
-		const sint32 offset = signExtend7bitOffset(instr.Offset(), shiftAmount);
+		const sint32 offset = SignExtend7bitOffset(instr.Offset(), shiftAmount);
 
 		x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
 		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[instr.Base()])));
@@ -235,7 +227,7 @@ private:
 			{
 				const sint32 result = vs.sE[i] + vte.sE[i] + (vu.vcO.l.sE[i] != 0);
 				vu.accum.l.uE[i] = result;
-				vd.uE[i] = static_cast<uint16>(signedClamp(result));
+				vd.uE[i] = static_cast<uint16>(SignedClamp(result));
 				vu.vcO.l.uE[i] = 0;
 				vu.vcO.h.uE[i] = 0;
 			}
@@ -267,6 +259,19 @@ private:
 		{
 			vd.single = 0;
 		}
+	}
+
+	N64_ABI static void helperVRCP(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)
+	{
+		const uint32 input = vt.sE[VuElementIndex(e & 7)];
+		const uint32 result = Rcp(input);
+		*vdE = result & 0xFFFF;
+		auto&& div = Process::AccessDiv(rsp);
+		div.divOut = (result >> 16) & 0xFFFF;
+		div.divInLoaded = false;
+		auto&& vu = Process::AccessVU(rsp);
+		const Vpr_t vte = GetVtE(vt, e);
+		vu.accum.l.single = vte.single;
 	}
 
 	N64_ABI static void helperLQV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)

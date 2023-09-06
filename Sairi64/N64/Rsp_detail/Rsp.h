@@ -86,6 +86,7 @@ namespace N64::Rsp_detail
 		Pc m_pc{};
 		Gpr m_gpr{};
 		VU m_vu{};
+		DivIO m_div{};
 		SpDmaLength32 m_dmaLength{};
 		SpStatus32 m_status{};
 

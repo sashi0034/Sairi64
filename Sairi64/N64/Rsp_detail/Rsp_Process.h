@@ -23,6 +23,11 @@ public:
 		return rsp.m_vu;
 	}
 
+	static DivIO& AccessDiv(Rsp& rsp)
+	{
+		return rsp.m_div;
+	}
+
 	N64_ABI static void SpBreak(N64System& n64, Rsp& rsp)
 	{
 		rsp.Status().Halt().Set(true);

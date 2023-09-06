@@ -318,7 +318,7 @@ private:
 		case OpCop2VecFunct::VNXOR:
 			break;
 		case OpCop2VecFunct::VRCP:
-			break;
+			return Jit::Vector::VRCP(ctx, instr);
 		case OpCop2VecFunct::VRCPL:
 			break;
 		case OpCop2VecFunct::VRCPH:

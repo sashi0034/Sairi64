@@ -412,6 +412,8 @@
     <ClInclude Include="N64\Rsp_detail\Rsp_Interface.h" />
     <ClInclude Include="N64\Rsp_detail\Rsp_Process.h" />
     <ClInclude Include="N64\Rsp_detail\SpMemory.h" />
+    <ClInclude Include="N64\Rsp_detail\SpRom.h" />
+    <ClInclude Include="N64\Rsp_detail\Vectors.h" />
     <ClInclude Include="N64\Rsp_detail\VU.h" />
     <ClInclude Include="N64\Scheduler.h" />
     <ClInclude Include="Ui\UiManager.h" />

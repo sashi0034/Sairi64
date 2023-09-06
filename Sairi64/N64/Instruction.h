@@ -357,6 +357,7 @@ namespace N64
 		OpCop2VecFunct Funct() const { return static_cast<OpCop2VecFunct>(GetBits<0, 5>(Raw())); }
 		uint32 Vd() const { return GetBits<6, 10>(Raw()); }
 		uint32 Vs() const { return GetBits<11, 15>(Raw()); }
+		uint32 De() const { return Vs(); }
 		uint32 Vt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Element() const { return GetBits<21, 24>(Raw()); }
 

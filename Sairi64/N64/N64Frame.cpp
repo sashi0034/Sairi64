@@ -21,17 +21,17 @@ namespace N64
 		while (true)
 		{
 			// CPUステップ
-			const CpuCycles taken = n64.GetCpu().Step<processor>(n64);
+			const CpuCycles takenCpu = n64.GetCpu().Step<processor>(n64);
 
 			// RSPステップ
 			if (n64.GetRsp().IsHalted() == false)
 			{
-				state.rspConsumableCycles += taken * 2;
+				state.rspConsumableCycles += takenCpu * 2;
 				while (state.rspConsumableCycles >= 3)
 				{
 					// CPUステップ3回につき、RSPステップ2回になるように
-					state.rspConsumableCycles -= 3;
-					n64.GetRsp().Step(n64);
+					const uint32 takenRsp = n64.GetRsp().Step(n64);
+					state.rspConsumableCycles -= takenRsp * 3;
 				}
 			}
 			else
@@ -40,17 +40,17 @@ namespace N64
 			}
 
 			// スケジューラステップ
-			n64.GetScheduler().Step(taken);
+			n64.GetScheduler().Step(takenCpu);
 
 			if constexpr (hasBreakPoint)
 			{
 				if (breakPoint()) return true;
 			}
 
-			N64_TRACE(U"end current step: {}\n"_fmt(taken));
+			N64_TRACE(U"end current step: {}\n"_fmt(takenCpu));
 
 			// 終了チェック
-			state.cpuEarnedCycles += taken;
+			state.cpuEarnedCycles += takenCpu;
 			if (state.cpuEarnedCycles >= cyclesPerHalfLine) break;
 		}
 		// 1ライン終了

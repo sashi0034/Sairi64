@@ -34,6 +34,9 @@ namespace N64
 				if (countdown == 0) isTraceEnabled = false;
 			}
 #endif
+#if 0
+			if (Scene::FrameCount() > 5) isTraceEnabled = true;
+#endif
 		}
 	};
 

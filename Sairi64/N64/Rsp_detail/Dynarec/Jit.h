@@ -2,6 +2,8 @@
 
 #include "JitForward.h"
 #include "N64/Instruction.h"
+#include "N64/Rsp_detail/Rsp_Interface.h"
+
 #ifndef RSP_PROCESS_INTERNAL
 #error "This file is an internal file used by SpRecompiler"
 #endif
@@ -193,6 +195,35 @@ public:
 	{
 		JIT_SP;
 		return branchOffsetInternal<Opcode::Invalid_0xFF, sub>(ctx, instr);
+	}
+
+	[[nodiscard]]
+	static DecodedToken MTC0(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, (uint64)ctx.n64);
+		x86Asm.mov(x86::rdx, (uint64)ctx.rsp);
+		x86Asm.mov(x86::r8b, instr.Rd());
+		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[instr.Rt()])));
+		x86Asm.mov(x86::r9d, x86::eax);
+		x86Asm.call((uint64)&Rsp::Interface::WriteSpCop0);
+		return DecodedToken::Continue;
+	}
+
+	[[nodiscard]]
+	static DecodedToken MFC0(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		const uint8 rt = instr.Rt();
+		if (rt == 0) return DecodedToken::Continue;
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, (uint64)ctx.n64);
+		x86Asm.mov(x86::rdx, (uint64)ctx.rsp);
+		x86Asm.mov(x86::r8b, instr.Rd());
+		x86Asm.call((uint64)&Rsp::Interface::ReadSpCop0);
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[rt])), x86::eax);
+		return DecodedToken::Continue;
 	}
 
 	[[nodiscard]]

@@ -74,7 +74,7 @@ namespace N64
 			Unicode::Widen(location.file_name()),
 			location.line(),
 			Unicode::Widen(location.function_name())));
-		System::MessageBoxOK(U"N64 Abort", MessageBoxStyle::Error);
+		System::MessageBoxOK(U"Abort!\n" + message, MessageBoxStyle::Error);
 		std::exit(-1);
 	}
 

@@ -75,11 +75,10 @@ namespace N64::Rsp_detail
 		SpStatus32& Status() { return m_status; }
 		Pc& GetPc() { return m_pc; }
 
+		class Interface;
 		class Process;
 
 	private:
-		class Interface;
-
 		SpDmem m_dmem{};
 		SpImem m_imem{};
 		Dynarec::ImemCache m_imemCache{};

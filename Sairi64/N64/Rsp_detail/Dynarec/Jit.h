@@ -73,9 +73,7 @@ public:
 		{
 			static_assert(AlwaysFalseValue<Opcode, op>);
 		}
-
-		x86Asm.mov(x86::rcx, (uint64)&gpr[rt]);
-		x86Asm.mov(x86::dword_ptr(x86::rcx), x86::eax);
+		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rt])), x86::eax);
 
 		return DecodedToken::Continue;
 	}
@@ -374,7 +372,7 @@ private:
 		}
 		else static_assert(AlwaysFalseValue<OpRegimm, sub>);
 		// now, r8d <- condition
-		x86Asm.test(x86::r8d, x86::r8d); // if condition is false
+		x86Asm.test(x86::r8b, x86::r8b); // if condition is false
 		x86Asm.je(failureLabel); // then goto @failure
 		// now, branch accepted
 		x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));

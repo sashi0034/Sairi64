@@ -352,26 +352,26 @@ private:
 		else if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZAL)
 		{
 			x86Asm.shr(x86::eax, 31);
-			x86Asm.mov(x86::r8d, x86::eax);
+			x86Asm.mov(x86::r8b, x86::al);
 		}
 		else if constexpr (op == Opcode::BLEZ)
 		{
 			x86Asm.test(x86::eax, x86::eax);
-			x86Asm.setle(x86::r8d);
+			x86Asm.setle(x86::r8b);
 		}
 		else if constexpr (op == Opcode::BGTZ)
 		{
 			x86Asm.test(x86::eax, x86::eax);
-			x86Asm.setg(x86::r8d);
+			x86Asm.setg(x86::r8b);
 		}
 		else if constexpr (sub == OpRegimm::BGEZ || sub == OpRegimm::BGEZAL)
 		{
 			x86Asm.shr(x86::eax, 31);
-			x86Asm.xor_(x86::eax, 1);
-			x86Asm.mov(x86::r8d, x86::eax);
+			x86Asm.xor_(x86::al, 1);
+			x86Asm.mov(x86::r8b, x86::al);
 		}
 		else static_assert(AlwaysFalseValue<OpRegimm, sub>);
-		// now, r8d <- condition
+		// now, r8b <- condition
 		x86Asm.test(x86::r8b, x86::r8b); // if condition is false
 		x86Asm.je(failureLabel); // then goto @failure
 		// now, branch accepted

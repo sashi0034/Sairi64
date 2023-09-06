@@ -18,7 +18,7 @@ public:
 		case Opcode::SPECIAL:
 			return assembleSPECIAL(ctx, state, static_cast<InstructionR>(instr));
 		case Opcode::REGIMM:
-			break;
+			return assembleREGIMM(ctx, state, static_cast<InstructionRegimm>(instr));
 		case Opcode::J:
 			return Jit::J_template<Opcode::J>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::JAL:
@@ -227,6 +227,24 @@ private:
 		case OpCopSub::MFC:
 			return Jit::MFC0(ctx, static_cast<InstructionR>(instr));
 		default: break;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	static DecodedToken assembleREGIMM(const AssembleContext& ctx, const AssembleState& state, InstructionRegimm instr)
+	{
+		switch (instr.Sub())
+		{
+		case OpRegimm::BLTZ:
+			return Jit::B_branchOffset<OpRegimm::BLTZ>(ctx, instr);
+		case OpRegimm::BLTZAL:
+			return Jit::B_branchOffset<OpRegimm::BLTZAL>(ctx, instr);
+		case OpRegimm::BGEZ:
+			return Jit::B_branchOffset<OpRegimm::BGEZ>(ctx, instr);
+		case OpRegimm::BGEZAL:
+			return Jit::B_branchOffset<OpRegimm::BGEZAL>(ctx, instr);
+		default: ;
 		}
 
 		return AssumeNotImplemented(ctx, instr);

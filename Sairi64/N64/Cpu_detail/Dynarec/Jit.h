@@ -171,7 +171,7 @@ public:
 	}
 
 	template <OpSpecialFunct funct> [[nodiscard]]
-	static DecodedToken DMULT_template(const AssembleContext& ctx, InstructionR instr)
+	static DecodedToken D_multiplyDivide(const AssembleContext& ctx, InstructionR instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -187,6 +187,10 @@ public:
 			x86Asm.call((uint64)&helperDMULT);
 		else if constexpr (funct == OpSpecialFunct::DMULTU)
 			x86Asm.call((uint64)&helperDMULTU);
+		else if constexpr (funct == OpSpecialFunct::DDIV)
+			x86Asm.call((uint64)&helperDDIV);
+		else if constexpr (funct == OpSpecialFunct::DDIVU)
+			x86Asm.call((uint64)&helperDDIVU);
 		else static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
 		return DecodedToken::Continue;
 	}
@@ -688,5 +692,46 @@ private:
 		const int128 result = (int128)rs * (int128)rt;
 		*lo = static_cast<uint64>(result);
 		*hi = static_cast<uint64>(result >> 64);;
+	}
+
+	N64_ABI static void helperDDIV(sint64 rs, sint64 rt, uint64* lo, uint64* hi)
+	{
+		const sint64 dividend = rs;
+		const sint64 divisor = rt;
+		if (dividend == 0x8000000000000000 && divisor == 0xFFFFFFFFFFFFFFFF)
+		{
+			*lo = dividend;
+			*hi = 0;
+		}
+		else if (divisor == 0)
+		{
+			*hi = dividend;
+			*lo = dividend >= 0 ? -1 : 1;
+		}
+		else
+		{
+			const sint64 quotient = dividend / divisor;
+			const sint64 remainder = dividend % divisor;
+			*lo = quotient;
+			*hi = remainder;
+		}
+	}
+
+	N64_ABI static void helperDDIVU(uint64 rs, uint64 rt, uint64* lo, uint64* hi)
+	{
+		const uint64 dividend = rs;
+		const uint64 divisor = rt;
+		if (divisor == 0)
+		{
+			*lo = -1;
+			*hi = dividend;
+		}
+		else
+		{
+			const uint64 quotient = dividend / divisor;
+			const uint64 remainder = dividend % divisor;
+			*lo = quotient;
+			*hi = remainder;
+		}
 	}
 };

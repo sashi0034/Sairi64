@@ -180,13 +180,13 @@ private:
 		case OpSpecialFunct::DIVU:
 			return UseInterpreter(ctx, instr, &interpret::DIVU);
 		case OpSpecialFunct::DMULT:
-			return Jit::DMULT_template<OpSpecialFunct::DMULT>(ctx, instr);
+			return Jit::D_multiplyDivide<OpSpecialFunct::DMULT>(ctx, instr);
 		case OpSpecialFunct::DMULTU:
-			return Jit::DMULT_template<OpSpecialFunct::DMULTU>(ctx, instr);
+			return Jit::D_multiplyDivide<OpSpecialFunct::DMULTU>(ctx, instr);
 		case OpSpecialFunct::DDIV:
-			break;
+			return Jit::D_multiplyDivide<OpSpecialFunct::DDIV>(ctx, instr);
 		case OpSpecialFunct::DDIVU:
-			break;
+			return Jit::D_multiplyDivide<OpSpecialFunct::DDIVU>(ctx, instr);
 		case OpSpecialFunct::ADD:
 			return Jit::SPECIAL_arithmetic<OpSpecialFunct::ADDU>(ctx, instr); // TODO: 例外
 		case OpSpecialFunct::ADDU:

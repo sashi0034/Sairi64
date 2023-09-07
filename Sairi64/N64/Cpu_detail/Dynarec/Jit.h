@@ -171,6 +171,27 @@ public:
 	}
 
 	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken DMULT_template(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& cpu = *ctx.cpu;
+		auto&& gpr = cpu.GetGpr().Raw();
+		const uint8 rs = instr.Rs();
+		const uint8 rt = instr.Rt();
+		x86Asm.mov(x86::rcx, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rs])));
+		x86Asm.mov(x86::rdx, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rt])));
+		x86Asm.mov(x86::r8, Process::AddressLo(cpu));
+		x86Asm.mov(x86::r9, Process::AddressHi(cpu));
+		if constexpr (funct == OpSpecialFunct::DMULT)
+			x86Asm.call((uint64)&helperDMULT);
+		else if constexpr (funct == OpSpecialFunct::DMULTU)
+			x86Asm.call((uint64)&helperDMULTU);
+		else static_assert(AlwaysFalseValue<OpSpecialFunct, funct>);
+		return DecodedToken::Continue;
+	}
+
+	template <OpSpecialFunct funct> [[nodiscard]]
 	static DecodedToken MF_template(const AssembleContext& ctx, InstructionR instr)
 	{
 		JIT_ENTRY;
@@ -589,8 +610,8 @@ private:
 			op == Opcode::BGTZ ||
 			sub == OpRegimm::BGEZ ||
 			sub == OpRegimm::BGEZAL
-				? BranchType::Normal
-				: BranchType::Likely;
+			? BranchType::Normal
+			: BranchType::Likely;
 		auto&& x86Asm = *ctx.x86Asm;
 		auto&& gpr = ctx.cpu->GetGpr();
 		auto&& pc = ctx.cpu->GetPc().Raw();
@@ -653,5 +674,19 @@ private:
 			x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[GprRA_31])), x86::rax);
 		}
 		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
+	}
+
+	N64_ABI static void helperDMULT(uint64 rs, uint64 rt, uint64* lo, uint64* hi)
+	{
+		const uint128 result = (uint128)rs * (uint128)rt;
+		*lo = static_cast<uint64>(result);
+		*hi = static_cast<uint64>(result >> 64);;
+	}
+
+	N64_ABI static void helperDMULTU(sint64 rs, sint64 rt, uint64* lo, uint64* hi)
+	{
+		const int128 result = (int128)rs * (int128)rt;
+		*lo = static_cast<uint64>(result);
+		*hi = static_cast<uint64>(result >> 64);;
 	}
 };

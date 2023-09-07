@@ -180,9 +180,9 @@ private:
 		case OpSpecialFunct::DIVU:
 			return UseInterpreter(ctx, instr, &interpret::DIVU);
 		case OpSpecialFunct::DMULT:
-			break;
+			return Jit::DMULT_template<OpSpecialFunct::DMULT>(ctx, instr);
 		case OpSpecialFunct::DMULTU:
-			break;
+			return Jit::DMULT_template<OpSpecialFunct::DMULTU>(ctx, instr);
 		case OpSpecialFunct::DDIV:
 			break;
 		case OpSpecialFunct::DDIVU:

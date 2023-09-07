@@ -128,7 +128,11 @@ TEST_CASE("RspTest")
 	// REQUIRE(rspTest(U"lqv_sqv")); // OK
 	// REQUIRE(rspTest(U"vadd")); // OK
 	// REQUIRE(rspTest(U"lhv_shv")); // OK
-	REQUIRE(rspTest(U"vrcp"));
+	// REQUIRE(rspTest(U"vrcp")); // OK
+	// REQUIRE(rspTest(U"vaddc")); // OK
+	// REQUIRE(rspTest(U"vsub")); // OK
+	// REQUIRE(rspTest(U"vsubc")); // OK
+
 	REQUIRE(rspTest(U"vlt"));
 	REQUIRE(rspTest(U"llv_slv"));
 	REQUIRE(rspTest(U"vcr"));
@@ -144,7 +148,6 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"compelt"));
 	REQUIRE(rspTest(U"vge"));
 	REQUIRE(rspTest(U"vmrg"));
-	REQUIRE(rspTest(U"vsub"));
 	REQUIRE(rspTest(U"swv"));
 	REQUIRE(rspTest(U"vmadm"));
 	REQUIRE(rspTest(U"vch"));
@@ -154,9 +157,7 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"vcl"));
 	REQUIRE(rspTest(U"stv"));
 	REQUIRE(rspTest(U"lfv_sfv"));
-	REQUIRE(rspTest(U"vaddc"));
 	REQUIRE(rspTest(U"vmadn"));
-	REQUIRE(rspTest(U"vsubc"));
 	REQUIRE(rspTest(U"lrv_srv"));
 	REQUIRE(rspTest(U"vmudl"));
 	REQUIRE(rspTest(U"vne"));

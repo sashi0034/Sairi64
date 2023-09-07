@@ -237,10 +237,47 @@ private:
 				vu.vcO.l.uE[i] = 0;
 				vu.vcO.h.uE[i] = 0;
 			}
+			else if constexpr (funct == OpCop2VecFunct::VADDC)
+			{
+				const uint32 result = vs.uE[i] + vte.uE[i];
+				vu.accum.l.uE[i] = result & 0xFFFF;
+				vd.uE[i] = result & 0xFFFF;
+				vu.vcO.l.uE[i] = VuFlag16((result >> 16) & 1);
+				vu.vcO.h.uE[i] = VuFlag16(0);
+			}
+			else if constexpr (funct == OpCop2VecFunct::VAND)
+			{
+				const uint16 result = vte.uE[i] & vs.uE[i];
+				vd.uE[i] = result;
+				vu.accum.l.uE[i] = result;
+			}
+			else if constexpr (funct == OpCop2VecFunct::VSUB)
+			{
+				const sint32 result = vs.sE[i] - vte.sE[i] - (vu.vcO.l.uE[i] != 0);
+				vu.accum.l.sE[i] = result;
+				vd.sE[i] = SignedClamp(result);
+				vu.vcO.l.uE[i] = VuFlag16(0);
+				vu.vcO.h.uE[i] = VuFlag16(0);
+			}
+			else if constexpr (funct == OpCop2VecFunct::VSUBC)
+			{
+				const uint32 result = vs.uE[i] - vte.uE[i];
+				const uint16 hresult = result & 0xFFFF;
+				const bool carry = (result >> 16) & 1;
+				vd.uE[i] = hresult;
+				vu.accum.l.uE[i] = hresult;
+				vu.vcO.l.uE[i] = VuFlag16(carry);
+				vu.vcO.h.uE[i] = VuFlag16(result != 0);
+			}
 			else if constexpr (funct == OpCop2VecFunct::VXOR)
 			{
 				vu.accum.l.uE[i] = vte.uE[i] ^ vs.uE[i];
 				vd.uE[i] = vu.accum.l.uE[i];
+			}
+			else if constexpr (funct == OpCop2VecFunct::Undocumented_0xFE)
+			{
+				vu.accum.l.uE[i] = vte.uE[i] + vs.uE[i];
+				vd.single = 0;
 			}
 			else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
 		}

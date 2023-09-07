@@ -298,13 +298,13 @@ private:
 		case OpCop2VecFunct::VADD:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VADD>(ctx, instr);
 		case OpCop2VecFunct::VSUB:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VSUB>(ctx, instr);
 		case OpCop2VecFunct::VABS:
 			break;
 		case OpCop2VecFunct::VADDC:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VADDC>(ctx, instr);
 		case OpCop2VecFunct::VSUBC:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VSUBC>(ctx, instr);
 		case OpCop2VecFunct::VSAR:
 			return Jit::Vector::VSAR(ctx, instr);
 		case OpCop2VecFunct::VLT:
@@ -324,7 +324,7 @@ private:
 		case OpCop2VecFunct::VMRG:
 			break;
 		case OpCop2VecFunct::VAND:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VAND>(ctx, instr);
 		case OpCop2VecFunct::VNAND:
 			break;
 		case OpCop2VecFunct::VOR:
@@ -350,6 +350,48 @@ private:
 		case OpCop2VecFunct::VRSQH:
 			break;
 		case OpCop2VecFunct::VNOP:
+			break;
+
+		// undocumented instructions
+		case OpCop2VecFunct::VSUT:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VADDB:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VSUBB:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VACCB:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VSUCB:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VSAD:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VSAC:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VSUM:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::Unknown_0x1E:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::Unknown_0x1F:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::Unknown_0x2E:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::Unknown_0x2F:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VEXTT:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VEXTQ:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VEXTN:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::Unknown_0x3B:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VINST:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VINSQ:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VINSN:
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::Undocumented_0xFE>(ctx, instr);
+		case OpCop2VecFunct::VNULL:
 			break;
 		default: ;
 		}

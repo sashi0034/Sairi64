@@ -337,7 +337,7 @@ namespace N64::Cpu_detail
 
 	template <BusAccess access> ExceptionCode Cop0::GetTlbExceptionCode() const
 	{
-		switch (m_tlbError)
+		switch (m_tlb.GetError())
 		{
 		case TlbError::None:
 			N64Logger::Abort(U"no tlb exception code with none");

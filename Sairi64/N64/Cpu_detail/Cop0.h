@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "N64/Forward.h"
 #include "Utils/Util.h"
+#include "Tlb.h"
 
 namespace N64::Cpu_detail
 {
@@ -219,15 +220,6 @@ namespace N64::Cpu_detail
 		// (31)
 	};
 
-	enum class TlbError : uint8
-	{
-		None,
-		Miss,
-		Invalid,
-		Modification,
-		DisallowedAddress
-	};
-
 	class Cop0
 	{
 	public:
@@ -249,8 +241,8 @@ namespace N64::Cpu_detail
 		template <typename Wire> Wire readInternal(uint8 number) const;
 		template <typename Wire> void writeInternal(uint8 number, Wire value);
 		Cop0Reg m_reg{};
-		TlbError m_tlbError{};
 		bool m_llBit{};
+		Tlb m_tlb{};
 	};
 
 	template ExceptionCode Cop0::GetTlbExceptionCode<BusAccess::Load>() const;

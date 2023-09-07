@@ -48,7 +48,6 @@ namespace N64
 			constexpr AddressRange<uint32> SpImem{0x04001000, 0x04001FFF};
 			constexpr AddressRange<uint32> RspRegisters{0x04040000, 0x040BFFFF};
 
-			constexpr AddressRange<uint32> PifRam{0x1FC007C0, 0x1FC007FF};
 			constexpr AddressRange<uint32> MI{0x04300000, 0x043FFFFF};
 			constexpr AddressRange<uint32> VI{0x04400000, 0x044FFFFF};
 			constexpr AddressRange<uint32> AI{0x04500000, 0x045FFFFF};
@@ -56,7 +55,9 @@ namespace N64
 			constexpr AddressRange<uint32> RI{0x04700000, 0x047FFFFF};
 			constexpr AddressRange<uint32> SI{0x04800000, 0x048FFFFF};
 
-			constexpr AddressRange<uint32> Rom{0x10000000, 0x1FBFFFFF};
+			constexpr AddressRange<uint32> N64DdIplRom{0x06000000, 0x07FFFFFF};
+			constexpr AddressRange<uint32> CartridgeRom{0x10000000, 0x1FBFFFFF};
+			constexpr AddressRange<uint32> PifRam{0x1FC007C0, 0x1FC007FF};
 		}
 
 		N64_ABI uint64 ReadPaddr64(N64System& n64, PAddr32 paddr);

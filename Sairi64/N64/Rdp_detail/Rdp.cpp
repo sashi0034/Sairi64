@@ -156,6 +156,16 @@ namespace N64::Rdp_detail
 		m_display.Render(config);
 	}
 
+	void Rdp::WriteStart(uint32 value)
+	{
+		Interface::WriteStart(*this, value);
+	}
+
+	void Rdp::WriteEnd(N64System& n64, uint32 value)
+	{
+		Interface::WriteEnd(n64, *this, value);
+	}
+
 	void Rdp::WriteStatus(N64System& n64, DpcStatusWrite32 write)
 	{
 		Interface::WriteStatus(n64, *this, write);

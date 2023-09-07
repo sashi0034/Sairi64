@@ -30,6 +30,28 @@ namespace N64::Rdp_detail
 			rdp.checkRunCommand(n64);
 		}
 
+		static void WriteStart(Rdp& rdp, uint32 value)
+		{
+			auto&& dpc = rdp.m_dpc;
+			if (dpc.status.StartValid() == false)
+			{
+				dpc.start = value & 0xFFFFF8;
+				dpc.status.StartValid().Set(true);
+			}
+		}
+
+		static void WriteEnd(N64System& n64, Rdp& rdp, uint32 value)
+		{
+			auto&& dpc = rdp.m_dpc;
+			dpc.end = value & 0xFFFFF8;
+			if (dpc.status.StartValid())
+			{
+				dpc.current = dpc.start;
+				dpc.status.StartValid().Set(false);
+			}
+			rdp.checkRunCommand(n64);
+		}
+
 	private:
 		template <int n>
 		static inline void bitClearSet(BitAccessor<n, n, uint32> bit, bool clear, bool set)

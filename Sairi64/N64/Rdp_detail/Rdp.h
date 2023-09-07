@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Dpc.h"
 #include "DisplayManager.h"
-#include "SoftCommander.h"
+#include "OrthoCommander.h"
 
 namespace N64::Rdp_detail
 {
@@ -26,6 +26,8 @@ namespace N64::Rdp_detail
 		void UpdateDisplay(N64System& n64);
 		void RenderReal(const RenderConfig& config) const;
 
+		void WriteStart(uint32 value);
+		void WriteEnd(N64System& n64, uint32 value);
 		void WriteStatus(N64System& n64, DpcStatusWrite32 write);
 
 	private:
@@ -35,7 +37,7 @@ namespace N64::Rdp_detail
 		Dpc m_dpc{};
 		DisplayManager m_display{};
 		RdpCommandBuffer m_commandBuffer{};
-		SoftCommander m_commander{};
+		OrthoCommander m_commander{};
 
 		void checkRunCommand(N64System& n64);
 	};

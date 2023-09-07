@@ -146,7 +146,7 @@
     <ClCompile Include="N64\N64Singleton.cpp" />
     <ClCompile Include="N64\N64System.cpp" />
     <ClCompile Include="N64\Rdp_detail\RdpCommand.cpp" />
-    <ClCompile Include="N64\Rdp_detail\SoftCommander.cpp" />
+    <ClCompile Include="N64\Rdp_detail\OrthoCommander.cpp" />
     <ClCompile Include="N64\Rdp_detail\ParaCommander.cpp" />
     <ClCompile Include="N64\Rdp_detail\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\DisplayManager.cpp" />
@@ -401,7 +401,7 @@
     <ClInclude Include="N64\N64System.h" />
     <ClInclude Include="N64\Rdp.h" />
     <ClInclude Include="N64\Rdp_detail\Dpc.h" />
-    <ClInclude Include="N64\Rdp_detail\SoftCommander.h" />
+    <ClInclude Include="N64\Rdp_detail\OrthoCommander.h" />
     <ClInclude Include="N64\Rdp_detail\ParaCommander.h" />
     <ClInclude Include="N64\Rdp_detail\Rdp.h" />
     <ClInclude Include="N64\Rdp_detail\DisplayManager.h" />

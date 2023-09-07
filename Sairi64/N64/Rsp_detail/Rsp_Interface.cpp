@@ -236,12 +236,15 @@ namespace N64::Rsp_detail
 			else
 				N64Logger::Abort(U"could not release semaphore with non-zero value");
 			return;
-		case 8: // TODO
-			break;
-		case 9: // TODO
-			break;
-		case 11: // TODO
-			break;
+		case 8:
+			n64.GetRdp().WriteStart(value);
+			return;
+		case 9:
+			n64.GetRdp().WriteEnd(n64, value);
+			return;
+		case 11:
+			n64.GetRdp().WriteStatus(n64, {value});
+			return;
 		default: ;
 		}
 		N64Logger::Abort(U"unsupported sp-cop0 write: index={}"_fmt(index));

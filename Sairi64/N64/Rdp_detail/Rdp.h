@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "Display.h"
+#include "Dpc.h"
+#include "DisplayManager.h"
+#include "SoftCommander.h"
 
 namespace N64::Rdp_detail
 {
@@ -9,13 +11,32 @@ namespace N64::Rdp_detail
 		float scale;
 	};
 
+	constexpr uint32 RdpCommandBufferSize_0xFFFFF = 0xFFFFF;
+
+	struct RdpCommandBuffer
+	{
+		Array<uint32> list;
+		int32 lastUnprocessedWords;
+	};
+
 	class Rdp
 	{
 	public:
+		Rdp();
 		void UpdateDisplay(N64System& n64);
 		void RenderReal(const RenderConfig& config) const;
 
+		void WriteStatus(N64System& n64, DpcStatusWrite32 write);
+
 	private:
-		Display m_display{};
+		class Impl;
+		class Interface;
+
+		Dpc m_dpc{};
+		DisplayManager m_display{};
+		RdpCommandBuffer m_commandBuffer{};
+		SoftCommander m_commander{};
+
+		void checkRunCommand(N64System& n64);
 	};
 }

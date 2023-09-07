@@ -5,7 +5,7 @@ namespace N64::Rdp_detail
 {
 	struct RenderConfig;
 
-	class Display
+	class DisplayManager
 	{
 	public:
 		void ScanBlank();

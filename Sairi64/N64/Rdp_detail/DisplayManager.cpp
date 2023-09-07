@@ -1,15 +1,15 @@
 ﻿#include "stdafx.h"
-#include "Display.h"
+#include "DisplayManager.h"
 
 #include "N64/N64System.h"
 
 namespace N64::Rdp_detail
 {
-	class Display::Impl
+	class DisplayManager::Impl
 	{
 	public:
 		// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/frontend/render.c#L118
-		static void CheckRecreateTexture(N64System& n64, Display& display)
+		static void CheckRecreateTexture(N64System& n64, DisplayManager& display)
 		{
 			// テクスチャの再作成をチェック
 			auto&& vi = n64.GetVI();
@@ -36,13 +36,13 @@ namespace N64::Rdp_detail
 		}
 	};
 
-	void Display::ScanBlank()
+	void DisplayManager::ScanBlank()
 	{
 		m_pixelBuffer.fill(Palette::Black);
 		m_texture.fill(m_pixelBuffer);
 	}
 
-	void Display::ScanR5G5B5A1(N64System& n64)
+	void DisplayManager::ScanR5G5B5A1(N64System& n64)
 	{
 		Impl::CheckRecreateTexture(n64, *this);
 
@@ -51,7 +51,7 @@ namespace N64::Rdp_detail
 		m_texture.fill(m_pixelBuffer);
 	}
 
-	void Display::ScanR8G8B8A8(N64System& n64)
+	void DisplayManager::ScanR8G8B8A8(N64System& n64)
 	{
 		Impl::CheckRecreateTexture(n64, *this);
 
@@ -69,7 +69,7 @@ namespace N64::Rdp_detail
 		m_texture.fill(m_pixelBuffer);
 	}
 
-	void Display::Render(const RenderConfig& config) const
+	void DisplayManager::Render(const RenderConfig& config) const
 	{
 		(void)m_texture.scaled(config.scale * m_videoScale).draw(config.startPoint);
 	}

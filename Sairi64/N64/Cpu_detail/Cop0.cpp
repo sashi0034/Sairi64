@@ -38,7 +38,7 @@ namespace N64::Cpu_detail
 			if constexpr (wire32) return m_reg.index & 0x8000003F;
 			else break;
 		case Cop0RegKind::Random:
-			if constexpr (wire32) return Random(m_reg.wired, static_cast<uint32>(31));
+			if constexpr (wire32) return WiredRandom();
 			else break;
 		case Cop0RegKind::EntryLo0:
 			return m_reg.entryLo0;
@@ -298,6 +298,15 @@ namespace N64::Cpu_detail
 
 		N64Logger::Abort(U"cop0 unsupported write {}-bit: {}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), number));
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/r4300i_register_access.h#L157
+	uint8 Cop0::WiredRandom() const
+	{
+		if (m_reg.wired <= 31)
+			return Random(m_reg.wired, static_cast<uint32>(31));
+		else
+			return Random(0, 63);
 	}
 
 	uint64 Cop0::Read64(uint8 number) const

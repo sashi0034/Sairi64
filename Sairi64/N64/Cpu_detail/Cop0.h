@@ -74,6 +74,19 @@ namespace N64::Cpu_detail
 		Unused_31 = 31,
 	};
 
+	class Cop0Index32
+	{
+	public:
+		Cop0Index32(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
+
+		auto I() { return BitAccess<0, 5>(m_raw); } // 6
+		// [6, 30] 25
+		auto P() { return BitAccess<31>(m_raw); } // 1
+	private:
+		uint32 m_raw{};
+	};
+
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/cpu/r4300i.h#L276C2-L276C2
 	class Cop0Status32
 	{
@@ -186,7 +199,7 @@ namespace N64::Cpu_detail
 	// https://n64.readthedocs.io/#:~:text=for%20what%20purposes.-,COP0%20Registers,-Register%20Number
 	struct Cop0Reg
 	{
-		uint32 index;
+		Cop0Index32 index;
 		// (1) random
 		uint32 entryLo0; // TODO: refine type?
 		uint32 entryLo1; // TODO: refine type?
@@ -226,6 +239,7 @@ namespace N64::Cpu_detail
 		Cop0();
 		Cop0Reg& Reg() { return m_reg; }
 		const Cop0Reg& Reg() const { return m_reg; }
+		uint8 WiredRandom() const;
 
 		uint64 Read64(uint8 number) const;
 		uint32 Read32(uint8 number) const;
@@ -236,6 +250,8 @@ namespace N64::Cpu_detail
 
 		void HandleTlbException(uint64 vaddr);
 		template <BusAccess access> ExceptionCode GetTlbExceptionCode() const;
+
+		Tlb& GetTlb() { return m_tlb; }
 
 	private:
 		template <typename Wire> Wire readInternal(uint8 number) const;

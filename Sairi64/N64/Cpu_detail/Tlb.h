@@ -18,19 +18,6 @@ namespace N64::Cpu_detail
 		uint32 m_raw{};
 	};
 
-	class TlbIndex32
-	{
-	public:
-		TlbIndex32(uint32 raw = 0): m_raw(raw) { return; }
-		operator uint32() const { return m_raw; }
-
-		auto I() { return BitAccess<0, 5>(m_raw); } // 6
-		// [6, 30] 25
-		auto P() { return BitAccess<31>(m_raw); } // 1
-	private:
-		uint32 m_raw{};
-	};
-
 	class EntryLo32
 	{
 	public:
@@ -73,6 +60,7 @@ namespace N64::Cpu_detail
 		bool global;
 	};
 
+	constexpr uint32 TlbEntryLoMask_0x03FFFFFE = 0x03FFFFFE;
 	constexpr uint8 TlbSize_32 = 32;
 
 	enum class TlbError : uint8
@@ -95,7 +83,6 @@ namespace N64::Cpu_detail
 		EntryHi64 m_entryHi{};
 		EntryLo32 m_entryLo0{};
 		EntryLo32 m_entryLo1{};
-		TlbIndex32 m_index{};
 		std::array<TlbEntry, TlbSize_32> m_tlb{};
 		TlbError m_error{};
 	};

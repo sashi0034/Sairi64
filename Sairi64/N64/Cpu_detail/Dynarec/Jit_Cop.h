@@ -57,6 +57,16 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpCop0CoFunct funct> [[nodiscard]]
+	static DecodedToken TLBW_template(const AssembleContext& ctx, InstructionCopSub instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, (uint64)&ctx.cpu->GetCop0());
+		x86Asm.call(reinterpret_cast<uint64>(&helperTLBW<funct>));
+		return DecodedToken::Continue; // TODO: PC参照先物理アドレスが変わるかもしれないので検証
+	}
+
 private:
 	N64_ABI static uint32 cop0Read32(const Cop0& cop0, uint8 reg)
 	{
@@ -76,5 +86,19 @@ private:
 	N64_ABI static void cop0Write64(Cop0& cop0, uint8 reg, uint64 value)
 	{
 		cop0.Write64(reg, value);
+	}
+
+	template <OpCop0CoFunct funct>
+	N64_ABI static void helperTLBW(Cop0& cop0)
+	{
+		if constexpr (funct == OpCop0CoFunct::TLBWI)
+		{
+			cop0.GetTlb().WriteEntry(cop0.Reg().index.I());
+		}
+		else if constexpr (funct == OpCop0CoFunct::TLBWR)
+		{
+			cop0.GetTlb().WriteEntry(cop0.WiredRandom());
+		}
+		else static_assert(AlwaysFalseValue<OpCop0CoFunct, funct>);
 	}
 };

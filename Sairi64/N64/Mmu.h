@@ -44,6 +44,7 @@ namespace N64
 		namespace PMap
 		{
 			constexpr AddressRange<uint32> RdramMemory{0x00000000, 0x007FFFFF};
+			constexpr AddressRange<uint32> RdramUnused{0x00800000, 0x03FFFFFF};
 			constexpr AddressRange<uint32> SpDmem{0x04000000, 0x04000FFF};
 			constexpr AddressRange<uint32> SpImem{0x04001000, 0x04001FFF};
 			constexpr AddressRange<uint32> RspRegisters{0x04040000, 0x040BFFFF};

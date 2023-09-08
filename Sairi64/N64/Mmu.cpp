@@ -135,6 +135,15 @@ namespace N64::Mmu
 				return ReadBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset));
 			};
 		}
+		for (uint32 addr = PMap::RdramUnused.base; addr < PMap::RdramUnused.end; addr += (1 << lo_20))
+		{
+			// 0x00800000, 0x03FFFFFF
+			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr)
+			{
+				N64Logger::Warn(U"read unused rdram paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
+				return Wire(0);
+			};
+		}
 
 		// RSP
 		map12[0x040] = [](N64System& n64, PAddr32 paddr)
@@ -323,6 +332,14 @@ namespace N64::Mmu
 			{
 				const uint32 offset = paddr - PMap::RdramMemory.base;
 				return WriteBytes<Wire>(n64.GetMemory().Rdram(), EndianAddress<Wire>(offset), value);
+			};
+		}
+		for (uint32 addr = PMap::RdramUnused.base; addr < PMap::RdramUnused.end; addr += (1 << lo_20))
+		{
+			// 0x00800000, 0x03FFFFFF
+			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
+			{
+				return;
 			};
 		}
 

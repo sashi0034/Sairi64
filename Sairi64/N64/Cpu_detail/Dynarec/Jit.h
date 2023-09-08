@@ -594,7 +594,7 @@ private:
 		x86Asm.mov(x86::rdx, x86::rax); // rdx <- rs
 		x86Asm.add(x86::rdx, offset); // rdx <- rs + offset
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu); // rcx <- *cpu
-		x86Asm.mov(x86::rax, (uint64)&handleResolvingError<access, 0>);
+		x86Asm.mov(x86::rax, reinterpret_cast<uint64>(&handleResolvingError<access, 0>));
 		x86Asm.call(x86::rax); // handling
 		x86Asm.mov(x86::rax, state.recompiledLength);
 		x86Asm.jmp(ctx.endLabel); // goto @end

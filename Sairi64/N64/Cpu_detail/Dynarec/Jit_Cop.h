@@ -67,6 +67,33 @@ public:
 		return DecodedToken::Continue; // TODO: PC参照先物理アドレスが変わるかもしれないので検証
 	}
 
+	static DecodedToken LWC1(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& cpu = *ctx.cpu;
+		const uint8 base = instr.Base();
+		const sint64 offset = (sint64)static_cast<sint16>(instr.Offset());
+		const auto resolvedLabel = x86Asm.newLabel();
+		x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
+		x86Asm.mov(x86::rdx, (uint64)&cpu); // rdx <- *cpu
+		if (base != 0)
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&cpu.GetGpr().Raw()[base])));
+		else
+			x86Asm.xor_(x86::rax, x86::rax);
+		x86Asm.add(x86::rax, offset);
+		x86Asm.mov(x86::r8, x86::rax); // r8 <- vaddr
+		x86Asm.mov(x86::r9b, instr.Ft()); // r9b <- ft
+		x86Asm.call((uint64)&helperLWC1);
+		x86Asm.cmp(x86::al, 0);
+		x86Asm.jne(resolvedLabel);
+		// now, error occured
+		x86Asm.mov(x86::rax, state.recompiledLength);
+		x86Asm.jmp(ctx.endLabel);
+		x86Asm.bind(resolvedLabel); // @resolved
+		return DecodedToken::Continue;
+	}
+
 private:
 	N64_ABI static uint32 cop0Read32(const Cop0& cop0, uint8 reg)
 	{
@@ -100,5 +127,30 @@ private:
 			cop0.GetTlb().WriteEntry(cop0.WiredRandom());
 		}
 		else static_assert(AlwaysFalseValue<OpCop0CoFunct, funct>);
+	}
+
+	N64_ABI static bool helperLWC1(N64System& n64, Cpu& cpu, uint64 vaddr, uint8 ft)
+	{
+		auto&& cop0 = cpu.GetCop0();
+		if (cop0.Reg().status.Cu1() == false)
+		[[unlikely]]
+		{
+			Process::ThrowException(cpu, ExceptionKinds::CoprocessorUnusable, 1);
+			return false;
+		}
+
+		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
+		[[likely]]
+		{
+			const uint32 value = Mmu::ReadPaddr32(n64, paddr.value());
+			cpu.GetCop1().SetFgr32(cop0, ft, value);
+			return true;
+		}
+		else
+		{
+			cop0.HandleTlbException(vaddr);
+			Process::ThrowException(cpu, cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
+			return false;
+		}
 	}
 };

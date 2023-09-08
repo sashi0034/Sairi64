@@ -189,9 +189,11 @@ namespace N64::Rsp_detail
 			rsp.m_shadowDmaDramAddr = {value};
 			return;
 		case RspAddress::DmaRdLen_0x04040008:
-			break;
+			Impl::Dma<DmaType::RdramToSp>(n64, rsp, value);
+			return;
 		case RspAddress::DmaWrLen_0x0404000C:
-			break;
+			Impl::Dma<DmaType::SpToRdram>(n64, rsp, value);
+			return;
 		case RspAddress::DmaWrStatus_0x04040010:
 			Impl::WriteStatus(n64, rsp, {value});
 			return;

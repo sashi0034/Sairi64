@@ -9,6 +9,7 @@ namespace N64
 		int currentField;
 		int cpuEarnedCycles;
 		int rspConsumableCycles;
+		Error emulateError;
 	};
 
 	class N64Frame
@@ -20,6 +21,7 @@ namespace N64
 
 	private:
 		double m_fragmentTime{};
+		AsyncTask<void> m_frameTask{};
 
 		N64FrameInternalState m_internalState{};
 	};

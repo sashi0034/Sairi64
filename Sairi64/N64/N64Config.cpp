@@ -7,4 +7,9 @@ namespace N64
 	{
 		return ProcessorType::Dynarec;
 	}
+
+	bool N64Config::defaultThreadingRun()
+	{
+		return true;
+	}
 }

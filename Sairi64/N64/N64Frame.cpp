@@ -123,16 +123,50 @@ namespace N64
 
 	void N64Frame::ControlFrame(N64System& n64, const N64Config& config)
 	{
+		if (m_internalState.emulateError.what().isEmpty() == false) return;
+
 		const double actualDeltaTime = Scene::DeltaTime();
 		const double virtualDeltaTime = 1.0 / GetFps_60_50(n64.GetMemory().IsRomPal());
 
 		m_fragmentTime += actualDeltaTime;
 
+		if (m_frameTask.isValid() && m_frameTask.isReady() == false) return;
+
 		// 60FPS制御
-		while (m_fragmentTime >= virtualDeltaTime)
+		if (config.threadingRun == false)
 		{
-			m_fragmentTime -= virtualDeltaTime;
-			emulateFrame(n64, m_internalState, config.processor);
+			try
+			{
+				// シングルスレッド処理
+				while (m_fragmentTime >= virtualDeltaTime)
+				{
+					m_fragmentTime -= virtualDeltaTime;
+					emulateFrame(n64, m_internalState, config.processor);
+				}
+			}
+			catch (const Error& e)
+			{
+				m_internalState.emulateError = std::move(e);
+			}
+		}
+		else
+		{
+			// 別スレッド処理
+			m_frameTask = Async([&n64, this, &config, virtualDeltaTime]()
+			{
+				try
+				{
+					while (m_fragmentTime >= virtualDeltaTime)
+					{
+						emulateFrame(n64, m_internalState, config.processor);
+						m_fragmentTime -= virtualDeltaTime;
+					}
+				}
+				catch (const Error& e)
+				{
+					m_internalState.emulateError = std::move(e);
+				}
+			});
 		}
 	}
 }

@@ -17,7 +17,10 @@ namespace N64
 			bool executePifRom = true;
 		} boot;
 
+		bool threadingRun = defaultThreadingRun();
+
 	private:
 		static ProcessorType defaultProcessor();
+		static bool defaultThreadingRun();
 	};
 }

@@ -58,7 +58,6 @@ namespace N64::Mmio
 
 		if (write.ClearDpInterrupt())
 		{
-			m_interrupt.Dp().Set(false);
 			InterruptLower<Interruption::DP>(n64);
 		}
 

@@ -84,14 +84,13 @@ namespace N64
 				// 通常
 				(void)emulateFrame_stepCyclesPerHalfLine<hasBreakPoint, processor>(n64, state);
 			}
+
+			if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
+				InterruptRaise<Interruption::VI>(n64);
 		}
 
 		// fieldが0のときは上から下へ通常描画、1のときは1ラインずつ開けながら描画される
 		state.currentField = (state.currentField + 1) % vi.NumFields();
-
-		// 全/半ライン描画完了時にも割り込みチェック (?)
-		if ((vi.VCurrent() & 0x3FE) == vi.VInterrupt())
-			InterruptRaise<Interruption::VI>(n64);
 
 		// 画面更新
 		n64.GetRdp().UpdateDisplay(n64);

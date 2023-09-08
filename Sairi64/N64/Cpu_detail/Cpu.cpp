@@ -141,7 +141,7 @@ namespace N64::Cpu_detail
 		const bool oldExl = m_cop0.Reg().status.Exl();
 
 		N64_TRACE(Cpu, U"exception thrown: pc={:016X}, code={}, coprocessor={}"_fmt(
-			pc, static_cast<uint32>(code), coprocessorError));
+			          pc, static_cast<uint32>(code), coprocessorError));
 
 		if (oldExl == false)
 		{
@@ -194,7 +194,7 @@ namespace N64::Cpu_detail
 				N64Logger::Abort();
 				break;
 
-			default: break;
+			default: N64Logger::Abort();
 			}
 		}
 

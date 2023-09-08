@@ -46,9 +46,14 @@ namespace N64
 		return U"{}{} rt:{}, fs:{}"_fmt(StringifyEnum(Sub()), CopNumber(), Rt(), Fs());
 	}
 
-	String InstructionCop0Co::Stringify() const
+	String InstructionCop0Tlb::Stringify() const
 	{
 		return U"{} ({:08X}h)"_fmt(StringifyEnum(Funct()), Raw());
+	}
+
+	String InstructionCop1Fmt::Stringify() const
+	{
+		return U"{} fmt:{}, ft:{}, fs:{}, fd:{}"_fmt(StringifyEnum(Funct()), StringifyEnum(Fmt()), Ft(), Fs(), Fd());
 	}
 
 	String InstructionCop2VecFunct::Stringify() const

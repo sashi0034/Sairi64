@@ -167,13 +167,62 @@ namespace N64
 		CO_0x1F = 0x1F, // 0b11111
 	};
 
-	enum class OpCop0CoFunct : uint8
+	enum class OpCop0TlbFunct : uint8
 	{
 		TLBR = 0x01,
 		TLBWI = 0x02,
 		TLBWR = 0x06,
 		TLBP = 0x08,
 		ERET = 0x18,
+		WAIT = 0x20,
+	};
+
+	enum class OpCop1FmtFunct : uint8
+	{
+		AddFmt = 0b000000,
+		SubFmt = 0b000001,
+		MultFmt = 0b000010,
+		DivFmt = 0b000011,
+		SqrtFmt = 0b000100,
+		AbsFmt = 0b000101,
+		MovFmt = 0b000110,
+		NegFmt = 0b000111,
+		RoundLFmt = 0b001000,
+		TruncLFmt = 0b001001,
+		CeilLFmt = 0b001010,
+		FloorLFmt = 0b001011,
+		RoundWFmt = 0b001100,
+		TruncWFmt = 0b001101,
+		CeilWFmt = 0b001110,
+		FloorWFmt = 0b001111,
+		CvtSFmt = 0b100000,
+		CvtDFmt = 0b100001,
+		CvtWFmt = 0b100100,
+		CvtLFmt = 0b100101,
+		CondFFmt = 0b110000,
+		CondUnFmt = 0b110001,
+		CondEqFmt = 0b110010,
+		CondUeqFmt = 0b110011,
+		CondOltFmt = 0b110100,
+		CondUltFmt = 0b110101,
+		CondOleFmt = 0b110110,
+		CondUleFmt = 0b110111,
+		CondSfFmt = 0b111000,
+		CondNgleFmt = 0b111001,
+		CondSeqFmt = 0b111010,
+		CondNglFmt = 0b111011,
+		CondLtFmt = 0b111100,
+		CondNgeFmt = 0b111101,
+		CondLeFmt = 0b111110,
+		CondNgtFmt = 0b111111,
+	};
+
+	enum class FloatingFmt
+	{
+		Single = 0x10,
+		Double = 0x11,
+		Word = 0x14,
+		Long = 0x15,
 	};
 
 	enum class OpCop2VecFunct : uint8
@@ -358,11 +407,22 @@ namespace N64
 		String Stringify() const;
 	};
 
-	class InstructionCop0Co : public InstructionCop
+	class InstructionCop0Tlb : public InstructionCop
 	{
 	public:
-		OpCop0CoFunct Funct() const { return static_cast<OpCop0CoFunct>(GetBits<0, 5>(Raw())); }
+		OpCop0TlbFunct Funct() const { return static_cast<OpCop0TlbFunct>(GetBits<0, 5>(Raw())); }
 		uint32 ShouldBeZero() const { return GetBits<6, 24>(Raw()); }
+		String Stringify() const;
+	};
+
+	class InstructionCop1Fmt : public InstructionCop
+	{
+	public:
+		OpCop1FmtFunct Funct() const { return static_cast<OpCop1FmtFunct>(GetBits<0, 5>(Raw())); }
+		uint8 Fd() const { return GetBits<6, 10>(Raw()); }
+		uint8 Fs() const { return GetBits<11, 15>(Raw()); }
+		uint8 Ft() const { return GetBits<16, 20>(Raw()); }
+		FloatingFmt Fmt() const { return static_cast<FloatingFmt>(GetBits<21, 25>(Raw())); }
 		String Stringify() const;
 	};
 

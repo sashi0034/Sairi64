@@ -54,7 +54,7 @@ public:
 		return DecodedToken::Continue;
 	}
 
-	template <OpCop0CoFunct funct> [[nodiscard]]
+	template <OpCop0TlbFunct funct> [[nodiscard]]
 	static DecodedToken TLBW_template(const AssembleContext& ctx, InstructionCopSub instr)
 	{
 		JIT_ENTRY;
@@ -141,18 +141,18 @@ private:
 		else static_assert(AlwaysFalse<Wire>);
 	}
 
-	template <OpCop0CoFunct funct>
+	template <OpCop0TlbFunct funct>
 	N64_ABI static void helperTLBW(Cop0& cop0)
 	{
-		if constexpr (funct == OpCop0CoFunct::TLBWI)
+		if constexpr (funct == OpCop0TlbFunct::TLBWI)
 		{
 			cop0.GetTlb().WriteEntry(cop0.Reg().index.I());
 		}
-		else if constexpr (funct == OpCop0CoFunct::TLBWR)
+		else if constexpr (funct == OpCop0TlbFunct::TLBWR)
 		{
 			cop0.GetTlb().WriteEntry(cop0.WiredRandom());
 		}
-		else static_assert(AlwaysFalseValue<OpCop0CoFunct, funct>);
+		else static_assert(AlwaysFalseValue<OpCop0TlbFunct, funct>);
 	}
 
 	template <Opcode op>

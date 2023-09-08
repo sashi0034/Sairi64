@@ -43,7 +43,7 @@ public:
 	}
 
 	[[nodiscard]]
-	static OperatedUnit ERET(Cpu& cpu, InstructionCop0Co instr)
+	static OperatedUnit ERET(Cpu& cpu, InstructionCop0Tlb instr)
 	{
 		BEGIN_OP;
 		auto&& cop0Reg = cpu.GetCop0().Reg();

@@ -307,7 +307,7 @@ private:
 		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
 		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
 		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
-			return interpretCO0(n64, cpu, static_cast<InstructionCop0Co>(instr));
+			return interpretCO0(n64, cpu, static_cast<InstructionCop0Tlb>(instr));
 		default: ;
 		}
 
@@ -316,19 +316,19 @@ private:
 	}
 
 	[[nodiscard]]
-	static OperatedUnit interpretCO0(N64System& n64, Cpu& cpu, InstructionCop0Co instr)
+	static OperatedUnit interpretCO0(N64System& n64, Cpu& cpu, InstructionCop0Tlb instr)
 	{
 		switch (instr.Funct())
 		{
-		case OpCop0CoFunct::TLBR:
+		case OpCop0TlbFunct::TLBR:
 			break;
-		case OpCop0CoFunct::TLBWI:
+		case OpCop0TlbFunct::TLBWI:
 			break;
-		case OpCop0CoFunct::TLBWR:
+		case OpCop0TlbFunct::TLBWR:
 			break;
-		case OpCop0CoFunct::TLBP:
+		case OpCop0TlbFunct::TLBP:
 			break;
-		case OpCop0CoFunct::ERET:
+		case OpCop0TlbFunct::ERET:
 			return Op::Cop::ERET(cpu, instr);
 		default: break;
 		}

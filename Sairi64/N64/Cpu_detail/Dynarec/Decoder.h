@@ -302,7 +302,7 @@ private:
 		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
 		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
 		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
-			return assembleCO0(ctx, state, static_cast<InstructionCop0Co>(instr));
+			return assembleCO0(ctx, state, static_cast<InstructionCop0Tlb>(instr));
 		default: ;
 		}
 
@@ -311,19 +311,19 @@ private:
 	}
 
 	[[nodiscard]]
-	static DecodedToken assembleCO0(const AssembleContext& ctx, const AssembleState& state, InstructionCop0Co instr)
+	static DecodedToken assembleCO0(const AssembleContext& ctx, const AssembleState& state, InstructionCop0Tlb instr)
 	{
 		switch (instr.Funct())
 		{
-		case OpCop0CoFunct::TLBR:
+		case OpCop0TlbFunct::TLBR:
 			break;
-		case OpCop0CoFunct::TLBWI:
-			return Jit::Cop::TLBW_template<OpCop0CoFunct::TLBWI>(ctx, static_cast<InstructionCopSub>(instr));
-		case OpCop0CoFunct::TLBWR:
-			return Jit::Cop::TLBW_template<OpCop0CoFunct::TLBWR>(ctx, static_cast<InstructionCopSub>(instr));
-		case OpCop0CoFunct::TLBP:
+		case OpCop0TlbFunct::TLBWI:
+			return Jit::Cop::TLBW_template<OpCop0TlbFunct::TLBWI>(ctx, static_cast<InstructionCopSub>(instr));
+		case OpCop0TlbFunct::TLBWR:
+			return Jit::Cop::TLBW_template<OpCop0TlbFunct::TLBWR>(ctx, static_cast<InstructionCopSub>(instr));
+		case OpCop0TlbFunct::TLBP:
 			break;
-		case OpCop0CoFunct::ERET:
+		case OpCop0TlbFunct::ERET:
 			return UseInterpreter(ctx, instr, &interpret::Cop::ERET);
 		default: break;
 		}
@@ -347,12 +347,105 @@ private:
 			return UseInterpreter(ctx, sub, &interpret::Cop::CFC1);
 		case OpCopSub::CTC:
 			return UseInterpreter(ctx, sub, &interpret::Cop::CTC1);
+		case OpCopSub::CO_0x10:
+			static_assert(static_cast<int>(OpCopSub::CO_0x10) == static_cast<int>(FloatingFmt::Single));
+			return assembleFmt<FloatingFmt::Single>(ctx, state, static_cast<InstructionCop1Fmt>(instr));
+		case OpCopSub::CO_0x11:
+			static_assert(static_cast<int>(OpCopSub::CO_0x11) == static_cast<int>(FloatingFmt::Double));
+			return assembleFmt<FloatingFmt::Double>(ctx, state, static_cast<InstructionCop1Fmt>(instr));
+		case OpCopSub::CO_0x14:
+			static_assert(static_cast<int>(OpCopSub::CO_0x14) == static_cast<int>(FloatingFmt::Word));
+			return assembleFmt<FloatingFmt::Word>(ctx, state, static_cast<InstructionCop1Fmt>(instr));
+		case OpCopSub::CO_0x15:
+			static_assert(static_cast<int>(OpCopSub::CO_0x15) == static_cast<int>(FloatingFmt::Long));
+			return assembleFmt<FloatingFmt::Long>(ctx, state, static_cast<InstructionCop1Fmt>(instr));
 		// @formatter:off
-		case OpCopSub::CO_0x10: case OpCopSub::CO_0x11: case OpCopSub::CO_0x12: case OpCopSub::CO_0x13:
-		case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
+		case OpCopSub::CO_0x12: case OpCopSub::CO_0x13: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
 		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
 		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
-			// TODO
+			break;
+		default: ;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	template <FloatingFmt fmt>
+	static DecodedToken assembleFmt(const AssembleContext& ctx, const AssembleState& state, InstructionCop1Fmt instr)
+	{
+		switch (instr.Funct())
+		{
+		case OpCop1FmtFunct::AddFmt:
+			break;
+		case OpCop1FmtFunct::SubFmt:
+			break;
+		case OpCop1FmtFunct::MultFmt:
+			break;
+		case OpCop1FmtFunct::DivFmt:
+			break;
+		case OpCop1FmtFunct::SqrtFmt:
+			break;
+		case OpCop1FmtFunct::AbsFmt:
+			break;
+		case OpCop1FmtFunct::MovFmt:
+			break;
+		case OpCop1FmtFunct::NegFmt:
+			break;
+		case OpCop1FmtFunct::RoundLFmt:
+			break;
+		case OpCop1FmtFunct::TruncLFmt:
+			break;
+		case OpCop1FmtFunct::CeilLFmt:
+			break;
+		case OpCop1FmtFunct::FloorLFmt:
+			break;
+		case OpCop1FmtFunct::RoundWFmt:
+			break;
+		case OpCop1FmtFunct::TruncWFmt:
+			break;
+		case OpCop1FmtFunct::CeilWFmt:
+			break;
+		case OpCop1FmtFunct::FloorWFmt:
+			break;
+		case OpCop1FmtFunct::CvtSFmt:
+			break;
+		case OpCop1FmtFunct::CvtDFmt:
+			break;
+		case OpCop1FmtFunct::CvtWFmt:
+			break;
+		case OpCop1FmtFunct::CvtLFmt:
+			break;
+		case OpCop1FmtFunct::CondFFmt:
+			break;
+		case OpCop1FmtFunct::CondUnFmt:
+			break;
+		case OpCop1FmtFunct::CondEqFmt:
+			break;
+		case OpCop1FmtFunct::CondUeqFmt:
+			break;
+		case OpCop1FmtFunct::CondOltFmt:
+			break;
+		case OpCop1FmtFunct::CondUltFmt:
+			break;
+		case OpCop1FmtFunct::CondOleFmt:
+			break;
+		case OpCop1FmtFunct::CondUleFmt:
+			break;
+		case OpCop1FmtFunct::CondSfFmt:
+			break;
+		case OpCop1FmtFunct::CondNgleFmt:
+			break;
+		case OpCop1FmtFunct::CondSeqFmt:
+			break;
+		case OpCop1FmtFunct::CondNglFmt:
+			break;
+		case OpCop1FmtFunct::CondLtFmt:
+			break;
+		case OpCop1FmtFunct::CondNgeFmt:
+			break;
+		case OpCop1FmtFunct::CondLeFmt:
+			break;
+		case OpCop1FmtFunct::CondNgtFmt:
 			break;
 		default: ;
 		}

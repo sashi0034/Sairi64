@@ -328,6 +328,14 @@ private:
 		{
 			cop1.SetFgrBy<Fmt>(cop0, fd, fsF + ftF);
 		}
+		else if constexpr (funct == OpCop1FmtFunct::SubFmt)
+		{
+			cop1.SetFgrBy<Fmt>(cop0, fd, fsF - ftF);
+		}
+		else if constexpr (funct == OpCop1FmtFunct::MulFmt)
+		{
+			cop1.SetFgrBy<Fmt>(cop0, fd, fsF * ftF);
+		}
 		else if constexpr (funct == OpCop1FmtFunct::DivFmt)
 		{
 			cop1.SetFgrBy<Fmt>(cop0, fd, fsF / ftF);

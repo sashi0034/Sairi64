@@ -232,6 +232,10 @@ private:
 		{
 			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint32>(cop1.GetFgrBy<Before>(cop0, fs)));
 		}
+		else if constexpr (std::same_as<Before, uint64>)
+		{
+			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint64>(cop1.GetFgrBy<Before>(cop0, fs)));
+		}
 		else
 		{
 			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs));

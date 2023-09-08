@@ -410,11 +410,11 @@ private:
 		case OpCop1FmtFunct::CvtSFmt:
 			return Jit::Cop::Cvt_template<OpCop1FmtFunct::CvtSFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtDFmt:
-			break;
+			return Jit::Cop::Cvt_template<OpCop1FmtFunct::CvtDFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtWFmt:
-			break;
+			return Jit::Cop::Cvt_template<OpCop1FmtFunct::CvtWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtLFmt:
-			break;
+			return Jit::Cop::Cvt_template<OpCop1FmtFunct::CvtLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CondFFmt:
 			break;
 		case OpCop1FmtFunct::CondUnFmt:

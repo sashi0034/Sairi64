@@ -26,7 +26,10 @@ namespace N64::Cpu_detail
 	};
 
 	// Cvt
-	template <OpCop1FmtFunct funct> struct CvtTarget;
+	template <OpCop1FmtFunct funct> struct CvtTarget
+	{
+		static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
+	};
 
 	template <> struct CvtTarget<OpCop1FmtFunct::CvtSFmt>
 	{

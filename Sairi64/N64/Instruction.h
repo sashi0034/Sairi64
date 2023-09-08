@@ -181,7 +181,7 @@ namespace N64
 	{
 		AddFmt = 0b000000,
 		SubFmt = 0b000001,
-		MultFmt = 0b000010,
+		MulFmt = 0b000010,
 		DivFmt = 0b000011,
 		SqrtFmt = 0b000100,
 		AbsFmt = 0b000101,

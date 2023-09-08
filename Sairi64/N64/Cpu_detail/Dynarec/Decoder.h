@@ -379,7 +379,7 @@ private:
 			return Jit::Cop::Fmt_arithmetic<OpCop1FmtFunct::AddFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::SubFmt:
 			break;
-		case OpCop1FmtFunct::MultFmt:
+		case OpCop1FmtFunct::MulFmt:
 			break;
 		case OpCop1FmtFunct::DivFmt:
 			return Jit::Cop::Fmt_arithmetic<OpCop1FmtFunct::DivFmt, fmt>(ctx, state, instr);

@@ -117,20 +117,18 @@ public:
 		}
 		auto&& x86Asm = *ctx.x86Asm;
 		using floating = FloatingFmtType<fmt>::type;
+		const auto validLabel = x86Asm.newLabel();
+
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 		x86Asm.mov(x86::dl, instr.Fd());
 		x86Asm.mov(x86::r8b, instr.Fs());
 		x86Asm.mov(x86::r9b, instr.Ft());
 		x86Asm.call(reinterpret_cast<uint64>(&helperFmt_arithmetic<funct, floating>));
-		if constexpr (funct == OpCop1FmtFunct::AddFmt)
-		{
-			const auto validLabel = x86Asm.newLabel();
-			x86Asm.test(x86::al, x86::al); // if function was succeeded
-			x86Asm.jne(validLabel); // then goto @valid
-			x86Asm.mov(x86::rax, state.recompiledLength);
-			x86Asm.jmp(ctx.endLabel);
-			x86Asm.bind(validLabel); // @valid
-		}
+		x86Asm.test(x86::al, x86::al); // if function was succeeded
+		x86Asm.jne(validLabel); // then goto @valid
+		x86Asm.mov(x86::rax, state.recompiledLength);
+		x86Asm.jmp(ctx.endLabel);
+		x86Asm.bind(validLabel); // @valid
 		return DecodedToken::Continue;
 	}
 
@@ -270,18 +268,48 @@ private:
 	}
 
 	template <typename T>
-	static inline bool checkFsFtNan(Cpu& cpu, Cop1& cop1, T fs, T ft)
+	static bool handleQNaN(Cpu& cpu, Cop1& cop1)
+	{
+		cop1.Fcr().fcr31.CauseInvalidOperation().Set(true);
+		if (cop1.Fcr().fcr31.EnableInvalidOperation() == false)
+		{
+			cop1.Fcr().fcr31.FlagInvalidOperation().Set(true);
+			return true;
+		}
+		else
+		{
+			Process::ThrowException(cpu, ExceptionKinds::FloatingPoint, 1);
+			return false;
+		}
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/fpu_instructions.c#L46
+	template <typename T>
+	static inline bool checkValidFloating(Cpu& cpu, Cop1& cop1, T f)
 	{
 		if constexpr (std::same_as<T, float> || std::same_as<T, double>)
 		{
-			if (std::isnan(fs) || std::isnan(ft))
+			// TODO: これではまだ不十分かもしれないので検証
+			switch (std::fpclassify(f))
 			{
-				cop1.Fcr().fcr31.FlagInexactOperation().Set(true);
-				cop1.Fcr().fcr31.CauseInvalidOperation().Set(true);
-				Process::ThrowException(cpu, ExceptionKinds::FloatingPoint, 1);
+			case FP_NAN:
+				if (IsQNaN(f)) return handleQNaN<T>(cpu, cop1);
+				[[fallthrough]];
+			case FP_SUBNORMAL:
+				cop1.Fcr().fcr31.CauseUnimplementedOperation().Set(true);
+				Process::ThrowException(cpu, ExceptionKinds::FloatingPoint, 1); // 未実装操作は必ず割り込みが入るらしい
 				return false;
+			default: ;
 			}
 		}
+		return true;
+	}
+
+	template <typename T>
+	static inline bool checkValidFloating(Cpu& cpu, Cop1& cop1, T fs, T ft)
+	{
+		if (checkValidFloating<T>(cpu, cop1, fs) == false) return false;
+		if (checkValidFloating<T>(cpu, cop1, ft) == false) return false;
 		return true;
 	}
 
@@ -294,9 +322,10 @@ private:
 		const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
 		const Fmt ftF = cop1.GetFgrBy<Fmt>(cop0, ft);
 
+		if (checkValidFloating(cpu, cop1, fsF, ftF) == false) return false;
+
 		if constexpr (funct == OpCop1FmtFunct::AddFmt)
 		{
-			if (checkFsFtNan(cpu, cop1, fsF, ftF) == false) return false;
 			cop1.SetFgrBy<Fmt>(cop0, fd, fsF + ftF);
 		}
 		else if constexpr (funct == OpCop1FmtFunct::DivFmt)

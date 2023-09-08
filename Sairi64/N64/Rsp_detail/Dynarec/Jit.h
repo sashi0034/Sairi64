@@ -252,9 +252,14 @@ public:
 		auto&& rsp = *ctx.rsp;
 		const uint8 rs = instr.Rs();
 		if (rs != 0)
+		{
 			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[rs])));
+			x86Asm.and_(x86::ax, SpImemMask_0xFFF);
+		}
 		else
+		{
 			x86Asm.xor_(x86::eax, x86::eax);
+		}
 		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&Process::AccessPc(rsp).next)), x86::ax);
 		if constexpr (funct == OpSpecialFunct::JALR)
 		{

@@ -30,11 +30,16 @@ namespace N64::Rdp_detail
 		void WriteEnd(N64System& n64, uint32 value);
 		void WriteStatus(N64System& n64, DpcStatusWrite32 write);
 
+		Dpc& GetDpc() { return m_dpc; };
+		const Dpc& GetDpc() const { return m_dpc; };
+
 	private:
 		class Impl;
 		class Interface;
 
-		Dpc m_dpc{};
+		Dpc m_dpc{
+			.status = 0x80,
+		};
 		DisplayManager m_display{};
 		RdpCommandBuffer m_commandBuffer{};
 		OrthoCommander m_commander{};

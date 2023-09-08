@@ -271,14 +271,22 @@ namespace N64::Rsp_detail
 			return rsp.m_status.DmaBusy();
 		case 7:
 			return Impl::AcquireSemaphore(rsp);
-		case 8: // TODO
-		case 9: // TODO
-		case 10: // TODO
-		case 11: // TODO
-		case 12: // TODO
-		case 13: // TODO
-		case 14: // TODO
-		case 15: // TODO
+		case 8:
+			return n64.GetRdp().GetDpc().start;
+		case 9:
+			return n64.GetRdp().GetDpc().end;
+		case 10:
+			return n64.GetRdp().GetDpc().current;
+		case 11:
+			return n64.GetRdp().GetDpc().status;
+		case 12:
+			return n64.GetRdp().GetDpc().clock;
+		case 13:
+			return n64.GetRdp().GetDpc().status.CmdBusy();
+		case 14:
+			return n64.GetRdp().GetDpc().status.PipeBusy();
+		case 15:
+			return n64.GetRdp().GetDpc().status.TmemBusy();
 		default: ;
 		}
 

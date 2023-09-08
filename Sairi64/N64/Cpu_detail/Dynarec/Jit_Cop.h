@@ -68,7 +68,7 @@ public:
 	}
 
 	template <Opcode op>
-	static DecodedToken LC1_template(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
+	static DecodedToken C1_loadStore(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -85,7 +85,7 @@ public:
 		x86Asm.add(x86::rax, offset);
 		x86Asm.mov(x86::r8, x86::rax); // r8 <- vaddr
 		x86Asm.mov(x86::r9b, instr.Ft()); // r9b <- ft
-		x86Asm.call(reinterpret_cast<uint64>(&helperLC1_template<op>));
+		x86Asm.call(reinterpret_cast<uint64>(&helperC1_loadStore<op>));
 		x86Asm.cmp(x86::al, 0);
 		x86Asm.jne(resolvedLabel);
 		// now, error occured
@@ -131,8 +131,15 @@ private:
 	}
 
 	template <Opcode op>
-	N64_ABI static bool helperLC1_template(N64System& n64, Cpu& cpu, uint64 vaddr, uint8 ft)
+	N64_ABI static bool helperC1_loadStore(N64System& n64, Cpu& cpu, uint64 vaddr, uint8 ft)
 	{
+		constexpr BusAccess access = []() consteval
+		{
+			if constexpr (op == Opcode::LWC1 || op == Opcode::LDC1) return BusAccess::Load;
+			else if constexpr (op == Opcode::SWC1 || op == Opcode::SDC1) return BusAccess::Store;
+			else static_assert(AlwaysFalseValue<Opcode, op>);
+		}();
+
 		auto&& cop0 = cpu.GetCop0();
 		if (cop0.Reg().status.Cu1() == false)
 		[[unlikely]]
@@ -154,13 +161,23 @@ private:
 				const uint64 value = Mmu::ReadPaddr64(n64, paddr.value());
 				cpu.GetCop1().SetFgr64(cop0, ft, value);
 			}
+			else if constexpr (op == Opcode::SWC1)
+			{
+				const uint32 value = cpu.GetCop1().GetFgr32(cop0, ft);
+				Mmu::WritePaddr32(n64, paddr.value(), value);
+			}
+			else if constexpr (op == Opcode::SDC1)
+			{
+				const uint64 value = cpu.GetCop1().GetFgr64(cop0, ft);
+				Mmu::WritePaddr64(n64, paddr.value(), value);
+			}
 			else static_assert(AlwaysFalseValue<Opcode, op>);
 			return true;
 		}
 		else
 		{
 			cop0.HandleTlbException(vaddr);
-			Process::ThrowException(cpu, cop0.GetTlbExceptionCode<BusAccess::Load>(), 0);
+			Process::ThrowException(cpu, cop0.GetTlbExceptionCode<access>(), 0);
 			return false;
 		}
 	}

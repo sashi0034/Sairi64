@@ -109,21 +109,21 @@ public:
 		case Opcode::LL:
 			break;
 		case Opcode::LWC1:
-			return Jit::Cop::LC1_template<Opcode::LWC1>(ctx, state, static_cast<InstructionFi>(instr));
+			return Jit::Cop::C1_loadStore<Opcode::LWC1>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LLD:
 			break;
 		case Opcode::LDC1:
-			return Jit::Cop::LC1_template<Opcode::LDC1>(ctx, state, static_cast<InstructionFi>(instr));
+			return Jit::Cop::C1_loadStore<Opcode::LDC1>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LD:
 			return Jit::L_load<Opcode::LD>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SC:
 			break;
 		case Opcode::SWC1:
-			break;
+			return Jit::Cop::C1_loadStore<Opcode::SWC1>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::SCD:
 			break;
 		case Opcode::SDC1:
-			break;
+			return Jit::Cop::C1_loadStore<Opcode::SDC1>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::SD:
 			return Jit::S_store<Opcode::SD>(ctx, state, static_cast<InstructionI>(instr));
 		default: ;

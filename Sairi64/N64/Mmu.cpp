@@ -123,7 +123,7 @@ namespace N64::Mmu
 			}
 		});
 		constexpr int hi_12 = 12;
-		constexpr int lo_20 = 20;
+		constexpr int lo_20 = 32 - hi_12;
 
 		// RDRAM
 		for (uint32 addr = PMap::RdramMemory.base; addr < PMap::RdramMemory.end; addr += (1 << lo_20))
@@ -220,6 +220,21 @@ namespace N64::Mmu
 			return readPaddr_unsupported<Wire>(paddr);
 		};
 
+		// N64DD Registers
+		for (uint32 addr = PMap::N64DdRegisters.base; addr < PMap::N64DdRegisters.end; addr += (1 << lo_20))
+		{
+			// 0x05000000, 0x05FFFFFF
+			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr)
+			{
+				if constexpr (wire32)
+				{
+					N64Logger::Warn(U"read n64dd registers paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
+					return static_cast<uint32>(-1);
+				}
+				return readPaddr_unsupported<Wire>(paddr);
+			};
+		}
+
 		// N64DD IPL ROM
 		for (uint32 addr = PMap::N64DdIplRom.base; addr < PMap::N64DdIplRom.end; addr += (1 << lo_20))
 		{
@@ -298,7 +313,7 @@ namespace N64::Mmu
 			}
 		});
 		constexpr int hi_12 = 12;
-		constexpr int lo_20 = 20;
+		constexpr int lo_20 = 32 - hi_12;
 
 		// RDRAM
 		for (uint32 addr = PMap::RdramMemory.base; addr < PMap::RdramMemory.end; addr += (1 << lo_20))
@@ -404,6 +419,16 @@ namespace N64::Mmu
 			}
 			return writePaddr_unsupported<Wire>(paddr);
 		};
+
+		// N64DD Registers
+		for (uint32 addr = PMap::N64DdRegisters.base; addr < PMap::N64DdRegisters.end; addr += (1 << lo_20))
+		{
+			// 0x05000000, 0x05FFFFFF
+			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
+			{
+				return writePaddr_unsupported<Wire>(paddr);
+			};
+		}
 
 		// N64DD IPL ROM
 		for (uint32 addr = PMap::N64DdIplRom.base; addr < PMap::N64DdIplRom.end; addr += (1 << lo_20))

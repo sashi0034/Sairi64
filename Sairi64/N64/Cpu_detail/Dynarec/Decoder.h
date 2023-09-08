@@ -408,7 +408,7 @@ private:
 		case OpCop1FmtFunct::FloorWFmt:
 			break;
 		case OpCop1FmtFunct::CvtSFmt:
-			break;
+			return Jit::Cop::Cvt_template<OpCop1FmtFunct::CvtSFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtDFmt:
 			break;
 		case OpCop1FmtFunct::CvtWFmt:

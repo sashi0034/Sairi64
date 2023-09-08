@@ -378,6 +378,7 @@
     <ClInclude Include="N64\Cpu_detail\Dynarec\Jit_Cop.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\RecompiledCache.h" />
     <ClInclude Include="N64\Cpu_detail\Dynarec\Recompiler.h" />
+    <ClInclude Include="N64\Cpu_detail\FloatingFmt.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Tlb.h" />
     <ClInclude Include="N64\Instruction.h" />

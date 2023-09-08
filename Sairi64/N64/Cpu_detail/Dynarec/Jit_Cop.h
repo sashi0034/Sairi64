@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Jit.h"
+#include "../FloatingFmt.h"
 
 class N64::Cpu_detail::Dynarec::Jit::Cop
 {
@@ -89,6 +90,20 @@ public:
 		x86Asm.mov(x86::rax, state.recompiledLength);
 		x86Asm.jmp(ctx.endLabel);
 		x86Asm.bind(resolvedLabel); // @resolved
+		return DecodedToken::Continue;
+	}
+
+	template <OpCop1FmtFunct funct, FloatingFmt fmt>
+	static DecodedToken Cvt_template(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	{
+		JIT_ENTRY;
+		auto&& x86Asm = *ctx.x86Asm;
+		using after = CvtTarget<funct>::type;
+		using before = FloatingFmtType<fmt>::type;
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::dl, instr.Fd());
+		x86Asm.mov(x86::r8b, instr.Fs());
+		x86Asm.call(reinterpret_cast<uint64>(&helperCvt<after, before>));
 		return DecodedToken::Continue;
 	}
 
@@ -204,6 +219,22 @@ private:
 			cop0.HandleTlbException(vaddr);
 			Process::ThrowException(cpu, cop0.GetTlbExceptionCode<access>(), 0);
 			return false;
+		}
+	}
+
+	template <typename After, typename Before>
+	N64_ABI static void helperCvt(Cpu& cpu, uint8 fd, uint8 fs)
+	{
+		auto&& cop1 = cpu.GetCop1();
+		auto&& cop0 = cpu.GetCop0();
+
+		if constexpr (std::same_as<Before, uint32>)
+		{
+			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint32>(cop1.GetFgrBy<Before>(cop0, fs)));
+		}
+		else
+		{
+			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs));
 		}
 	}
 };

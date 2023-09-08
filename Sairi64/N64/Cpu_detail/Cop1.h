@@ -82,6 +82,9 @@ namespace N64::Cpu_detail
 		uint32 GetFgr32(const Cop0& cop0, uint8 index) const;
 		uint64 GetFgr64(const Cop0& cop0, uint8 index) const;
 
+		template <typename T> void SetFgrBy(const Cop0& cop0, uint8 index, T value);
+		template <typename T> T GetFgrBy(const Cop0& cop0, uint8 index) const;
+
 		Cop1Fcr& Fcr() { return m_fcr; }
 		const Cop1Fcr& Fcr() const { return m_fcr; }
 
@@ -89,4 +92,38 @@ namespace N64::Cpu_detail
 		Cop1Fcr m_fcr{};
 		std::array<Fgr64, FgrCount_32> m_fgr{};
 	};
+
+	template <typename T>
+	void Cop1::SetFgrBy(const Cop0& cop0, uint8 index, T value)
+	{
+		if constexpr (sizeof(T) == 4)
+		{
+			uint32 raw;
+			memcpy(&raw, &value, sizeof(T));
+			SetFgr32(cop0, index, raw);
+		}
+		else if constexpr (sizeof(T) == 8)
+		{
+			uint64 raw;
+			memcpy(&raw, &value, sizeof(T));
+			SetFgr64(cop0, index, raw);
+		}
+	}
+
+	template <typename T>
+	T Cop1::GetFgrBy(const Cop0& cop0, uint8 index) const
+	{
+		T value;
+		if constexpr (sizeof(T) == 4)
+		{
+			const uint32 raw = GetFgr64(cop0, index);
+			memcpy(&value, &raw, sizeof(T));
+		}
+		else if constexpr (sizeof(T) == 8)
+		{
+			const uint64 raw = GetFgr64(cop0, index);
+			memcpy(&value, &raw, sizeof(T));
+		}
+		return value;
+	}
 }

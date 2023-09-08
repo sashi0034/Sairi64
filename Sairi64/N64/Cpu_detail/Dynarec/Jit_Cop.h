@@ -94,16 +94,26 @@ public:
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
-	static DecodedToken CvtFmt_template(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	static DecodedToken Fmt_convertMove(const AssembleContext& ctx, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;
-		using after = CvtTarget<funct>::type;
 		using before = FloatingFmtType<fmt>::type;
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 		x86Asm.mov(x86::dl, instr.Fd());
 		x86Asm.mov(x86::r8b, instr.Fs());
-		x86Asm.call(reinterpret_cast<uint64>(&helperCvtFmt<after, before>));
+		if constexpr (
+			funct == OpCop1FmtFunct::CvtSFmt || funct == OpCop1FmtFunct::CvtDFmt ||
+			funct == OpCop1FmtFunct::CvtWFmt || funct == OpCop1FmtFunct::CvtLFmt)
+		{
+			using after = CvtTarget<funct>::type;
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_convertMove<after, before>));
+		}
+		else if constexpr (funct == OpCop1FmtFunct::MovFmt)
+		{
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_convertMove<before, before>));
+		}
+		else static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
 		return DecodedToken::Continue;
 	}
 
@@ -248,7 +258,7 @@ private:
 	}
 
 	template <typename After, typename Before>
-	N64_ABI static void helperCvtFmt(Cpu& cpu, uint8 fd, uint8 fs)
+	N64_ABI static void helperFmt_convertMove(Cpu& cpu, uint8 fd, uint8 fs)
 	{
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();

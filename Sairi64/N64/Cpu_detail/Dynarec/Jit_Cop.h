@@ -67,7 +67,8 @@ public:
 		return DecodedToken::Continue; // TODO: PC参照先物理アドレスが変わるかもしれないので検証
 	}
 
-	static DecodedToken LWC1(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
+	template <Opcode op>
+	static DecodedToken LC1_template(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -84,7 +85,7 @@ public:
 		x86Asm.add(x86::rax, offset);
 		x86Asm.mov(x86::r8, x86::rax); // r8 <- vaddr
 		x86Asm.mov(x86::r9b, instr.Ft()); // r9b <- ft
-		x86Asm.call((uint64)&helperLWC1);
+		x86Asm.call(reinterpret_cast<uint64>(&helperLC1_template<op>));
 		x86Asm.cmp(x86::al, 0);
 		x86Asm.jne(resolvedLabel);
 		// now, error occured
@@ -129,7 +130,8 @@ private:
 		else static_assert(AlwaysFalseValue<OpCop0CoFunct, funct>);
 	}
 
-	N64_ABI static bool helperLWC1(N64System& n64, Cpu& cpu, uint64 vaddr, uint8 ft)
+	template <Opcode op>
+	N64_ABI static bool helperLC1_template(N64System& n64, Cpu& cpu, uint64 vaddr, uint8 ft)
 	{
 		auto&& cop0 = cpu.GetCop0();
 		if (cop0.Reg().status.Cu1() == false)
@@ -142,8 +144,17 @@ private:
 		if (const auto paddr = Mmu::ResolveVAddr(cpu, vaddr))
 		[[likely]]
 		{
-			const uint32 value = Mmu::ReadPaddr32(n64, paddr.value());
-			cpu.GetCop1().SetFgr32(cop0, ft, value);
+			if constexpr (op == Opcode::LWC1)
+			{
+				const uint32 value = Mmu::ReadPaddr32(n64, paddr.value());
+				cpu.GetCop1().SetFgr32(cop0, ft, value);
+			}
+			else if constexpr (op == Opcode::LDC1)
+			{
+				const uint64 value = Mmu::ReadPaddr64(n64, paddr.value());
+				cpu.GetCop1().SetFgr64(cop0, ft, value);
+			}
+			else static_assert(AlwaysFalseValue<Opcode, op>);
 			return true;
 		}
 		else

@@ -109,11 +109,11 @@ public:
 		case Opcode::LL:
 			break;
 		case Opcode::LWC1:
-			return Jit::Cop::LWC1(ctx, state, static_cast<InstructionFi>(instr));
+			return Jit::Cop::LC1_template<Opcode::LWC1>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LLD:
 			break;
 		case Opcode::LDC1:
-			break;
+			return Jit::Cop::LC1_template<Opcode::LDC1>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LD:
 			return Jit::L_load<Opcode::LD>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SC:

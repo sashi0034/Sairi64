@@ -191,6 +191,7 @@ namespace N64::Cpu_detail
 			case ExceptionKinds::AddressErrorStore:
 				// TODO: TLBエラーなどをつくってから
 				// ...
+				N64Logger::Abort();
 				break;
 
 			default: break;

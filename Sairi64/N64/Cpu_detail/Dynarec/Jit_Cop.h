@@ -94,7 +94,7 @@ public:
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
-	static DecodedToken Cvt_template(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	static DecodedToken CvtFmt_template(const AssembleContext& ctx, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -103,7 +103,25 @@ public:
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 		x86Asm.mov(x86::dl, instr.Fd());
 		x86Asm.mov(x86::r8b, instr.Fs());
-		x86Asm.call(reinterpret_cast<uint64>(&helperCvt<after, before>));
+		x86Asm.call(reinterpret_cast<uint64>(&helperCvtFmt<after, before>));
+		return DecodedToken::Continue;
+	}
+
+	template <FloatingFmt fmt>
+	static DecodedToken DivFmt_template(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	{
+		JIT_ENTRY;
+		if constexpr (fmt == FloatingFmt::Word || fmt == FloatingFmt::Long)
+		{
+			return AssumeNotImplemented(ctx, instr);
+		}
+		auto&& x86Asm = *ctx.x86Asm;
+		using floating = FloatingFmtType<fmt>::type;
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::dl, instr.Fd());
+		x86Asm.mov(x86::r8b, instr.Fs());
+		x86Asm.mov(x86::r9b, instr.Ft());
+		x86Asm.call(reinterpret_cast<uint64>(&helperDivFmt<floating>));
 		return DecodedToken::Continue;
 	}
 
@@ -223,7 +241,7 @@ private:
 	}
 
 	template <typename After, typename Before>
-	N64_ABI static void helperCvt(Cpu& cpu, uint8 fd, uint8 fs)
+	N64_ABI static void helperCvtFmt(Cpu& cpu, uint8 fd, uint8 fs)
 	{
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();
@@ -240,5 +258,16 @@ private:
 		{
 			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs));
 		}
+	}
+
+	template <typename Fmt>
+	N64_ABI static void helperDivFmt(Cpu& cpu, uint8 fd, uint8 fs, uint8 ft)
+	{
+		auto&& cop1 = cpu.GetCop1();
+		auto&& cop0 = cpu.GetCop0();
+
+		const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
+		const Fmt ftF = cop1.GetFgrBy<Fmt>(cop0, ft);
+		cop1.SetFgrBy<Fmt>(cop0, fd, fsF / ftF);
 	}
 };

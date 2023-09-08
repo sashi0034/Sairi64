@@ -94,7 +94,7 @@ public:
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
-	static DecodedToken Fmt_convertMove(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	static DecodedToken Fmt_move(const AssembleContext& ctx, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -107,11 +107,15 @@ public:
 			funct == OpCop1FmtFunct::CvtWFmt || funct == OpCop1FmtFunct::CvtLFmt)
 		{
 			using after = CvtTarget<funct>::type;
-			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_convertMove<after, before>));
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_move<after, before, 1>));
 		}
 		else if constexpr (funct == OpCop1FmtFunct::MovFmt)
 		{
-			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_convertMove<before, before>));
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_move<before, before, 1>));
+		}
+		else if constexpr (funct == OpCop1FmtFunct::NegFmt)
+		{
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_move<before, before, -1>));
 		}
 		else static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
 		return DecodedToken::Continue;
@@ -257,23 +261,24 @@ private:
 		}
 	}
 
-	template <typename After, typename Before>
-	N64_ABI static void helperFmt_convertMove(Cpu& cpu, uint8 fd, uint8 fs)
+	template <typename After, typename Before, sint8 sign>
+	N64_ABI static void helperFmt_move(Cpu& cpu, uint8 fd, uint8 fs)
 	{
+		static_assert(sign == 1 || sign == -1);
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();
 
 		if constexpr (std::same_as<Before, uint32>)
 		{
-			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint32>(cop1.GetFgrBy<Before>(cop0, fs)));
+			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint32>(cop1.GetFgrBy<Before>(cop0, fs)) * sign);
 		}
 		else if constexpr (std::same_as<Before, uint64>)
 		{
-			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint64>(cop1.GetFgrBy<Before>(cop0, fs)));
+			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint64>(cop1.GetFgrBy<Before>(cop0, fs)) * sign);
 		}
 		else
 		{
-			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs));
+			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs) * sign);
 		}
 	}
 

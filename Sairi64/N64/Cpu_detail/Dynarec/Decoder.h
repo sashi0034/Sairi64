@@ -388,9 +388,9 @@ private:
 		case OpCop1FmtFunct::AbsFmt:
 			break;
 		case OpCop1FmtFunct::MovFmt:
-			return Jit::Cop::Fmt_convertMove<OpCop1FmtFunct::MovFmt, fmt>(ctx, instr);
+			return Jit::Cop::Fmt_move<OpCop1FmtFunct::MovFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::NegFmt:
-			break;
+			return Jit::Cop::Fmt_move<OpCop1FmtFunct::NegFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::RoundLFmt:
 			break;
 		case OpCop1FmtFunct::TruncLFmt:
@@ -408,13 +408,13 @@ private:
 		case OpCop1FmtFunct::FloorWFmt:
 			break;
 		case OpCop1FmtFunct::CvtSFmt:
-			return Jit::Cop::Fmt_convertMove<OpCop1FmtFunct::CvtSFmt, fmt>(ctx, instr);
+			return Jit::Cop::Fmt_move<OpCop1FmtFunct::CvtSFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtDFmt:
-			return Jit::Cop::Fmt_convertMove<OpCop1FmtFunct::CvtDFmt, fmt>(ctx, instr);
+			return Jit::Cop::Fmt_move<OpCop1FmtFunct::CvtDFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtWFmt:
-			return Jit::Cop::Fmt_convertMove<OpCop1FmtFunct::CvtWFmt, fmt>(ctx, instr);
+			return Jit::Cop::Fmt_move<OpCop1FmtFunct::CvtWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtLFmt:
-			return Jit::Cop::Fmt_convertMove<OpCop1FmtFunct::CvtLFmt, fmt>(ctx, instr);
+			return Jit::Cop::Fmt_move<OpCop1FmtFunct::CvtLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CondFFmt:
 			break;
 		case OpCop1FmtFunct::CondUnFmt:

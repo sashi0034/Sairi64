@@ -243,6 +243,32 @@ public:
 		return DecodedToken::Branch;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken JR_template(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		static_assert(funct == OpSpecialFunct::JR || funct == OpSpecialFunct::JALR);
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		const uint8 rs = instr.Rs();
+		if (rs != 0)
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[rs])));
+		else
+			x86Asm.xor_(x86::eax, x86::eax);
+		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&Process::AccessPc(rsp).next)), x86::ax);
+		if constexpr (funct == OpSpecialFunct::JALR)
+		{
+			// link register
+			const uint8 rd = instr.Rd();
+			if (rd == 0) return DecodedToken::Branch;
+			x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&Process::AccessPc(rsp).curr)));
+			x86Asm.movzx(x86::eax, x86::ax);
+			x86Asm.add(x86::eax, 4);
+			x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[rd])), x86::eax);
+		}
+		return DecodedToken::Branch;
+	}
+
 	template <Opcode op> [[nodiscard]]
 	static DecodedToken B_branchOffset(const AssembleContext& ctx, InstructionI instr)
 	{

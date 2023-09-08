@@ -151,9 +151,9 @@ private:
 		case OpSpecialFunct::SRAV:
 			break;
 		case OpSpecialFunct::JR:
-			break;
+			return Jit::JR_template<OpSpecialFunct::JR>(ctx, instr);
 		case OpSpecialFunct::JALR:
-			break;
+			return Jit::JR_template<OpSpecialFunct::JALR>(ctx, instr);
 		case OpSpecialFunct::BREAK:
 			return Jit::BREAK(ctx, instr);
 		case OpSpecialFunct::SYNC:

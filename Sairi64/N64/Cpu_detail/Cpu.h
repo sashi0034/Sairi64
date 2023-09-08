@@ -91,6 +91,9 @@ namespace N64::Cpu_detail
 		Cop0& GetCop0() { return m_cop0; }
 		Cop1& GetCop1() { return m_cop1; }
 
+		const Cop0& GetCop0() const { return m_cop0; }
+		const Cop1& GetCop1() const { return m_cop1; }
+
 		uint64 Lo() const { return m_lo; }
 		uint64 Hi() const { return m_hi; }
 		void SetLo(uint64 lo) { m_lo = lo; }

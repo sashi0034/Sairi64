@@ -4,40 +4,38 @@
 class N64::Cpu_detail::Dynarec::Jit::Cop
 {
 public:
-	template <OpCopSub sub> [[nodiscard]]
-	static DecodedToken MFC0_template(const AssembleContext& ctx, InstructionCopSub instr)
+	template <uint8 cop, OpCopSub sub> [[nodiscard]]
+	static DecodedToken MFC_template(const AssembleContext& ctx, InstructionCopSub instr)
 	{
 		JIT_ENTRY;
 		const uint8 rt = instr.Rt();
 		if (rt == 0) return DecodedToken::Continue;
 		const uint8 rd = instr.Rd();
 		auto&& x86Asm = *ctx.x86Asm;
-		x86Asm.mov(x86::rcx, (uint64)&ctx.cpu->GetCop0());
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 		x86Asm.mov(x86::rdx, rd);
 		if constexpr (sub == OpCopSub::MFC)
 		{
-			x86Asm.mov(x86::rax, (uint64)&cop0Read32);
-			x86Asm.call(x86::rax);
+			x86Asm.call(reinterpret_cast<uint64>(&readCop<cop, uint32>));
 			x86Asm.movsxd(x86::rax, x86::eax);
 		}
 		else if constexpr (sub == OpCopSub::DMFC)
 		{
-			x86Asm.mov(x86::rax, (uint64)&cop0Read64);
-			x86Asm.call(x86::rax);
+			x86Asm.call(reinterpret_cast<uint64>(&readCop<cop, uint64>));
 		}
 		else static_assert(AlwaysFalseValue<OpCopSub, sub>);
 		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&ctx.cpu->GetGpr().Raw()[rt])), x86::rax);
 		return DecodedToken::Continue;
 	}
 
-	template <OpCopSub sub> [[nodiscard]]
-	static DecodedToken MTC0_template(const AssembleContext& ctx, InstructionCopSub instr)
+	template <uint8 cop, OpCopSub sub> [[nodiscard]]
+	static DecodedToken MTC_template(const AssembleContext& ctx, InstructionCopSub instr)
 	{
 		JIT_ENTRY;
 		const uint8 rt = instr.Rt();
 		const uint8 rd = instr.Rd();
 		auto&& x86Asm = *ctx.x86Asm;
-		x86Asm.mov(x86::rcx, (uint64)&ctx.cpu->GetCop0());
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 		x86Asm.mov(x86::rdx, rd);
 		if (rt != 0)
 		{
@@ -49,11 +47,10 @@ public:
 			x86Asm.xor_(x86::r8, x86::r8);
 		}
 		if constexpr (sub == OpCopSub::MTC)
-			x86Asm.mov(x86::rax, &cop0Write32);
+			x86Asm.call(reinterpret_cast<uint64>(&writeCop<cop, uint32>));
 		else if constexpr (sub == OpCopSub::DMTC)
-			x86Asm.mov(x86::rax, &cop0Write64);
+			x86Asm.call(reinterpret_cast<uint64>(&writeCop<cop, uint64>));
 		else static_assert(AlwaysFalseValue<OpCopSub, sub>);
-		x86Asm.call(x86::rax);
 		return DecodedToken::Continue;
 	}
 
@@ -96,24 +93,52 @@ public:
 	}
 
 private:
-	N64_ABI static uint32 cop0Read32(const Cop0& cop0, uint8 reg)
+	template <uint8 cop, typename Wire>
+	N64_ABI static uint32 readCop(const Cpu& cpu, uint8 reg)
 	{
-		return cop0.Read32(reg);
+		if constexpr (cop == 0 && std::same_as<Wire, uint32>)
+		{
+			return cpu.GetCop0().Read32(reg);
+		}
+		else if constexpr (cop == 0 && std::same_as<Wire, uint64>)
+		{
+			return cpu.GetCop0().Read64(reg);
+		}
+		else if constexpr (cop == 1 && std::same_as<Wire, uint32>)
+		{
+			return cpu.GetCop1().GetFgr32(cpu.GetCop0(), reg);
+		}
+		else if constexpr (cop == 1 && std::same_as<Wire, uint64>)
+		{
+			return cpu.GetCop1().GetFgr64(cpu.GetCop0(), reg);
+		}
+		else
+		{
+			static_assert(AlwaysFalse<Wire>);
+			return {};
+		}
 	}
 
-	N64_ABI static uint64 cop0Read64(const Cop0& cop0, uint8 reg)
+	template <uint8 cop, typename Wire>
+	N64_ABI static void writeCop(Cpu& cpu, uint8 reg, uint32 value)
 	{
-		return cop0.Read64(reg);
-	}
-
-	N64_ABI static void cop0Write32(Cop0& cop0, uint8 reg, uint32 value)
-	{
-		cop0.Write32(reg, value);
-	}
-
-	N64_ABI static void cop0Write64(Cop0& cop0, uint8 reg, uint64 value)
-	{
-		cop0.Write64(reg, value);
+		if constexpr (cop == 0 && std::same_as<Wire, uint32>)
+		{
+			cpu.GetCop0().Write32(reg, value);
+		}
+		else if constexpr (cop == 0 && std::same_as<Wire, uint64>)
+		{
+			cpu.GetCop0().Write64(reg, value);
+		}
+		else if constexpr (cop == 1 && std::same_as<Wire, uint32>)
+		{
+			cpu.GetCop1().SetFgr32(cpu.GetCop0(), reg, value);
+		}
+		else if constexpr (cop == 1 && std::same_as<Wire, uint64>)
+		{
+			cpu.GetCop1().SetFgr64(cpu.GetCop0(), reg, value);
+		}
+		else static_assert(AlwaysFalse<Wire>);
 	}
 
 	template <OpCop0CoFunct funct>

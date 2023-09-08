@@ -286,13 +286,13 @@ private:
 		switch (instr.Sub())
 		{
 		case OpCopSub::MFC:
-			return Jit::Cop::MFC0_template<OpCopSub::MFC>(ctx, static_cast<InstructionCopSub>(instr));
+			return Jit::Cop::MFC_template<0, OpCopSub::MFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMFC:
-			return Jit::Cop::MFC0_template<OpCopSub::DMFC>(ctx, static_cast<InstructionCopSub>(instr));
+			return Jit::Cop::MFC_template<0, OpCopSub::DMFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MTC:
-			return Jit::Cop::MTC0_template<OpCopSub::MTC>(ctx, static_cast<InstructionCopSub>(instr));
+			return Jit::Cop::MTC_template<0, OpCopSub::MTC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMTC:
-			return Jit::Cop::MTC0_template<OpCopSub::DMTC>(ctx, static_cast<InstructionCopSub>(instr));
+			return Jit::Cop::MTC_template<0, OpCopSub::DMTC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::CFC:
 			break;
 		case OpCopSub::CTC:
@@ -336,13 +336,13 @@ private:
 		switch (const auto sub = static_cast<InstructionCopSub>(instr); instr.Sub())
 		{
 		case OpCopSub::MFC:
-			break;
+			return Jit::Cop::MFC_template<1, OpCopSub::MFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMFC:
-			break;
+			return Jit::Cop::MFC_template<1, OpCopSub::DMFC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MTC:
-			break;
+			return Jit::Cop::MTC_template<1, OpCopSub::MTC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::DMTC:
-			break;
+			return Jit::Cop::MTC_template<1, OpCopSub::DMTC>(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::CFC:
 			return UseInterpreter(ctx, sub, &interpret::Cop::CFC1);
 		case OpCopSub::CTC:

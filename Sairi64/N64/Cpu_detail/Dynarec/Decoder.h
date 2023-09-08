@@ -376,13 +376,13 @@ private:
 		switch (instr.Funct())
 		{
 		case OpCop1FmtFunct::AddFmt:
-			break;
+			return Jit::Cop::Fmt_arithmetic<OpCop1FmtFunct::AddFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::SubFmt:
 			break;
 		case OpCop1FmtFunct::MultFmt:
 			break;
 		case OpCop1FmtFunct::DivFmt:
-			return Jit::Cop::DivFmt_template<fmt>(ctx, instr);
+			return Jit::Cop::Fmt_arithmetic<OpCop1FmtFunct::DivFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::SqrtFmt:
 			break;
 		case OpCop1FmtFunct::AbsFmt:

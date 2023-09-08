@@ -107,8 +107,8 @@ public:
 		return DecodedToken::Continue;
 	}
 
-	template <FloatingFmt fmt>
-	static DecodedToken DivFmt_template(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	template <OpCop1FmtFunct funct, FloatingFmt fmt>
+	static DecodedToken Fmt_arithmetic(const AssembleContext& ctx, const AssembleState& state, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
 		if constexpr (fmt == FloatingFmt::Word || fmt == FloatingFmt::Long)
@@ -121,7 +121,16 @@ public:
 		x86Asm.mov(x86::dl, instr.Fd());
 		x86Asm.mov(x86::r8b, instr.Fs());
 		x86Asm.mov(x86::r9b, instr.Ft());
-		x86Asm.call(reinterpret_cast<uint64>(&helperDivFmt<floating>));
+		x86Asm.call(reinterpret_cast<uint64>(&helperFmt_arithmetic<funct, floating>));
+		if constexpr (funct == OpCop1FmtFunct::AddFmt)
+		{
+			const auto validLabel = x86Asm.newLabel();
+			x86Asm.test(x86::al, x86::al); // if function was succeeded
+			x86Asm.jne(validLabel); // then goto @valid
+			x86Asm.mov(x86::rax, state.recompiledLength);
+			x86Asm.jmp(ctx.endLabel);
+			x86Asm.bind(validLabel); // @valid
+		}
 		return DecodedToken::Continue;
 	}
 
@@ -260,14 +269,42 @@ private:
 		}
 	}
 
-	template <typename Fmt>
-	N64_ABI static void helperDivFmt(Cpu& cpu, uint8 fd, uint8 fs, uint8 ft)
+	template <typename T>
+	static inline bool checkFsFtNan(Cpu& cpu, Cop1& cop1, T fs, T ft)
+	{
+		if constexpr (std::same_as<T, float> || std::same_as<T, double>)
+		{
+			if (std::isnan(fs) || std::isnan(ft))
+			{
+				cop1.Fcr().fcr31.FlagInexactOperation().Set(true);
+				cop1.Fcr().fcr31.CauseInvalidOperation().Set(true);
+				Process::ThrowException(cpu, ExceptionKinds::FloatingPoint, 1);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	template <OpCop1FmtFunct funct, typename Fmt>
+	N64_ABI static bool helperFmt_arithmetic(Cpu& cpu, uint8 fd, uint8 fs, uint8 ft)
 	{
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();
 
 		const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
 		const Fmt ftF = cop1.GetFgrBy<Fmt>(cop0, ft);
-		cop1.SetFgrBy<Fmt>(cop0, fd, fsF / ftF);
+
+		if constexpr (funct == OpCop1FmtFunct::AddFmt)
+		{
+			if (checkFsFtNan(cpu, cop1, fsF, ftF) == false) return false;
+			cop1.SetFgrBy<Fmt>(cop0, fd, fsF + ftF);
+		}
+		else if constexpr (funct == OpCop1FmtFunct::DivFmt)
+		{
+			cop1.SetFgrBy<Fmt>(cop0, fd, fsF / ftF);
+		}
+		else static_assert(AlwaysFalse<Fmt>);
+
+		return true;
 	}
 };

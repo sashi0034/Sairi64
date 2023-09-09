@@ -14,6 +14,8 @@ namespace N64::Rsp_detail
 		uint16 next{};
 	};
 
+	constexpr uint16 SpPcMask_0xFFC = 0xFFC;
+
 	class Pc
 	{
 	public:
@@ -29,8 +31,8 @@ namespace N64::Rsp_detail
 
 		void Reset(uint16 pc)
 		{
-			m_raw.prev = pc & 0xFFC;
-			m_raw.curr = pc & 0xFFC;
+			m_raw.prev = pc & SpPcMask_0xFFC;
+			m_raw.curr = pc & SpPcMask_0xFFC;
 			m_raw.next = m_raw.curr + 4;
 		}
 

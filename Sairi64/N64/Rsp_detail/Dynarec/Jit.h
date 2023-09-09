@@ -246,7 +246,7 @@ public:
 			x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[GprLR_31])), x86::eax);
 		}
 		const uint16 target = instr.Target() << 2;
-		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), target & SpImemMask_0xFFF);
+		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), target & SpPcMask_0xFFC);
 		return DecodedToken::Branch;
 	}
 
@@ -261,7 +261,7 @@ public:
 		if (rs != 0)
 		{
 			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[rs])));
-			x86Asm.and_(x86::ax, SpImemMask_0xFFF);
+			x86Asm.and_(x86::ax, SpPcMask_0xFFC);
 		}
 		else
 		{
@@ -415,7 +415,7 @@ private:
 		// now, branch accepted
 		x86Asm.mov(x86::ax, x86::word_ptr(reinterpret_cast<uint64>(&pc.curr)));
 		x86Asm.add(x86::ax, offset);
-		x86Asm.and_(x86::ax, SpImemMask_0xFFF);
+		x86Asm.and_(x86::ax, SpPcMask_0xFFC);
 		x86Asm.mov(x86::word_ptr(reinterpret_cast<uint64>(&pc.next)), x86::ax);
 		// @failure
 		x86Asm.bind(failureLabel);

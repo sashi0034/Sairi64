@@ -28,7 +28,7 @@ namespace N64::Rsp_detail::Dynarec
 		x86Asm.mov(x86::cx, x86::word_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)));
 		x86Asm.mov(x86::word_ptr(x86::rax, 0), x86::cx);
 		x86Asm.add(x86::cx, 4);
-		x86Asm.and_(x86::cx, SpImemMask_0xFFF);
+		x86Asm.and_(x86::cx, SpPcMask_0xFFC);
 		x86Asm.mov(x86::word_ptr(x86::rax, OFFSET_TO(PcRaw, curr, next)), x86::cx);
 	}
 

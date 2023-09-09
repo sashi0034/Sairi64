@@ -24,13 +24,13 @@ public:
 		case Opcode::JAL:
 			return Jit::J_template<Opcode::JAL>(ctx, static_cast<InstructionJ>(instr));
 		case Opcode::BEQ:
-			break;
+			return Jit::B_branchOffset<Opcode::BEQ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BNE:
 			return Jit::B_branchOffset<Opcode::BNE>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BLEZ:
-			break;
+			return Jit::B_branchOffset<Opcode::BLEZ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::BGTZ:
-			break;
+			return Jit::B_branchOffset<Opcode::BGTZ>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ADDI:
 			return Jit::I_immediateArithmetic<Opcode::ADDI>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::ADDIU:

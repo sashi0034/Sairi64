@@ -377,8 +377,8 @@ private:
 			else
 				x86Asm.xor_(x86::eax, x86::eax);
 			x86Asm.cmp(x86::eax, x86::ecx);
-			if constexpr (op == Opcode::BEQ) x86Asm.sete(x86::r8d);
-			else x86Asm.setne(x86::r8d);
+			if constexpr (op == Opcode::BEQ) x86Asm.sete(x86::r8b);
+			else x86Asm.setne(x86::r8b);
 		}
 		else if constexpr (sub == OpRegimm::BLTZ || sub == OpRegimm::BLTZAL)
 		{

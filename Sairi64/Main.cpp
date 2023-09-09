@@ -20,7 +20,7 @@ void setupWindow()
 	constexpr Size sceneSize = {1920, 1080};
 	Scene::Resize(sceneSize.x, sceneSize.y);
 	Window::Resize(1280, 720);
-	Scene::SetBackground(ColorF{0.3, 0.3, 0.3});
+	Scene::SetBackground(ColorF{U"#343541"});
 	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 }
 
@@ -48,21 +48,22 @@ void Main()
 	const auto n64 = std::make_unique<N64::N64Singleton>();
 	N64::N64System& n64System = n64->GetSystem();
 	N64::N64Frame n64Frame{};
+	const N64::N64Config& n64Config = debugConfig;
 
 	Ui::UiManager uiManager{};
 
-	n64Frame.Init(n64System, debugConfig);
+	n64Frame.Init(n64System, n64Config);
 
 	setupWindow();
 
 	while (System::Update())
 	{
 		// N64更新制御
-		n64Frame.ControlFrame(n64System, debugConfig);
+		n64Frame.ControlFrame(n64System, n64Config);
 		n64System.GetRdp().RenderReal({
 			.startPoint = {32, 32}, .scale = 2.0
 		});
 
-		uiManager.Update(n64System);
+		uiManager.Update(n64System, n64Frame, n64Config);
 	}
 }

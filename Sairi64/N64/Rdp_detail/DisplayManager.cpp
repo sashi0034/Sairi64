@@ -56,7 +56,6 @@ namespace N64::Rdp_detail
 			m_pixelBuffer.data()[i].g = GetBits<6, 10>(pixel) << 3;
 			m_pixelBuffer.data()[i].b = GetBits<1, 5>(pixel) << 3;
 		}
-		m_texture.fill(m_pixelBuffer);
 	}
 
 	void DisplayManager::ScanR8G8B8A8(N64System& n64)
@@ -74,11 +73,11 @@ namespace N64::Rdp_detail
 		// std::copy_n(n64.GetMemory().Rdram().begin() + rdramOffset,
 		//             m_pixelBuffer.width() * m_pixelBuffer.height() * 4,
 		//             m_pixelBuffer.dataAsUint8());
-		m_texture.fill(m_pixelBuffer);
 	}
 
 	void DisplayManager::Render(const RenderConfig& config) const
 	{
+		m_texture.fill(m_pixelBuffer);
 		(void)m_texture.scaled(config.scale * m_videoScale).draw(config.startPoint);
 	}
 }

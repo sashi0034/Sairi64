@@ -14,6 +14,7 @@ namespace N64
 	struct N64FrameInfo
 	{
 		uint64 frameCount;
+		double frameRate;
 		Error emulateError;
 	};
 
@@ -30,6 +31,8 @@ namespace N64
 
 		double m_fragmentTime{};
 		AsyncTask<void> m_frameTask{};
+		Stopwatch m_profilingStopwatch{};
+		uint64 m_profilingCount{};
 
 		N64FrameInternalState m_internalState{};
 		N64FrameInfo m_info{};

@@ -18,7 +18,7 @@ namespace N64::Rdp_detail
 
 		Vec2 m_videoScale{1.0, 1.0};
 		Image m_pixelBuffer{};
-		DynamicTexture m_texture{};
+		mutable DynamicTexture m_texture{};
 
 		ViType4 m_viTypeBefore{};
 	};

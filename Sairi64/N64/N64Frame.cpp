@@ -121,6 +121,26 @@ namespace N64
 		}
 	}
 
+	void profileFrame(N64FrameInfo& info, Stopwatch& stopwatch, uint64* profilingCount)
+	{
+		info.frameCount++;
+		if (stopwatch.isStarted() == false)
+		{
+			stopwatch.start();
+		}
+		else if (stopwatch.sF() >= 1.0)
+		{
+			*profilingCount += 1;
+			info.frameRate = static_cast<double>(*profilingCount) / stopwatch.sF();
+			*profilingCount = 0;
+			stopwatch.restart();
+		}
+		else
+		{
+			*profilingCount += 1;
+		}
+	}
+
 	void N64Frame::runFrame(N64System& n64, const N64Config& config)
 	{
 		const double virtualDeltaTime = 1.0 / GetFps_60_50(n64.GetMemory().IsRomPal());
@@ -128,9 +148,10 @@ namespace N64
 		{
 			while (m_fragmentTime >= virtualDeltaTime)
 			{
+				// 実行
 				m_fragmentTime -= virtualDeltaTime;
 				emulateFrame(n64, m_internalState, config.processor);
-				m_info.frameCount++;
+				profileFrame(m_info, m_profilingStopwatch, &m_profilingCount);
 			}
 		}
 		catch (const Error& e)

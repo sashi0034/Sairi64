@@ -121,12 +121,29 @@ namespace N64
 		}
 	}
 
+	void N64Frame::runFrame(N64System& n64, const N64Config& config)
+	{
+		const double virtualDeltaTime = 1.0 / GetFps_60_50(n64.GetMemory().IsRomPal());
+		try
+		{
+			while (m_fragmentTime >= virtualDeltaTime)
+			{
+				m_fragmentTime -= virtualDeltaTime;
+				emulateFrame(n64, m_internalState, config.processor);
+				m_info.frameCount++;
+			}
+		}
+		catch (const Error& e)
+		{
+			m_info.emulateError = std::move(e);
+		}
+	}
+
 	void N64Frame::ControlFrame(N64System& n64, const N64Config& config)
 	{
-		if (m_internalState.emulateError.what().isEmpty() == false) return;
+		if (m_info.emulateError.what().isEmpty() == false) return;
 
 		const double actualDeltaTime = Scene::DeltaTime();
-		const double virtualDeltaTime = 1.0 / GetFps_60_50(n64.GetMemory().IsRomPal());
 
 		m_fragmentTime += actualDeltaTime;
 
@@ -135,37 +152,15 @@ namespace N64
 		// 60FPS制御
 		if (config.threadingRun == false)
 		{
-			try
-			{
-				// シングルスレッド処理
-				while (m_fragmentTime >= virtualDeltaTime)
-				{
-					m_fragmentTime -= virtualDeltaTime;
-					emulateFrame(n64, m_internalState, config.processor);
-				}
-			}
-			catch (const Error& e)
-			{
-				m_internalState.emulateError = std::move(e);
-			}
+			// シングルスレッド処理
+			runFrame(n64, config);
 		}
 		else
 		{
 			// 別スレッド処理
-			m_frameTask = Async([&n64, this, &config, virtualDeltaTime]()
+			m_frameTask = Async([&n64, this, &config]()
 			{
-				try
-				{
-					while (m_fragmentTime >= virtualDeltaTime)
-					{
-						emulateFrame(n64, m_internalState, config.processor);
-						m_fragmentTime -= virtualDeltaTime;
-					}
-				}
-				catch (const Error& e)
-				{
-					m_internalState.emulateError = std::move(e);
-				}
+				runFrame(n64, config);
 			});
 		}
 	}

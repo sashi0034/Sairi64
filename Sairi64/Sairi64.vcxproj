@@ -162,6 +162,8 @@
     <ClCompile Include="Tests\RspTest.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
     <ClCompile Include="Ui\UiManager.cpp" />
+    <ClCompile Include="Ui\UiMemoryViewer.cpp" />
+    <ClCompile Include="Ui\UiUtil.cpp" />
     <ClCompile Include="Utils\Util.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -428,6 +430,8 @@
     <ClInclude Include="N64\Rsp_detail\VU.h" />
     <ClInclude Include="N64\Scheduler.h" />
     <ClInclude Include="Ui\UiManager.h" />
+    <ClInclude Include="Ui\UiMemoryViewer.h" />
+    <ClInclude Include="Ui\UiUtil.h" />
     <ClInclude Include="Utils\Util.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

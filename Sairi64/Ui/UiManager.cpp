@@ -1,12 +1,25 @@
 ﻿#include "stdafx.h"
 #include "UiManager.h"
 
+#include "UiMemoryViewer.h"
+#include "UiUtil.h"
 #include "N64/N64Frame.h"
 #include "N64/N64System.h"
 
 class Ui::UiManager::Impl
 {
 public:
+	void Update(N64::N64System& n64)
+	{
+		m_rdramViewer.ShowMemoryView("RDRAM Viewer", n64.GetMemory().Rdram());
+		m_dmemViewer.ShowMemoryView("DMEM Viewer", n64.GetRsp().Dmem());
+		m_imemViewer.ShowMemoryView("IMEM Viewer", n64.GetRsp().Imem());
+	}
+
+private:
+	UiMemoryViewer m_rdramViewer{};
+	UiMemoryViewer m_dmemViewer{};
+	UiMemoryViewer m_imemViewer{};
 };
 
 namespace Ui
@@ -35,15 +48,15 @@ namespace Ui
 		// ImGui::Text("This window cannot be moved!");
 		// ImGui::End();
 
-		ImGui::Begin("FPS (debug)");
+		ImGui::Begin("General status");
 		using ss = std::stringstream;
 		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.frameRate)).str().c_str());
-		ImGui::Text((ss{} << "FrameCount: " << n64Frame.frameCount).str().c_str());
+		ImGui::Text((ss{} << "Frame count: " << n64Frame.frameCount).str().c_str());
+		ImGui::Text((fmt::format("CPU PC: {:016X}", n64System.GetCpu().GetPc().Curr()).c_str()));
+		ImGui::Text((fmt::format("RSP PC: {:04X}", n64System.GetRsp().GetPc().Curr()).c_str()));
 		ImGui::End();
 
-		ImGui::Begin("CPU Status (debug)");
-		ImGui::Text(U"PC: {:016X}"_fmt(n64System.GetCpu().GetPc().Curr()).narrow().c_str());
-		ImGui::End();
+		m_impl->Update(n64System);
 	}
 
 	UiManager::ImplPtr::~ImplPtr()

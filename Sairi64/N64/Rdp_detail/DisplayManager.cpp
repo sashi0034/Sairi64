@@ -44,39 +44,47 @@ namespace N64::Rdp_detail
 
 	void DisplayManager::ScanR5G5B5A1(N64System& n64)
 	{
-		Impl::CheckRecreateTexture(n64, *this);
-
-		const uint32 rdramOffset = n64.GetVI().Origin() & RdramSizeMask_0x007FFFFF;
-		for (int i = 0; i < m_pixelBuffer.width() * m_pixelBuffer.height(); i++)
+		m_refreshAction = [this, &n64]()
 		{
-			const uint16 pixel =
-				(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 0] << 8) |
-				(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 1]);
-			m_pixelBuffer.data()[i].r = GetBits<11, 15>(pixel) << 3;
-			m_pixelBuffer.data()[i].g = GetBits<6, 10>(pixel) << 3;
-			m_pixelBuffer.data()[i].b = GetBits<1, 5>(pixel) << 3;
-		}
+			Impl::CheckRecreateTexture(n64, *this);
+
+			const uint32 rdramOffset = n64.GetVI().Origin() & RdramSizeMask_0x007FFFFF;
+			for (int i = 0; i < m_pixelBuffer.width() * m_pixelBuffer.height(); i++)
+			{
+				const uint16 pixel =
+					(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 0] << 8) |
+					(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 1]);
+				m_pixelBuffer.data()[i].r = GetBits<11, 15>(pixel) << 3;
+				m_pixelBuffer.data()[i].g = GetBits<6, 10>(pixel) << 3;
+				m_pixelBuffer.data()[i].b = GetBits<1, 5>(pixel) << 3;
+			}
+		};
 	}
 
 	void DisplayManager::ScanR8G8B8A8(N64System& n64)
 	{
-		Impl::CheckRecreateTexture(n64, *this);
-
-		const uint32 rdramOffset = n64.GetVI().Origin() & RdramSizeMask_0x007FFFFF;
-		for (int i = 0; i < m_pixelBuffer.width() * m_pixelBuffer.height(); i++)
+		m_refreshAction = [this, &n64]()
 		{
-			m_pixelBuffer.data()[i].r = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 3];
-			m_pixelBuffer.data()[i].g = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 2];
-			m_pixelBuffer.data()[i].b = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 1];
-			// m_pixelBuffer.data()[i].a = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 0];
-		}
-		// std::copy_n(n64.GetMemory().Rdram().begin() + rdramOffset,
-		//             m_pixelBuffer.width() * m_pixelBuffer.height() * 4,
-		//             m_pixelBuffer.dataAsUint8());
+			Impl::CheckRecreateTexture(n64, *this);
+
+			const uint32 rdramOffset = n64.GetVI().Origin() & RdramSizeMask_0x007FFFFF;
+			for (int i = 0; i < m_pixelBuffer.width() * m_pixelBuffer.height(); i++)
+			{
+				m_pixelBuffer.data()[i].r = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 3];
+				m_pixelBuffer.data()[i].g = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 2];
+				m_pixelBuffer.data()[i].b = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 1];
+				// m_pixelBuffer.data()[i].a = n64.GetMemory().Rdram()[rdramOffset + i * 4 + 0];
+			}
+			// std::copy_n(n64.GetMemory().Rdram().begin() + rdramOffset,
+			//             m_pixelBuffer.width() * m_pixelBuffer.height() * 4,
+			//             m_pixelBuffer.dataAsUint8());
+		};
 	}
 
 	void DisplayManager::Render(const RenderConfig& config) const
 	{
+		m_refreshAction();
+		m_refreshAction = [] { return; };;
 		m_texture.fill(m_pixelBuffer);
 		(void)m_texture.scaled(config.scale * m_videoScale).draw(config.startPoint);
 	}

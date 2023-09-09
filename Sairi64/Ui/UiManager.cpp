@@ -35,7 +35,7 @@ namespace Ui
 	{
 	}
 
-	void UiManager::Update(N64::N64System& n64System, const N64::N64FrameInfo& n64Frame)
+	void UiManager::Update(N64::N64System& n64System, N64::N64Frame& n64Frame, const N64::N64Config& n64Config)
 	{
 		// ウィンドウサイズからフォントサイズ調整
 		const float fontScale = std::max(static_cast<float>(Scene::Size().x) / Window::GetState().virtualSize.x,
@@ -48,10 +48,30 @@ namespace Ui
 
 		ImGui::Begin("General Status");
 		using ss = std::stringstream;
-		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.frameRate)).str().c_str());
-		ImGui::Text((ss{} << "Frame count: " << n64Frame.frameCount).str().c_str());
+		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.Info().frameRate)).str().c_str());
+		ImGui::Text((ss{} << "Frame count: " << n64Frame.Info().frameCount).str().c_str());
 		ImGui::Text((fmt::format("CPU PC: {:016X}", n64System.GetCpu().GetPc().Curr()).c_str()));
 		ImGui::Text((fmt::format("RSP PC: {:04X}", n64System.GetRsp().GetPc().Curr()).c_str()));
+
+		if (n64Frame.IsSuspended() == false)
+		{
+			if (ImGui::Button("Suspend system"))
+			{
+				n64Frame.SetSuspend(true);
+			}
+		}
+		else
+		{
+			if (ImGui::Button("Resume system"))
+			{
+				n64Frame.SetSuspend(false);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Step system"))
+			{
+				n64Frame.StepSingleFrame(n64System, n64Config);
+			}
+		}
 		ImGui::End();
 
 		m_impl->Update(n64System);

@@ -24,11 +24,16 @@ namespace N64
 		void Init(N64System& n64, const N64Config& config);
 		void RunOnConsole(N64System& n64, const N64Config& config, const std::function<bool()>& breakPoint);
 		void ControlFrame(N64System& n64, const N64Config& config);
+		void StepSingleFrame(N64System& n64, const N64Config& config);
 		const N64FrameInfo& Info() const { return m_info; }
+
+		void SetSuspend(bool isSuspended) { m_isSuspended = isSuspended; }
+		bool IsSuspended() const { return m_isSuspended; }
 
 	private:
 		void runFrame(N64System& n64, const N64Config& config);
 
+		bool m_isSuspended{};
 		double m_fragmentTime{};
 		AsyncTask<void> m_frameTask{};
 		Stopwatch m_profilingStopwatch{};

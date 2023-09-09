@@ -121,17 +121,16 @@ namespace N64
 		}
 	}
 
-	void profileFrame(N64FrameInfo& info, Stopwatch& stopwatch, uint64* profilingCount)
+	void profileFrame(Stopwatch& stopwatch, uint64* profilingCount, double* frameRate)
 	{
-		info.frameCount++;
-		if (stopwatch.isStarted() == false)
+		if (stopwatch.isStarted() == false || stopwatch.isPaused())
 		{
 			stopwatch.start();
 		}
 		else if (stopwatch.sF() >= 1.0)
 		{
 			*profilingCount += 1;
-			info.frameRate = static_cast<double>(*profilingCount) / stopwatch.sF();
+			*frameRate = static_cast<double>(*profilingCount) / stopwatch.sF();
 			*profilingCount = 0;
 			stopwatch.restart();
 		}
@@ -139,6 +138,15 @@ namespace N64
 		{
 			*profilingCount += 1;
 		}
+	}
+
+	inline bool checkSuspend(bool isSuspended, Stopwatch& stopwatch)
+	{
+		if (isSuspended)
+		{
+			stopwatch.pause();
+		}
+		return isSuspended;
 	}
 
 	void N64Frame::runFrame(N64System& n64, const N64Config& config)
@@ -150,8 +158,10 @@ namespace N64
 			{
 				// 実行
 				m_fragmentTime -= virtualDeltaTime;
+				m_info.frameCount++;
 				emulateFrame(n64, m_internalState, config.processor);
-				profileFrame(m_info, m_profilingStopwatch, &m_profilingCount);
+				profileFrame(m_profilingStopwatch, &m_profilingCount, &m_info.frameRate);
+				if (checkSuspend(m_isSuspended, m_profilingStopwatch)) break;
 			}
 		}
 		catch (const Error& e)
@@ -160,9 +170,17 @@ namespace N64
 		}
 	}
 
+	void N64Frame::StepSingleFrame(N64System& n64, const N64Config& config)
+	{
+		// ステップ実行
+		m_info.frameCount++;
+		emulateFrame(n64, m_internalState, config.processor);
+	}
+
 	void N64Frame::ControlFrame(N64System& n64, const N64Config& config)
 	{
 		if (m_info.emulateError.what().isEmpty() == false) return;
+		if (checkSuspend(m_isSuspended, m_profilingStopwatch)) return;;
 
 		const double actualDeltaTime = Scene::DeltaTime();
 

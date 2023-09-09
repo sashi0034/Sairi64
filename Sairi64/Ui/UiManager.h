@@ -1,10 +1,5 @@
 ﻿#pragma once
-
-namespace N64
-{
-	class N64System;
-	struct N64FrameInfo;
-}
+#include "N64/N64Frame.h"
 
 namespace Ui
 {
@@ -12,7 +7,7 @@ namespace Ui
 	{
 	public:
 		UiManager();
-		void Update(N64::N64System& n64System, const N64::N64FrameInfo& n64Frame);
+		void Update(N64::N64System& n64System, N64::N64Frame& n64Frame, const N64::N64Config& n64Config);
 
 	private:
 		class Impl; // @formatter:off

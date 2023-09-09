@@ -6,7 +6,7 @@
 
 namespace Ui
 {
-	void UiMemoryViewer::ShowMemoryView(std::string_view viewName, std::span<uint8> memory)
+	void UiMemoryViewer::Update(std::string_view viewName, std::span<uint8> memory)
 	{
 		const uint8* data = memory.data();
 		const uint32 dataSize = memory.size();
@@ -35,12 +35,11 @@ namespace Ui
 		sprintf_s(baseAddressStr, "%08zx", m_baseAddr);
 
 		// 16進数での入力を受け付けるテキストボックスを作成
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x / 4);
+		ImGui::PushItemWidth(Size_120);
 		if (ImGui::InputText(
 			"Base address",
 			baseAddressStr,
 			sizeof(baseAddressStr),
-
 			ImGuiInputTextFlags_CharsHexadecimal))
 		{
 			sscanf_s(baseAddressStr, "%zx", &m_baseAddr);
@@ -48,7 +47,7 @@ namespace Ui
 
 		ImGui::VSliderInt(
 			"##v",
-			ImVec2(20, ImGui::GetContentRegionAvail().y),
+			ImVec2(Size_20, ImGui::GetContentRegionAvail().y),
 			&m_baseAddr,
 			dataSize - showPageSize,
 			0,
@@ -60,20 +59,20 @@ namespace Ui
 		for (size_t addr = m_baseAddr; addr < m_baseAddr + showPageSize; addr += 16)
 		{
 			// アドレス表示
-			ImGui::TextColored(HexToImVec4(0xff00dcff), "%08zx: ", addr);
+			ImGui::TextColored(ImColorPurple, "%08zx:", addr);
 
 			// 16進数データ表示
 			for (int i = 0; i < 16; i++)
 			{
 				ImGui::SameLine();
-				if (i == 8)
+				if (i % 4 == 0)
 				{
-					ImGui::Text(" ");
+					ImGui::Text("");
 					ImGui::SameLine();
 				}
 				if (addr + i < dataSize)
 				{
-					ImGui::TextColored(HexToImVec4(0x60e010ff), "%02x", data[addr + i]);
+					ImGui::TextColored(ImColorGreen, "%02x", data[addr + i]);
 				}
 				else
 				{

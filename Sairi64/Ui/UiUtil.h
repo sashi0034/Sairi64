@@ -11,4 +11,11 @@ namespace Ui
 			(hex & 0xFF) / 255.0f // A
 		);
 	}
+
+	constexpr ImVec4 ImColorGreen = HexToImVec4(0x60e010ff);
+	constexpr ImVec4 ImColorPurple = HexToImVec4(0xff00dcff);
+	constexpr ImVec4 ImColorOrange = HexToImVec4(0xff7e01ff);
+
+	constexpr int Size_20 = 20;
+	constexpr int Size_120 = 120;
 }

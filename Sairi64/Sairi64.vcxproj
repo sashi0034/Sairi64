@@ -161,9 +161,9 @@
     <ClCompile Include="Tests\N64Test.cpp" />
     <ClCompile Include="Tests\RspTest.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
+    <ClCompile Include="Ui\UiDisassembly.cpp" />
     <ClCompile Include="Ui\UiManager.cpp" />
     <ClCompile Include="Ui\UiMemoryViewer.cpp" />
-    <ClCompile Include="Ui\UiUtil.cpp" />
     <ClCompile Include="Utils\Util.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -383,6 +383,7 @@
     <ClInclude Include="N64\Cpu_detail\FloatingFmt.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Tlb.h" />
+    <ClInclude Include="N64\Debugger\RspDisassembler.h" />
     <ClInclude Include="N64\Instruction.h" />
     <ClInclude Include="N64\Interrupt.h" />
     <ClInclude Include="N64\Joybus\Controller.h" />
@@ -429,6 +430,7 @@
     <ClInclude Include="N64\Rsp_detail\Vectors.h" />
     <ClInclude Include="N64\Rsp_detail\VU.h" />
     <ClInclude Include="N64\Scheduler.h" />
+    <ClInclude Include="Ui\UiDisassembly.h" />
     <ClInclude Include="Ui\UiManager.h" />
     <ClInclude Include="Ui\UiMemoryViewer.h" />
     <ClInclude Include="Ui\UiUtil.h" />
@@ -739,6 +741,7 @@
     <Content Include="App\tests\rsp\vsucb.input" />
     <Content Include="App\tests\rsp\vsucb.rsp" />
     <Content Include="DearImGuiAddon\credit.txt" />
+    <ClInclude Include="N64\Debugger\CpuDisassembler.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExternalLibs\ExternalLibs.vcxproj">

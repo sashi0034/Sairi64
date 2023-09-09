@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "UiManager.h"
 
+#include "UiDisassembly.h"
 #include "UiMemoryViewer.h"
 #include "UiUtil.h"
 #include "N64/N64Frame.h"
@@ -11,15 +12,20 @@ class Ui::UiManager::Impl
 public:
 	void Update(N64::N64System& n64)
 	{
-		m_rdramViewer.ShowMemoryView("RDRAM Viewer", n64.GetMemory().Rdram());
-		m_dmemViewer.ShowMemoryView("DMEM Viewer", n64.GetRsp().Dmem());
-		m_imemViewer.ShowMemoryView("IMEM Viewer", n64.GetRsp().Imem());
+		m_rdramViewer.Update("RDRAM Viewer", n64.GetMemory().Rdram());
+		m_dmemViewer.Update("DMEM Viewer", n64.GetRsp().Dmem());
+		m_imemViewer.Update("IMEM Viewer", n64.GetRsp().Imem());
+
+		m_cpuDisassembly.Update("RDRAM Disassembly", n64.GetMemory().Rdram(), DisassembleKind::Cpu);
+		m_rspDisassembly.Update("IMEM Disassembly", n64.GetRsp().Imem(), DisassembleKind::Rsp);
 	}
 
 private:
 	UiMemoryViewer m_rdramViewer{};
 	UiMemoryViewer m_dmemViewer{};
 	UiMemoryViewer m_imemViewer{};
+	UiDisassembly m_cpuDisassembly{};
+	UiDisassembly m_rspDisassembly{};
 };
 
 namespace Ui
@@ -40,15 +46,7 @@ namespace Ui
 		// デモ
 		ImGui::ShowDemoWindow();
 
-		// 固定ウィンドウ
-		// ImGui::SetNextWindowPos(ImVec2(0, 100));
-		// ImGui::SetNextWindowSize(ImVec2(200, 200));
-		//
-		// ImGui::Begin("Fixed test", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-		// ImGui::Text("This window cannot be moved!");
-		// ImGui::End();
-
-		ImGui::Begin("General status");
+		ImGui::Begin("General Status");
 		using ss = std::stringstream;
 		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.frameRate)).str().c_str());
 		ImGui::Text((ss{} << "Frame count: " << n64Frame.frameCount).str().c_str());
@@ -59,7 +57,5 @@ namespace Ui
 		m_impl->Update(n64System);
 	}
 
-	UiManager::ImplPtr::~ImplPtr()
-	{
-	}
+	UiManager::ImplPtr::~ImplPtr() = default;
 }

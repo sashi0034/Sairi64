@@ -189,6 +189,13 @@ public:
 			x86Asm.mov(x86::rax, &readDmem<uint32>);
 			x86Asm.call(x86::rax);
 		}
+		else if constexpr (op == Opcode::LH || op == Opcode::LHU)
+		{
+			x86Asm.mov(x86::rax, &readDmem<uint16>);
+			x86Asm.call(x86::rax);
+			if constexpr (op == Opcode::LH) x86Asm.movsx(x86::eax, x86::ax);
+			else x86Asm.movzx(x86::eax, x86::ax);
+		}
 		else static_assert(AlwaysFalseValue<Opcode, op>);
 
 		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rt])), x86::eax);

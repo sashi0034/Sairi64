@@ -2,16 +2,10 @@
 
 namespace Ui
 {
-	enum class DisassembleKind
-	{
-		Cpu,
-		Rsp,
-	};
-
 	class UiDisassembly
 	{
 	public:
-		void Update(std::string_view viewName, std::span<uint8> memory, DisassembleKind kind);
+		void Update(std::string_view viewName, std::span<uint8> memory);
 
 	private:
 		Array<std::string> m_disassembledBuffer{};

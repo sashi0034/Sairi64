@@ -3,8 +3,7 @@
 
 #include "UiUtil.h"
 #include "N64/Instruction.h"
-#include "N64/Debugger/CpuDisassembler.h"
-#include "N64/Debugger/RspDisassembler.h"
+#include "N64/Debugger/DebugDisassembler.h"
 #include "Utils/Util.h"
 
 namespace Ui
@@ -12,7 +11,7 @@ namespace Ui
 	static constexpr int pageInstructionLength = 128;
 	constexpr int showPageSize = pageInstructionLength * 4;
 
-	void disassemblePage(Array<std::string>& buffer, std::span<uint8> memory, DisassembleKind kind, int baseAddr)
+	void disassemblePage(Array<std::string>& buffer, std::span<uint8> memory, int baseAddr)
 	{
 		if (buffer.size() < pageInstructionLength)
 		{
@@ -21,14 +20,12 @@ namespace Ui
 		for (int i = 0; i < pageInstructionLength; ++i)
 		{
 			const N64::Instruction instruction = Utils::ReadBytes<uint32>(memory, baseAddr + i * 4);
-			auto disassembled = kind == DisassembleKind::Cpu
-			                    ? N64::Debugger::CpuDisassembler::Disassemble(instruction)
-			                    : N64::Debugger::RspDisassembler::Disassemble(instruction);
+			auto disassembled = N64::Debugger::DebugDisassemble(instruction);
 			buffer[i] = Unicode::Narrow(disassembled);
 		}
 	}
 
-	void UiDisassembly::Update(std::string_view viewName, std::span<uint8> memory, DisassembleKind kind)
+	void UiDisassembly::Update(std::string_view viewName, std::span<uint8> memory)
 	{
 		if (!ImGui::Begin(viewName.data()))
 		{
@@ -71,7 +68,7 @@ namespace Ui
 		if (shouldRefresh)
 		{
 			m_baseAddr = std::clamp(m_baseAddr, 0, static_cast<int>(memory.size()) - showPageSize);
-			disassemblePage(m_disassembledBuffer, memory, kind, m_baseAddr);
+			disassemblePage(m_disassembledBuffer, memory, m_baseAddr);
 		}
 
 		ImGui::BeginChild("View", ImVec2(0, 0), true);

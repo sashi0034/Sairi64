@@ -16,8 +16,8 @@ public:
 		m_dmemViewer.Update("DMEM Viewer", n64.GetRsp().Dmem());
 		m_imemViewer.Update("IMEM Viewer", n64.GetRsp().Imem());
 
-		m_cpuDisassembly.Update("RDRAM Disassembly", n64.GetMemory().Rdram(), DisassembleKind::Cpu);
-		m_rspDisassembly.Update("IMEM Disassembly", n64.GetRsp().Imem(), DisassembleKind::Rsp);
+		m_cpuDisassembly.Update("RDRAM Disassembly", n64.GetMemory().Rdram());
+		m_rspDisassembly.Update("IMEM Disassembly", n64.GetRsp().Imem());
 	}
 
 private:

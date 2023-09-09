@@ -127,6 +127,7 @@
     <ClCompile Include="N64\Cpu_detail\Dynarec\RecompiledCache.cpp" />
     <ClCompile Include="N64\Cpu_detail\Dynarec\Recompiler.cpp" />
     <ClCompile Include="N64\Cpu_detail\Tlb.cpp" />
+    <ClCompile Include="N64\Debugger\DebugDisassembler.cpp" />
     <ClCompile Include="N64\Instruction.cpp" />
     <ClCompile Include="N64\Interrupt.cpp" />
     <ClCompile Include="N64\Joybus\Controller.cpp" />
@@ -383,7 +384,6 @@
     <ClInclude Include="N64\Cpu_detail\FloatingFmt.h" />
     <ClInclude Include="N64\Cpu_detail\Gpr.h" />
     <ClInclude Include="N64\Cpu_detail\Tlb.h" />
-    <ClInclude Include="N64\Debugger\RspDisassembler.h" />
     <ClInclude Include="N64\Instruction.h" />
     <ClInclude Include="N64\Interrupt.h" />
     <ClInclude Include="N64\Joybus\Controller.h" />
@@ -741,7 +741,7 @@
     <Content Include="App\tests\rsp\vsucb.input" />
     <Content Include="App\tests\rsp\vsucb.rsp" />
     <Content Include="DearImGuiAddon\credit.txt" />
-    <ClInclude Include="N64\Debugger\CpuDisassembler.h" />
+    <ClInclude Include="N64\Debugger\DebugDisassembler.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExternalLibs\ExternalLibs.vcxproj">

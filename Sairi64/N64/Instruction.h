@@ -357,7 +357,7 @@ namespace N64
 	{
 	public:
 		uint16 Imm() const { return GetBits<0, 15>(Raw()); }
-		uint32 Offset() const { return Imm(); }
+		uint16 Offset() const { return Imm(); }
 		OpRegimm Sub() const { return static_cast<OpRegimm>(GetBits<16, 20>(Raw())); }
 		uint32 Rs() const { return GetBits<21, 25>(Raw()); }
 

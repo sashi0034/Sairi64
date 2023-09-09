@@ -37,7 +37,7 @@ namespace Ui
 
 		ImGui::Begin("FPS (debug)");
 		using ss = std::stringstream;
-		ImGui::Text((ss{} << "FPS: " << static_cast<uint32>(n64Frame.frameRate)).str().c_str());
+		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.frameRate)).str().c_str());
 		ImGui::Text((ss{} << "FrameCount: " << n64Frame.frameCount).str().c_str());
 		ImGui::End();
 

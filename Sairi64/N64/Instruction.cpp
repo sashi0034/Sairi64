@@ -28,12 +28,12 @@ namespace N64
 	{
 		if (Raw() == 0) return U"NOP";
 
-		return U"{} sa:{}, rd:{}, rt:{}, rs:{}"_fmt(StringifyEnum(Funct()), Sa(), Rd(), Rt(), Rs());
+		return U"{} rs:{}, rt:{}, rd:{}, sa:{}"_fmt(StringifyEnum(Funct()), Rs(), Rt(), Rd(), Sa());
 	}
 
 	String InstructionCop::Stringify() const
 	{
-		return U"{} {}"_fmt(StringifyEnum(Op()), StringifyEnum(Sub()));
+		return U"{} ({})"_fmt(StringifyEnum(Op()), StringifyEnum(Sub()));
 	}
 
 	String InstructionCopSub::Stringify() const
@@ -43,7 +43,7 @@ namespace N64
 
 	String InstructionCop1Sub::Stringify() const
 	{
-		return U"{}{} rt:{}, fs:{}"_fmt(StringifyEnum(Sub()), CopNumber(), Rt(), Fs());
+		return U"{}1 rt:{}, fs:{}"_fmt(StringifyEnum(Sub()), Rt(), Fs());
 	}
 
 	String InstructionCop0Tlb::Stringify() const

@@ -32,12 +32,14 @@ namespace N64
 
 	private:
 		void runFrame(N64System& n64, const N64Config& config);
+		void checkHandleError();
 
 		bool m_isSuspended{};
 		double m_fragmentTime{};
 		AsyncTask<void> m_frameTask{};
 		Stopwatch m_profilingStopwatch{};
 		uint64 m_profilingCount{};
+		bool m_isHandledError{};
 
 		N64FrameInternalState m_internalState{};
 		N64FrameInfo m_info{};

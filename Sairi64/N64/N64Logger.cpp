@@ -95,8 +95,8 @@ namespace N64
 			Unicode::Widen(location.file_name()),
 			location.line(),
 			Unicode::Widen(location.function_name())));
-		System::MessageBoxOK(U"Abort!\n" + message, MessageBoxStyle::Error);
-		std::exit(-1);
+		// System::MessageBoxOK(U"Abort!\n" + message, MessageBoxStyle::Error);
+		throw s3d::Error(message);
 	}
 
 	void N64Logger::Abort(const std::source_location& location)

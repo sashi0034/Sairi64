@@ -177,9 +177,22 @@ namespace N64
 		emulateFrame(n64, m_internalState, config.processor);
 	}
 
+	void N64Frame::checkHandleError()
+	{
+		if (m_isHandledError == false)
+		{
+			m_isHandledError = true;
+			System::MessageBoxOK(U"Error!\n" + m_info.emulateError.what(), MessageBoxStyle::Error);
+		}
+	}
+
 	void N64Frame::ControlFrame(N64System& n64, const N64Config& config)
 	{
-		if (m_info.emulateError.what().isEmpty() == false) return;
+		if (m_info.emulateError.what().isEmpty() == false)
+		{
+			checkHandleError();
+			return;
+		}
 		if (checkSuspend(m_isSuspended, m_profilingStopwatch)) return;;
 
 		const double actualDeltaTime = Scene::DeltaTime();

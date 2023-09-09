@@ -52,8 +52,8 @@ namespace N64::Rdp_detail
 			for (int i = 0; i < m_pixelBuffer.width() * m_pixelBuffer.height(); i++)
 			{
 				const uint16 pixel =
-					(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 0] << 8) |
-					(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 1]);
+					(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 0]) |
+					(n64.GetMemory().Rdram()[rdramOffset + i * 2 + 1] << 8);
 				m_pixelBuffer.data()[i].r = GetBits<11, 15>(pixel) << 3;
 				m_pixelBuffer.data()[i].g = GetBits<6, 10>(pixel) << 3;
 				m_pixelBuffer.data()[i].b = GetBits<1, 5>(pixel) << 3;

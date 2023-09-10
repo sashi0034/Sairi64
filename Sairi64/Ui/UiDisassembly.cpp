@@ -38,6 +38,13 @@ namespace Ui
 		{
 			shouldRefresh = true;
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Clipboard"))
+		{
+			Clipboard::SetText(m_disassembledBuffer
+			                   .map([](const std::string& str) { return Unicode::Widen(str); })
+			                   .join(U"\n"));
+		}
 		if (ImGui::Button("Back"))
 		{
 			m_baseAddr -= showPageSize;

@@ -4,6 +4,7 @@
 #include "../Vectors.h"
 
 // https://n64brew.dev/wiki/Reality_Signal_Processor/CPU_Core
+// https://emudev.org/2020/03/28/RSP.html
 
 namespace N64::Rsp_detail::Dynarec
 {
@@ -114,6 +115,14 @@ public:
 			x86Asm.call((uint64)&helperVMUDM);
 		else if constexpr (funct == OpCop2VecFunct::VMUDN)
 			x86Asm.call((uint64)&helperVMUDN);
+		else if constexpr (funct == OpCop2VecFunct::VMADH)
+			x86Asm.call((uint64)&helperVMADH);
+		else if constexpr (funct == OpCop2VecFunct::VMADL)
+			x86Asm.call((uint64)&helperVMADL);
+		else if constexpr (funct == OpCop2VecFunct::VMADM)
+			x86Asm.call((uint64)&helperVMADM);
+		else if constexpr (funct == OpCop2VecFunct::VMADN)
+			x86Asm.call((uint64)&helperVMADN);
 		else
 			x86Asm.call(reinterpret_cast<uint64>(&helperCP2_arithmetic<funct>));
 		return DecodedToken::Continue;
@@ -365,6 +374,99 @@ private:
 			const uint16 multiplicand2 = vs.uE[e];
 			const sint32 product = multiplicand1 * multiplicand2;
 			const sint64 accum = product;
+			SetAccum48(vu, e, accum);
+			uint16 result;
+			if (IsSignExtension(vu.accum.h.sE[e], vu.accum.m.sE[e]))
+			{
+				result = vu.accum.l.uE[e];
+			}
+			else if (vu.accum.h.sE[e] < 0)
+			{
+				result = 0;
+			}
+			else
+			{
+				result = 0xFFFF;
+			}
+			vd.uE[e] = result;
+		}
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L968
+	N64_ABI static void helperVMADH(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+			const uint32 uP = product;
+			const uint64 accumDelta = static_cast<uint64>(uP) << 16;
+			sint64 acc = GetAccum48(vu, e) + accumDelta;
+			SetAccum48(vu, e, acc);
+			acc = GetAccum48(vu, e);
+			const sint16 result = SignedClamp(acc >> 16);
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMADL(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const uint64 multiplicand1 = vte.uE[e];
+			const uint64 multiplicand2 = vs.uE[e];
+			const uint64 product = multiplicand1 * multiplicand2;
+			const uint64 accumDelta = product >> 16;
+			const uint64 accum = GetAccum48(vu, e) + accumDelta;
+			SetAccum48(vu, e, accum);
+			uint16 result;
+			if (IsSignExtension(vu.accum.h.sE[e], vu.accum.m.sE[e]))
+			{
+				result = vu.accum.l.uE[e];
+			}
+			else if (vu.accum.h.sE[e] < 0)
+			{
+				result = 0;
+			}
+			else
+			{
+				result = 0xFFFF;
+			}
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMADM(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const uint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+			const sint64 accumDelta = product;
+			sint64 accum = GetAccum48(vu, e);
+			accum += accumDelta;
+			SetAccum48(vu, e, accum);
+			accum = GetAccum48(vu, e);
+			const sint16 result = SignedClamp(accum >> 16);
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMADN(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const uint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+			const sint64 accumDelta = product;
+			const sint64 accum = GetAccum48(vu, e) + accumDelta;
 			SetAccum48(vu, e, accum);
 			uint16 result;
 			if (IsSignExtension(vu.accum.h.sE[e], vu.accum.m.sE[e]))

@@ -288,13 +288,13 @@ private:
 		case OpCop2VecFunct::VMACQ:
 			break;
 		case OpCop2VecFunct::VMADL:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMADL>(ctx, instr);
 		case OpCop2VecFunct::VMADM:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMADM>(ctx, instr);
 		case OpCop2VecFunct::VMADN:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMADN>(ctx, instr);
 		case OpCop2VecFunct::VMADH:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMADH>(ctx, instr);
 		case OpCop2VecFunct::VADD:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VADD>(ctx, instr);
 		case OpCop2VecFunct::VSUB:

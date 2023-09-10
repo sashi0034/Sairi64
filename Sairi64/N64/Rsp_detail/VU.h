@@ -64,6 +64,19 @@ namespace N64::Rsp_detail
 		vu.accum.l.uE[e] = value & 0xFFFF;
 	}
 
+	inline sint64 GetAccum48(VU& vu, uint8 e)
+	{
+		sint64 value{};
+		value |= static_cast<uint64>(vu.accum.h.uE[e]) << 32;
+		value |= static_cast<uint64>(vu.accum.m.uE[e]) << 16;
+		value |= static_cast<uint64>(vu.accum.l.uE[e]) << 0;
+		if ((value & 0x0000800000000000) != 0)
+		{
+			value |= 0xFFFF000000000000;
+		}
+		return value;
+	}
+
 	[[nodiscard]]
 	inline Vpr_t BroadcastVt(const Vpr_t& vt, int l0, int l1, int l2, int l3, int l4, int l5, int l6, int l7)
 	{

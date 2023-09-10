@@ -368,6 +368,8 @@ namespace N64
 	{
 	public:
 		uint32 Target() const { return GetBits<0, 25>(Raw()); }
+
+		String Stringify() const;
 	};
 
 	class InstructionR : public Instruction
@@ -404,6 +406,7 @@ namespace N64
 	{
 	public:
 		uint32 Fs() const { return Rd(); }
+
 		String Stringify() const;
 	};
 
@@ -412,6 +415,7 @@ namespace N64
 	public:
 		OpCop0TlbFunct Funct() const { return static_cast<OpCop0TlbFunct>(GetBits<0, 5>(Raw())); }
 		uint32 ShouldBeZero() const { return GetBits<6, 24>(Raw()); }
+
 		String Stringify() const;
 	};
 
@@ -423,6 +427,7 @@ namespace N64
 		uint8 Fs() const { return GetBits<11, 15>(Raw()); }
 		uint8 Ft() const { return GetBits<16, 20>(Raw()); }
 		FloatingFmt Fmt() const { return static_cast<FloatingFmt>(GetBits<21, 25>(Raw())); }
+
 		String Stringify() const;
 	};
 
@@ -464,6 +469,7 @@ namespace N64
 		uint32 Rt() const { return GetBits<16, 20>(Raw()); }
 		uint32 Ft() const { return Rt(); }
 		uint32 Base() const { return GetBits<21, 25>(Raw()); }
+
 		String Stringify() const;
 	};
 
@@ -475,6 +481,7 @@ namespace N64
 		OpLwc2Funct Funct() const { return static_cast<OpLwc2Funct>(GetBits<11, 15>(Raw())); }
 		uint8 Vt() const { return GetBits<16, 20>(Raw()); }
 		uint8 Base() const { return GetBits<21, 25>(Raw()); }
+
 		String Stringify() const;
 	};
 
@@ -486,6 +493,7 @@ namespace N64
 		OpSwc2Funct Funct() const { return static_cast<OpSwc2Funct>(GetBits<11, 15>(Raw())); }
 		uint8 Vt() const { return GetBits<16, 20>(Raw()); }
 		uint8 Base() const { return GetBits<21, 25>(Raw()); }
+
 		String Stringify() const;
 	};
 

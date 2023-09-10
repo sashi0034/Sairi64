@@ -41,8 +41,13 @@ namespace Ui
 		ImGui::SameLine();
 		if (ImGui::Button("Clipboard"))
 		{
+			int address = m_baseAddr - 4;
 			Clipboard::SetText(m_disassembledBuffer
-			                   .map([](const std::string& str) { return Unicode::Widen(str); })
+			                   .map([&](const std::string& str)
+			                   {
+				                   address += 4;
+				                   return U"{:08X}: {}"_fmt(address, Unicode::Widen(str));
+			                   })
 			                   .join(U"\n"));
 		}
 		if (ImGui::Button("Back"))

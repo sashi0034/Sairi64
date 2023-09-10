@@ -24,6 +24,11 @@ namespace N64
 		return U"{} rs:{}, imm:{:04X}h"_fmt(StringifyEnum(Sub()), Rs(), Imm());
 	}
 
+	String InstructionJ::Stringify() const
+	{
+		return U"{} target:{:08X}"_fmt(OpName(), Target());
+	}
+
 	String InstructionR::Stringify() const
 	{
 		if (Raw() == 0) return U"NOP";

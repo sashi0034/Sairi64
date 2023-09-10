@@ -201,6 +201,8 @@
     <ResourceCompile Include="App\Resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="App\asset\font\DotGothic16\OFL.txt" />
+    <Text Include="App\asset\font\RocknRoll\OFL.txt" />
     <Text Include="App\dll\soundtouch\COPYING.TXT" />
     <Text Include="App\engine\font\fontawesome\LICENSE.txt" />
     <Text Include="App\engine\soundfont\GMGSx.sf2.txt" />
@@ -220,6 +222,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="App\asset\font\DotGothic16\README-JP.md" />
+    <None Include="App\asset\font\DotGothic16\README.md" />
+    <None Include="App\asset\font\RocknRoll\README-JP.md" />
+    <None Include="App\asset\font\RocknRoll\README.md" />
     <None Include="App\dll\soundtouch\SoundTouch_x64.dll" />
     <None Include="App\engine\font\fontawesome\fontawesome-brands.otf.zstdcmp" />
     <None Include="App\engine\font\fontawesome\fontawesome-solid.otf.zstdcmp" />
@@ -353,6 +359,8 @@
     <Media Include="App\example\video\river.mp4" />
   </ItemGroup>
   <ItemGroup>
+    <Font Include="App\asset\font\DotGothic16\DotGothic16-Regular.ttf" />
+    <Font Include="App\asset\font\RocknRoll\RocknRollOne-Regular.ttf" />
     <Font Include="App\example\font\DotGothic16\DotGothic16-Regular.ttf" />
     <Font Include="App\example\font\RocknRoll\RocknRollOne-Regular.ttf" />
   </ItemGroup>

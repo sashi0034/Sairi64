@@ -10,6 +10,22 @@
 class Ui::UiManager::Impl
 {
 public:
+	void CheckWindowSize()
+	{
+		const auto currentWindowSize = Window::GetState().frameBufferSize;
+		if (m_windowSize != currentWindowSize)
+		{
+			Scene::Resize(currentWindowSize);
+			m_windowSize = currentWindowSize;
+		}
+
+		// const float fontScale = std::max(static_cast<float>(Scene::Size().x) / Window::GetState().virtualSize.x,
+		// 						 static_cast<float>(Scene::Size().y) / Window::GetState().virtualSize.y);
+		// constexpr float fontShrink = 0.75f;
+		// ImGuiIO& io = ImGui::GetIO();
+		// io.FontGlobalScale = fontScale * fontShrink;
+	}
+
 	void Update(N64::N64System& n64)
 	{
 		m_rdramViewer.Update("RDRAM Viewer", n64.GetMemory().Rdram());
@@ -21,6 +37,8 @@ public:
 	}
 
 private:
+	Size m_windowSize{};
+
 	UiMemoryViewer m_rdramViewer{};
 	UiMemoryViewer m_dmemViewer{};
 	UiMemoryViewer m_imemViewer{};
@@ -37,11 +55,7 @@ namespace Ui
 
 	void UiManager::Update(N64::N64System& n64System, N64::N64Frame& n64Frame, const N64::N64Config& n64Config)
 	{
-		// ウィンドウサイズからフォントサイズ調整
-		const float fontScale = std::max(static_cast<float>(Scene::Size().x) / Window::GetState().virtualSize.x,
-		                                 static_cast<float>(Scene::Size().y) / Window::GetState().virtualSize.y);
-		ImGuiIO& io = ImGui::GetIO();
-		io.FontGlobalScale = fontScale;
+		m_impl->CheckWindowSize();
 
 		// デモ
 		ImGui::ShowDemoWindow();

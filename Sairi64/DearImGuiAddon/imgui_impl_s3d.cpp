@@ -153,8 +153,8 @@ static ImGuiKey ToImGuiKey(Input input)
 {
 	auto itr = KeyId2ImGuiKeyDic.find(input.code());
 	return itr == KeyId2ImGuiKeyDic.cend()
-		       ? ImGuiKey_None
-		       : itr->second;
+	       ? ImGuiKey_None
+	       : itr->second;
 }
 
 static std::unique_ptr<ImGuiImpls3dContext> Context;
@@ -267,6 +267,8 @@ bool ImGui_Impls3d_Init()
 	io.GetClipboardTextFn = &GetClipboardTextCallback;
 	io.SetClipboardTextFn = &SetClipboardTextCallback;
 	io.SetPlatformImeDataFn = &SetImeDataCallback;
+
+	io.Fonts->AddFontFromFileTTF("asset/font/DotGothic16/DotGothic16-Regular.ttf", 24);
 
 	return true;
 }

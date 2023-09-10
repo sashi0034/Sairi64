@@ -145,11 +145,11 @@ private:
 		case OpSpecialFunct::SRA:
 			return Jit::SPECIAL_shift<OpSpecialFunct::SRA>(ctx, instr);
 		case OpSpecialFunct::SLLV:
-			break;
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::SLLV>(ctx, instr);
 		case OpSpecialFunct::SRLV:
-			break;
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::SRLV>(ctx, instr);
 		case OpSpecialFunct::SRAV:
-			break;
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::SRAV>(ctx, instr);
 		case OpSpecialFunct::JR:
 			return Jit::JR_template<OpSpecialFunct::JR>(ctx, instr);
 		case OpSpecialFunct::JALR:

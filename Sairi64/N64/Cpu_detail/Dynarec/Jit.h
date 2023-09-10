@@ -564,7 +564,7 @@ private:
 	N64_ABI static void handleResolvingError(Cpu& cpu, uint64 vaddr)
 	{
 		cpu.GetCop0().HandleTlbException(vaddr);
-		Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+		Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<access>(), cop);
 	}
 
 	template <BusAccess access>

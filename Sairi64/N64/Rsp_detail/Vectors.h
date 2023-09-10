@@ -97,4 +97,18 @@ namespace N64::Rsp_detail
 		if (value > 32767) return 65535;
 		return value;
 	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L31
+	inline bool IsSignExtension(sint16 high, sint16 low)
+	{
+		if (high == 0)
+		{
+			return (low & 0x8000) == 0;
+		}
+		else if (high == -1)
+		{
+			return (low & 0x8000) == 0x8000;
+		}
+		return false;
+	}
 }

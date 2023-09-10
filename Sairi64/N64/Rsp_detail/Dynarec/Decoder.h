@@ -272,13 +272,13 @@ private:
 		case OpCop2VecFunct::VMULQ:
 			break;
 		case OpCop2VecFunct::VMUDL:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMUDL>(ctx, instr);
 		case OpCop2VecFunct::VMUDM:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMUDM>(ctx, instr);
 		case OpCop2VecFunct::VMUDN:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMUDN>(ctx, instr);
 		case OpCop2VecFunct::VMUDH:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMUDH>(ctx, instr);
 		case OpCop2VecFunct::VMACF:
 			break;
 		case OpCop2VecFunct::VMACU:

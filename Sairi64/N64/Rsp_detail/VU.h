@@ -57,6 +57,13 @@ namespace N64::Rsp_detail
 		bool divInLoaded;
 	};
 
+	inline void SetAccum48(VU& vu, uint8 e, uint64 value)
+	{
+		vu.accum.h.uE[e] = (value >> 32) & 0xFFFF;
+		vu.accum.m.uE[e] = (value >> 16) & 0xFFFF;
+		vu.accum.l.uE[e] = value & 0xFFFF;
+	}
+
 	[[nodiscard]]
 	inline Vpr_t BroadcastVt(const Vpr_t& vt, int l0, int l1, int l2, int l3, int l4, int l5, int l6, int l7)
 	{

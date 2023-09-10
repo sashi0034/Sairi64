@@ -106,7 +106,16 @@ public:
 		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vt()]);
 		x86Asm.mov(x86::al, instr.Element());
 		x86Asm.mov(x86::byte_ptr(x86::rsp, 32), x86::al);
-		x86Asm.call(reinterpret_cast<uint64>(&helperCP2_arithmetic<funct>));
+		if constexpr (funct == OpCop2VecFunct::VMUDH)
+			x86Asm.call((uint64)&helperVMUDH);
+		else if constexpr (funct == OpCop2VecFunct::VMUDL)
+			x86Asm.call((uint64)&helperVMUDL);
+		else if constexpr (funct == OpCop2VecFunct::VMUDM)
+			x86Asm.call((uint64)&helperVMUDM);
+		else if constexpr (funct == OpCop2VecFunct::VMUDN)
+			x86Asm.call((uint64)&helperVMUDN);
+		else
+			x86Asm.call(reinterpret_cast<uint64>(&helperCP2_arithmetic<funct>));
 		return DecodedToken::Continue;
 	}
 
@@ -226,9 +235,9 @@ private:
 	}
 
 	template <OpCop2VecFunct funct>
-	N64_ABI static void helperCP2_arithmetic(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 e)
+	N64_ABI static void helperCP2_arithmetic(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
 	{
-		const Vpr_t vte = GetVtE(vt, e);
+		const Vpr_t vte = GetVtE(vt, element);
 		for (int i = 0; i < 8; ++i)
 		{
 			if constexpr (funct == OpCop2VecFunct::VADD)
@@ -282,6 +291,95 @@ private:
 				vd.single = 0;
 			}
 			else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
+		}
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L1235
+	N64_ABI static void helperVMUDH(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+			sint64 accum = (sint64)product;
+			const sint16 result = SignedClamp(accum);
+			accum <<= 16;
+			SetAccum48(vu, e, accum);
+			vd.uE[e] = result;
+		}
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L1235
+	N64_ABI static void helperVMUDL(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const uint64 multiplicand1 = vte.uE[e];
+			const uint64 multiplicand2 = vs.uE[e];
+			const uint64 product = multiplicand1 * multiplicand2;
+			uint64 accum = product >> 16;
+			SetAccum48(vu, e, accum);
+			uint16 result;
+			if (IsSignExtension(vu.accum.h.sE[e], vu.accum.m.sE[e]))
+			{
+				result = vu.accum.l.uE[e];
+			}
+			else if (vu.accum.h.sE[e] < 0)
+			{
+				result = 0;
+			}
+			else
+			{
+				result = 0xFFFF;
+			}
+			vd.uE[e] = result;
+		}
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L1235
+	N64_ABI static void helperVMUDM(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const uint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+			const sint64 accum = product;
+			const sint16 result = SignedClamp(accum >> 16);
+			SetAccum48(vu, e, accum);
+			vd.uE[e] = result;
+		}
+	}
+
+	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/rsp_vector_instructions.c#L1254
+	N64_ABI static void helperVMUDN(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const uint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+			const sint64 accum = product;
+			SetAccum48(vu, e, accum);
+			uint16 result;
+			if (IsSignExtension(vu.accum.h.sE[e], vu.accum.m.sE[e]))
+			{
+				result = vu.accum.l.uE[e];
+			}
+			else if (vu.accum.h.sE[e] < 0)
+			{
+				result = 0;
+			}
+			else
+			{
+				result = 0xFFFF;
+			}
+			vd.uE[e] = result;
 		}
 	}
 

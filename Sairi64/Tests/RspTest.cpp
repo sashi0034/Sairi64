@@ -141,6 +141,7 @@ TEST_CASE("RspTest")
 	// REQUIRE(rspTest(U"vmadl")); // OK
 	// REQUIRE(rspTest(U"vmadm")); // OK
 	// REQUIRE(rspTest(U"vmadn")); // OK
+	// REQUIRE(rspTest(U"ldv_sdv")); // OK
 
 	REQUIRE(rspTest(U"vlt"));
 	REQUIRE(rspTest(U"llv_slv"));

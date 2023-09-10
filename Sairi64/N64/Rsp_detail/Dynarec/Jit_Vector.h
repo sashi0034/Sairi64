@@ -238,6 +238,8 @@ private:
 		else if constexpr (swc2 == OpSwc2Funct::SHV) x86Asm.call((uint64)&helperSHV);
 		else if constexpr (lwc2 == OpLwc2Funct::LRV) x86Asm.call((uint64)&helperLRV);
 		else if constexpr (swc2 == OpSwc2Funct::SRV) x86Asm.call((uint64)&helperSRV);
+		else if constexpr (lwc2 == OpLwc2Funct::LDV) x86Asm.call((uint64)&helperLDV);
+		else if constexpr (swc2 == OpSwc2Funct::SDV) x86Asm.call((uint64)&helperSDV);
 		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
 
 		return DecodedToken::Continue;
@@ -627,6 +629,26 @@ private:
 		for (int i = start; i < end; i++)
 		{
 			dmem.WriteSpByte(address++, vt.bytes[VuByteIndex((i + base) & 0xF)]);
+		}
+	}
+
+	N64_ABI static void helperLDV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const int start = e;
+		const int end = std::min(start + 8, 16);
+		for (int i = start; i < end; i++)
+		{
+			vt.bytes[VuByteIndex(i)] = dmem.ReadSpByte(address);
+			address++;
+		}
+	}
+
+	N64_ABI static void helperSDV(SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			const int element = i + e;
+			dmem.WriteSpByte(address + i, vt.bytes[VuByteIndex(element & 0xF)]);
 		}
 	}
 };

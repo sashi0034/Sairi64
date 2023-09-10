@@ -43,11 +43,11 @@ namespace N64::Debugger
 			case Opcode::LUI:
 				return by_<InstructionI>(instr);
 			case Opcode::CP0:
-				break;
+				return disassembleCP0(static_cast<InstructionCop>(instr));
 			case Opcode::CP1:
-				break;
+				return disassembleCP1(static_cast<InstructionCop>(instr));
 			case Opcode::CP2:
-				break;
+				return disassembleCP2(static_cast<InstructionCop2Vec>(instr));
 			case Opcode::CP3:
 				break;
 			case Opcode::BEQL:
@@ -105,7 +105,7 @@ namespace N64::Debugger
 			case Opcode::LWC1:
 				return by_<InstructionFi>(instr);
 			case Opcode::LWC2:
-				break;
+				return by_<InstructionLv>(instr);
 			case Opcode::LLD:
 				break;
 			case Opcode::LDC1:
@@ -117,7 +117,7 @@ namespace N64::Debugger
 			case Opcode::SWC1:
 				return by_<InstructionFi>(instr);
 			case Opcode::SWC2:
-				break;
+				return by_<InstructionSv>(instr);
 			case Opcode::SCD:
 				break;
 			case Opcode::SDC1:
@@ -145,6 +145,46 @@ namespace N64::Debugger
 		{
 			static_assert(std::convertible_to<Instr, Instr>);
 			return static_cast<Instr>(instr).Stringify();
+		}
+
+		static String disassembleCP0(InstructionCop instr)
+		{
+			switch (instr.Sub())
+			{
+				// @formatter:off
+			case OpCopSub::CO_0x10: case OpCopSub::CO_0x11: case OpCopSub::CO_0x12: case OpCopSub::CO_0x13:
+			case OpCopSub::CO_0x14: case OpCopSub::CO_0x15: case OpCopSub::CO_0x16: case OpCopSub::CO_0x17:
+			case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
+			case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F:
+				// @formatter:on
+				return by_<InstructionCop0Tlb>(instr);
+			default: ;
+			}
+
+			return by_<InstructionCopSub>(instr);
+		}
+
+		static String disassembleCP1(InstructionCop instr)
+		{
+			switch (instr.Sub())
+			{
+			case OpCopSub::CO_0x10:
+			case OpCopSub::CO_0x11:
+			case OpCopSub::CO_0x14:
+			case OpCopSub::CO_0x15:
+				return by_<InstructionCop1Fmt>(instr);
+			default: ;
+			}
+
+			return by_<InstructionCopSub>(instr);
+		}
+
+		static String disassembleCP2(InstructionCop2Vec instr)
+		{
+			if (instr.IsFunct())
+				return by_<InstructionCop2VecFunct>(instr);
+			else
+				return by_<InstructionCop2VecSub>(instr);
 		}
 	};
 

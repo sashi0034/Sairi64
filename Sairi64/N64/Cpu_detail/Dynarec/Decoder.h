@@ -318,9 +318,9 @@ private:
 		case OpCop0TlbFunct::TLBR:
 			break;
 		case OpCop0TlbFunct::TLBWI:
-			return Jit::Cop::TLBW_template<OpCop0TlbFunct::TLBWI>(ctx, static_cast<InstructionCopSub>(instr));
+			return Jit::Cop::TLBW_template<OpCop0TlbFunct::TLBWI>(ctx, instr);
 		case OpCop0TlbFunct::TLBWR:
-			return Jit::Cop::TLBW_template<OpCop0TlbFunct::TLBWR>(ctx, static_cast<InstructionCopSub>(instr));
+			return Jit::Cop::TLBW_template<OpCop0TlbFunct::TLBWR>(ctx, instr);
 		case OpCop0TlbFunct::TLBP:
 			break;
 		case OpCop0TlbFunct::ERET:

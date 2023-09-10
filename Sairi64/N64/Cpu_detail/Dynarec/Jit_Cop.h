@@ -56,7 +56,7 @@ public:
 	}
 
 	template <OpCop0TlbFunct funct> [[nodiscard]]
-	static DecodedToken TLBW_template(const AssembleContext& ctx, InstructionCopSub instr)
+	static DecodedToken TLBW_template(const AssembleContext& ctx, InstructionCop0Tlb instr)
 	{
 		JIT_ENTRY;
 		auto&& x86Asm = *ctx.x86Asm;

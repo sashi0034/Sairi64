@@ -21,6 +21,7 @@ namespace N64::Rsp_detail::Dynarec
 
 	RecompiledCodeHandler ImemCache::HitBlockOrRecompile(N64System& n64, Rsp& rsp, ImemAddr16 pc)
 	{
+		// TODO: タグを廃止、有効フラグにする
 		const BlockTag pcTag = GetBlockTag(pc);
 		const uint8 pcIndex = GetBlockIndex(pc);
 

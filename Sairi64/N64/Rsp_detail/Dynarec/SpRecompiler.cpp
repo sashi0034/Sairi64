@@ -10,13 +10,8 @@ namespace N64::Rsp_detail::Dynarec
 {
 	namespace x86 = asmjit::x86;
 
-	Instruction fetchInstruction(Rsp& rsp, ImemAddr16 pc)
+	inline Instruction fetchInstruction(Rsp& rsp, ImemAddr16 pc)
 	{
-		if (pc & 0b11)
-		{
-			// アラインメントずれが許可されてるかもしれないので対処
-			return rsp.Imem().ReadSpWord(pc);
-		}
 		return ReadBytes32(rsp.Imem(), pc);
 	}
 

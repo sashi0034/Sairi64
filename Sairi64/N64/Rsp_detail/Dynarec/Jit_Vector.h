@@ -211,13 +211,15 @@ private:
 		x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
 		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[instr.Base()])));
 		x86Asm.add(x86::eax, offset);
-		x86Asm.mov(x86::edx, x86::eax); // edx <- startAddr
+		x86Asm.mov(x86::edx, x86::eax); // edx <- address
 		x86Asm.mov(x86::r8, reinterpret_cast<uint64>(&vu.regs[instr.Vt()])); // r8 <- *vt
 		x86Asm.mov(x86::r9b, e); // r9b <- e
 		if constexpr (lwc2 == OpLwc2Funct::LQV) x86Asm.call((uint64)&helperLQV);
 		else if constexpr (swc2 == OpSwc2Funct::SQV) x86Asm.call((uint64)&helperSQV);
 		else if constexpr (lwc2 == OpLwc2Funct::LHV) x86Asm.call((uint64)&helperLHV);
 		else if constexpr (swc2 == OpSwc2Funct::SHV) x86Asm.call((uint64)&helperSHV);
+		else if constexpr (lwc2 == OpLwc2Funct::LRV) x86Asm.call((uint64)&helperLRV);
+		else if constexpr (swc2 == OpSwc2Funct::SRV) x86Asm.call((uint64)&helperSRV);
 		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
 
 		return DecodedToken::Continue;
@@ -356,42 +358,42 @@ private:
 		vu.accum.l.single = vte.single;
 	}
 
-	N64_ABI static void helperLQV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
+	N64_ABI static void helperLQV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
 	{
-		const uint32 endAddr = ((startAddr & ~15) + 15);
-		for (int i = 0; startAddr + i <= endAddr && i + e < 16; ++i)
+		const uint32 endAddr = ((address & ~15) + 15);
+		for (int i = 0; address + i <= endAddr && i + e < 16; ++i)
 		{
-			vt.bytes[VuByteIndex(i + e)] = dmem.ReadSpByte(startAddr + i);
+			vt.bytes[VuByteIndex(i + e)] = dmem.ReadSpByte(address + i);
 		}
 	}
 
-	N64_ABI static void helperSQV(SpDmem& dmem, uint32 startAddr, const Vpr_t& vt, uint8 e)
+	N64_ABI static void helperSQV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
 	{
-		const uint32 endAddr = ((startAddr & ~15) + 15);
-		for (int i = 0; startAddr + i <= endAddr; ++i)
+		const uint32 endAddr = ((address & ~15) + 15);
+		for (int i = 0; address + i <= endAddr; ++i)
 		{
-			dmem.WriteSpByte(startAddr + i, vt.bytes[VuByteIndex((i + e) & 15)]);
+			dmem.WriteSpByte(address + i, vt.bytes[VuByteIndex((i + e) & 15)]);
 		}
 	}
 
-	N64_ABI static void helperLHV(const SpDmem& dmem, uint32 startAddr, Vpr_t& vt, uint8 e)
+	N64_ABI static void helperLHV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
 	{
-		const uint32 addr3 = startAddr & 0x7;
-		startAddr &= ~0x7;
+		const uint32 addr3 = address & 0x7;
+		address &= ~0x7;
 
 		for (int i = 0; i < 8; i++)
 		{
 			const sint32 offset = ((16 - e) + (i * 2) + addr3) & 0xF;
-			uint16 value = dmem.ReadSpByte(startAddr + offset);
+			uint16 value = dmem.ReadSpByte(address + offset);
 			value <<= 7;
 			vt.uE[VuElementIndex(i)] = value;
 		}
 	}
 
-	N64_ABI static void helperSHV(SpDmem& dmem, uint32 startAddr, const Vpr_t& vt, uint8 e)
+	N64_ABI static void helperSHV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
 	{
-		const uint32 addr3 = startAddr & 0x7;
-		startAddr &= ~0x7;
+		const uint32 addr3 = address & 0x7;
+		address &= ~0x7;
 
 		for (int i = 0; i < 8; i++)
 		{
@@ -401,7 +403,30 @@ private:
 			const uint8 b = val & 0xFF;
 
 			const uint32 offset = addr3 + (i * 2);
-			dmem.WriteSpByte(startAddr + (offset & 0xF), b);
+			dmem.WriteSpByte(address + (offset & 0xF), b);
+		}
+	}
+
+	N64_ABI static void helperLRV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const int start = 16 - ((address & 0xF) - e);
+		address &= 0xFFFFFFF0;
+
+		for (int i = start; i < 16; i++)
+		{
+			vt.bytes[VuByteIndex(i & 0xF)] = dmem.ReadSpByte(address++);
+		}
+	}
+
+	N64_ABI static void helperSRV(SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const int start = e;
+		const int end = start + (address & 15);
+		const int base = 16 - (address & 15);
+		address &= ~15;
+		for (int i = start; i < end; i++)
+		{
+			dmem.WriteSpByte(address++, vt.bytes[VuByteIndex((i + base) & 0xF)]);
 		}
 	}
 };

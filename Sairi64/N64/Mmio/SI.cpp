@@ -13,12 +13,12 @@ namespace N64::Mmio
 		case SiAddress::PifAdRd64B_0x04800004: [[fallthrough]];
 		case SiAddress::PifAddrWr64B_0x04800010:
 			return m_pifAddr;
-		case SiAddress::Status_0x04800018:
-			return uint32()
-				| SiStatus32(m_status).DmaBusy()
-				| (0 << 1)
-				| (0 << 3)
-				| (n64.GetMI().GetInterrupt().Si() << 12);
+		case SiAddress::Status_0x04800018: {
+			SiStatus32 status{};
+			status.DmaBusy().Set(SiStatus32(m_status).DmaBusy());
+			status.Interrupt().Set(n64.GetMI().GetInterrupt().Si());
+			return status;
+		}
 		default: break;
 		}
 
@@ -55,8 +55,8 @@ namespace N64::Mmio
 	void SI::startDma(N64System& n64, uint32 pifAddr)
 	{
 		N64_TRACE(Mmio,
-			dma == DmaType::DramToPif ? U"SI DMA start DRAM to PIF" :
-			dma == DmaType::PifToDram ? U"SI DMA start PIF to DRAM" : U"");
+		          dma == DmaType::DramToPif ? U"SI DMA start DRAM to PIF" :
+		          dma == DmaType::PifToDram ? U"SI DMA start PIF to DRAM" : U"");
 
 		m_pifAddr = pifAddr & 0x1FFFFFFF;
 		m_dmaRunning++;
@@ -72,8 +72,8 @@ namespace N64::Mmio
 	void SI::achieveDma(N64System& n64, uint32 pifAddr)
 	{
 		N64_TRACE(Mmio,
-			dma == DmaType::DramToPif ? U"SI DMA achieved DRAM to PIF" :
-			dma == DmaType::PifToDram ? U"SI DMA achieved PIF to DRAM" : U"");
+		          dma == DmaType::DramToPif ? U"SI DMA achieved DRAM to PIF" :
+		          dma == DmaType::PifToDram ? U"SI DMA achieved PIF to DRAM" : U"");
 
 		m_dmaRunning--;
 

@@ -103,4 +103,12 @@ public:
 		}
 		END_OP;
 	}
+
+	[[nodiscard]]
+	static OperatedUnit TLBWI(Cpu& cpu, InstructionCop0Tlb instr)
+	{
+		BEGIN_OP;
+		cpu.GetCop0().GetTlb().WriteEntry(cpu.GetCop0().Reg().index.I());
+		END_OP;
+	}
 };

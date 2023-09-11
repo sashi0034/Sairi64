@@ -226,6 +226,11 @@ namespace Utils
 			throw std::runtime_error("could not open file: " + fileName);
 	}
 
+	static void EmptyEffect()
+	{
+		std::cout << "";
+	}
+
 	using sint8 = std::int8_t;
 	using sint16 = std::int16_t;
 	using sint32 = std::int32_t;

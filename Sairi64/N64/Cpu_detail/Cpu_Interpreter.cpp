@@ -323,7 +323,7 @@ private:
 		case OpCop0TlbFunct::TLBR:
 			break;
 		case OpCop0TlbFunct::TLBWI:
-			break;
+			return Op::Cop::TLBWI(cpu, instr);
 		case OpCop0TlbFunct::TLBWR:
 			break;
 		case OpCop0TlbFunct::TLBP:

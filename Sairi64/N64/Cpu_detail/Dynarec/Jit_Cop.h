@@ -146,6 +146,32 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpCop1FmtFunct funct, FloatingFmt fmt>
+	static DecodedToken CondFmt_template(const AssembleContext& ctx, const AssembleState& state,
+	                                     InstructionCop1Fmt instr)
+	{
+		JIT_ENTRY;
+		if constexpr (fmt == FloatingFmt::Word || fmt == FloatingFmt::Long)
+		{
+			return AssumeNotImplemented(ctx, instr);
+		}
+		auto&& x86Asm = *ctx.x86Asm;
+		using floating = FloatingFmtType<fmt>::type;
+		const auto validLabel = x86Asm.newLabel();
+
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::dl, instr.Fs());
+		x86Asm.mov(x86::r8b, instr.Ft());
+		if constexpr (fmt == FloatingFmt::Single || fmt == FloatingFmt::Double)
+			x86Asm.call(reinterpret_cast<uint64>(&helperCondFmt_template<funct, floating>));
+		x86Asm.test(x86::al, x86::al); // if function was succeeded
+		x86Asm.jne(validLabel); // then goto @valid
+		x86Asm.mov(x86::rax, state.recompiledLength);
+		x86Asm.jmp(ctx.endLabel);
+		x86Asm.bind(validLabel); // @valid
+		return DecodedToken::Continue;
+	}
+
 private:
 	template <uint8 cop, typename Wire>
 	N64_ABI static uint32 readCop(const Cpu& cpu, uint8 reg)
@@ -357,6 +383,67 @@ private:
 		}
 		else static_assert(AlwaysFalse<Fmt>);
 
+		return true;
+	}
+
+	// TODO: いろいろ要るかも
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/cpu/fpu_instructions.c#L858
+	// https://github.com/SimoneN64/Kaizen/blob/9f14d2421bf3644e0b323eff1db8d012c3a27a73/src/backend/core/registers/cop/cop1instructions.cpp#L254
+	template <OpCop1FmtFunct funct, typename Fmt>
+	N64_ABI static bool helperCondFmt_template(Cpu& cpu, uint8 fs, uint8 ft)
+	{
+		auto&& cop1 = cpu.GetCop1();
+		auto&& cop0 = cpu.GetCop0();
+
+		Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
+		Fmt ftF = cop1.GetFgrBy<Fmt>(cop0, ft);
+
+		if constexpr (
+			funct == OpCop1FmtFunct::CondSfFmt ||
+			funct == OpCop1FmtFunct::CondNgleFmt ||
+			funct == OpCop1FmtFunct::CondSeqFmt ||
+			funct == OpCop1FmtFunct::CondNglFmt ||
+			funct == OpCop1FmtFunct::CondLtFmt ||
+			funct == OpCop1FmtFunct::CondNgeFmt ||
+			funct == OpCop1FmtFunct::CondLeFmt ||
+			funct == OpCop1FmtFunct::CondNgtFmt
+		)
+		{
+			if (std::isnan(fsF) || std::isnan(ftF))
+			{
+				cop1.Fcr().fcr31.FlagInvalidOperation().Set(true);
+				cop1.Fcr().fcr31.CauseInvalidOperation().Set(true);
+				Process::ThrowException(cpu, ExceptionKinds::FloatingPoint, 1);
+				return false;
+			}
+		}
+
+		const bool condition = [fsF, ftF]()
+		{
+			if constexpr (funct == OpCop1FmtFunct::CondFFmt || funct == OpCop1FmtFunct::CondSfFmt)
+				return false;
+			else if constexpr (funct == OpCop1FmtFunct::CondUnFmt || funct == OpCop1FmtFunct::CondNgleFmt)
+				return std::isnan(fsF) || std::isnan(ftF);
+			else if constexpr (funct == OpCop1FmtFunct::CondEqFmt || funct == OpCop1FmtFunct::CondSeqFmt)
+				return fsF == ftF;
+			else if constexpr (funct == OpCop1FmtFunct::CondUeqFmt || funct == OpCop1FmtFunct::CondNglFmt)
+				return (std::isnan(fsF) || std::isnan(fsF)) || (fsF == fsF);
+			else if constexpr (funct == OpCop1FmtFunct::CondOltFmt || funct == OpCop1FmtFunct::CondLtFmt)
+				return (!std::isnan(fsF) && !std::isnan(ftF)) && (fsF < ftF);
+			else if constexpr (funct == OpCop1FmtFunct::CondUltFmt || funct == OpCop1FmtFunct::CondNgeFmt)
+				return (std::isnan(fsF) || std::isnan(ftF)) || (fsF < ftF);
+			else if constexpr (funct == OpCop1FmtFunct::CondOleFmt || funct == OpCop1FmtFunct::CondLeFmt)
+				return (!std::isnan(fsF) && !std::isnan(ftF)) && (fsF <= ftF);
+			else if constexpr (funct == OpCop1FmtFunct::CondUleFmt || funct == OpCop1FmtFunct::CondNgtFmt)
+				return (std::isnan(fsF) || std::isnan(ftF)) || (fsF <= ftF);
+			else
+			{
+				static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
+				return {};
+			}
+		}();
+
+		cop1.Fcr().fcr31.Compare().Set(condition);
 		return true;
 	}
 };

@@ -416,37 +416,37 @@ private:
 		case OpCop1FmtFunct::CvtLFmt:
 			return Jit::Cop::Fmt_move<OpCop1FmtFunct::CvtLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CondFFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondFFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondUnFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondUnFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondEqFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondEqFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondUeqFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondUeqFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondOltFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondOltFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondUltFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondUltFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondOleFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondOleFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondUleFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondUleFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondSfFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondSfFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondNgleFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondNgleFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondSeqFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondSeqFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondNglFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondNglFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondLtFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondLtFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondNgeFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondNgeFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondLeFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondLeFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::CondNgtFmt:
-			break;
+			return Jit::Cop::CondFmt_template<OpCop1FmtFunct::CondNgtFmt, fmt>(ctx, state, instr);
 		default: ;
 		}
 

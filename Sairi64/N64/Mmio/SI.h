@@ -35,6 +35,7 @@ namespace N64::Mmio
 	class SI
 	{
 	public:
+		Pif& GetPif() { return m_pif; }
 		PifRam& GetPifRam() { return m_pif.Ram(); }
 
 		uint32 Read32(N64System& n64, PAddr32 paddr) const;

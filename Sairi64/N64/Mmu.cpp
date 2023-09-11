@@ -274,15 +274,16 @@ namespace N64::Mmu
 			};
 		}
 
-		// PIF RAM
+		// PIF
 		map12[0x1FC] = [](N64System& n64, PAddr32 paddr)
 		{
+			// RAM
 			if (GetBits<6, 20, uint32>(paddr) == ((0x007 << 2) | 0b11)) // 0x1FC007C0, 0x1FC007FF
 			{
 				if constexpr (wire32)
 				{
 					const uint64 offset = paddr - PMap::PifRam.base;
-					return ReadBytes32(n64.GetSI().GetPifRam(), offset);
+					return ByteSwap32(ReadBytes32(n64.GetSI().GetPifRam(), offset));
 				}
 			}
 			return readPaddr_unsupported<Wire>(paddr);
@@ -467,15 +468,18 @@ namespace N64::Mmu
 			};
 		}
 
-		// PIF RAM
+		// PIF
 		map12[0x1FC] = [](N64System& n64, PAddr32 paddr, Value value)
 		{
+			// RAM
 			if (GetBits<6, 20, uint32>(paddr) == ((0x007 << 2) | 0b11)) // 0x1FC007C0, 0x1FC007FF
 			{
 				if constexpr (wire32)
 				{
 					const uint64 offset = paddr - PMap::PifRam.base;
-					return WriteBytes32(n64.GetSI().GetPifRam(), offset, value);
+					WriteBytes32(n64.GetSI().GetPifRam(), offset, ByteSwap32(value));
+					n64.GetSI().GetPif().ProcessCommands();
+					return;
 				}
 			}
 			return writePaddr_unsupported<Wire>(paddr);

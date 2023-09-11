@@ -18,8 +18,11 @@ namespace N64::Mmio
 			return m_rdLen;
 		case PiAddress::WrLen_0x0460000C:
 			return m_wrLen;
-		case PiAddress::Status_0x04600010:
-			return m_status;
+		case PiAddress::Status_0x04600010: {
+			PiStatus32 status = m_status;
+			status.Interrupt().Set(n64.GetMI().GetInterrupt().Pi());
+			return status;
+		}
 		case PiAddress::BsdDom1Lat_0x04600014:
 			return m_bsdDom1Lat;
 		case PiAddress::BsdDom1Pwd_0x04600018:
@@ -98,7 +101,12 @@ namespace N64::Mmio
 
 		const uint32 dramAddr = m_dramAddr & 0x7FFFFE;
 		const uint32 cartAddr = m_cartAddr;
-		const uint32 transferLength = (wrLen & 0x00FF'FFFF) + 1;
+		const uint32 transferLength = [&]()
+		{
+			uint32 value = (wrLen & 0x00FF'FFFF) + 1;
+			if (dramAddr & 0x7) value -= dramAddr & 0x7;
+			return value;
+		}();
 
 		N64_TRACE(Mmio, U"start PI DMA write: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr));
 
@@ -118,13 +126,14 @@ namespace N64::Mmio
 			PAddr32(EndianAddress<uint8>(dramAddr)), PAddr32(EndianAddress<uint8>(dramAddr + transferLength - 1)));
 
 		m_status.DmaBusy().Set(true);
+		m_status.IoBusy().Set(true);
 
 		n64.GetScheduler().ScheduleEvent(transferLength / 8, [&n64, this]()
 		{
 			N64_TRACE(Mmio, U"completed PI DMA write");
 
 			m_status.DmaBusy().Set(false);
-			m_status.Interrupt().Set(true);
+			m_status.IoBusy().Set(false);
 
 			InterruptRaise<Interruption::PI>(n64);
 		});

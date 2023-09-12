@@ -11,7 +11,7 @@ namespace N64::Rsp_detail
 	{
 		uint16 prev{};
 		uint16 curr{};
-		uint16 next{};
+		uint16 next{4};
 	};
 
 	constexpr uint16 SpPcMask_0xFFC = 0xFFC;

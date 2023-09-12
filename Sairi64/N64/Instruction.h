@@ -148,8 +148,9 @@ namespace N64
 		MTC = 0b00100,
 		DMTC = 0b00101,
 		CFC = 0b00010,
-		CTC = 0b00110, // 0b10000
-		CO_0x10 = 0x10,
+		CTC = 0b00110,
+		BC = 0b01000,
+		CO_0x10 = 0x10, // 0b10000
 		CO_0x11 = 0x11,
 		CO_0x12 = 0x12,
 		CO_0x13 = 0x13,
@@ -175,6 +176,14 @@ namespace N64
 		TLBP = 0x08,
 		ERET = 0x18,
 		WAIT = 0x20,
+	};
+
+	enum class OpCop1BcBr :uint8
+	{
+		BC1F = 0b00000,
+		BC1T = 0b00001,
+		BC1FL = 0b00010,
+		BC1TL = 0b00011,
 	};
 
 	enum class OpCop1FmtFunct : uint8
@@ -415,6 +424,15 @@ namespace N64
 	public:
 		OpCop0TlbFunct Funct() const { return static_cast<OpCop0TlbFunct>(GetBits<0, 5>(Raw())); }
 		uint32 ShouldBeZero() const { return GetBits<6, 24>(Raw()); }
+
+		String Stringify() const;
+	};
+
+	class InstructionCop1Bc : public InstructionCop
+	{
+	public:
+		uint16 Offset() const { return GetBits<0, 15>(Raw()); }
+		OpCop1BcBr Br() const { return static_cast<OpCop1BcBr>(GetBits<16, 20>(Raw())); }
 
 		String Stringify() const;
 	};

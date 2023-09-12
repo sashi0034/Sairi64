@@ -56,6 +56,11 @@ namespace N64
 		return U"{} ({:08X}h)"_fmt(StringifyEnum(Funct()), Raw());
 	}
 
+	String InstructionCop1Bc::Stringify() const
+	{
+		return U"{} offset:{:04X}h"_fmt(StringifyEnum(Br()), Offset());
+	}
+
 	String InstructionCop1Fmt::Stringify() const
 	{
 		return U"{} fmt:{}, ft:{}, fs:{}, fd:{}"_fmt(StringifyEnum(Funct()), StringifyEnum(Fmt()), Ft(), Fs(), Fd());

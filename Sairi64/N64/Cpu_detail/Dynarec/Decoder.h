@@ -347,6 +347,8 @@ private:
 			return UseInterpreter(ctx, sub, &interpret::Cop::CFC1);
 		case OpCopSub::CTC:
 			return UseInterpreter(ctx, sub, &interpret::Cop::CTC1);
+		case OpCopSub::BC:
+			return assembleBC1(ctx, state, static_cast<InstructionCop1Bc>(instr));
 		case OpCopSub::CO_0x10:
 			static_assert(static_cast<int>(OpCopSub::CO_0x10) == static_cast<int>(FloatingFmt::Single));
 			return assembleFmt<FloatingFmt::Single>(ctx, state, static_cast<InstructionCop1Fmt>(instr));
@@ -364,6 +366,24 @@ private:
 		case OpCopSub::CO_0x18: case OpCopSub::CO_0x19: case OpCopSub::CO_0x1A: case OpCopSub::CO_0x1B:
 		case OpCopSub::CO_0x1C: case OpCopSub::CO_0x1D: case OpCopSub::CO_0x1E: case OpCopSub::CO_0x1F: // @formatter:on
 			break;
+		default: ;
+		}
+
+		return AssumeNotImplemented(ctx, instr);
+	}
+
+	static DecodedToken assembleBC1(const AssembleContext& ctx, const AssembleState& state, InstructionCop1Bc instr)
+	{
+		switch (instr.Br())
+		{
+		case OpCop1BcBr::BC1F:
+			return Jit::Cop::BC1_template<OpCop1BcBr::BC1F>(ctx, state, instr);
+		case OpCop1BcBr::BC1T:
+			return Jit::Cop::BC1_template<OpCop1BcBr::BC1T>(ctx, state, instr);
+		case OpCop1BcBr::BC1FL:
+			return Jit::Cop::BC1_template<OpCop1BcBr::BC1FL>(ctx, state, instr);
+		case OpCop1BcBr::BC1TL:
+			return Jit::Cop::BC1_template<OpCop1BcBr::BC1TL>(ctx, state, instr);
 		default: ;
 		}
 

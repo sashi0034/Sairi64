@@ -168,6 +168,8 @@ namespace N64::Debugger
 		{
 			switch (instr.Sub())
 			{
+			case OpCopSub::BC:
+				return by_<InstructionCop1Bc>(instr);
 			case OpCopSub::CO_0x10:
 			case OpCopSub::CO_0x11:
 			case OpCopSub::CO_0x14:

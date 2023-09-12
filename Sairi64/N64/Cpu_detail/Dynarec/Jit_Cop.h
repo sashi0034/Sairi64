@@ -93,6 +93,31 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpCop1BcBr br>
+	static DecodedToken BC1_template(const AssembleContext& ctx, const AssembleState& state, InstructionCop1Bc instr)
+	{
+		JIT_ENTRY;
+		constexpr BranchType branch = (br == OpCop1BcBr::BC1F) || (br == OpCop1BcBr::BC1T)
+		                              ? BranchType::Normal
+		                              : BranchType::Likely;
+		constexpr bool trueCompare = (br == OpCop1BcBr::BC1T) || (br == OpCop1BcBr::BC1TL);
+		auto&& x86Asm = *ctx.x86Asm;
+		const auto validLabel = x86Asm.newLabel();
+		const sint32 offset = static_cast<sint32>(static_cast<sint16>(instr.Offset())) * 4;
+
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::edx, offset);
+		x86Asm.call(reinterpret_cast<uint64>(&helperBC1_template<branch, trueCompare>));
+		x86Asm.test(x86::al, x86::al); // if function was succeeded
+		x86Asm.jne(validLabel); // then goto @valid
+		x86Asm.mov(x86::rax, state.recompiledLength);
+		x86Asm.jmp(ctx.endLabel);
+		x86Asm.bind(validLabel); // @valid
+		return branch == BranchType::Normal ?
+		       DecodedToken::Branch :
+		       DecodedToken::BranchLikely;
+	}
+
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
 	static DecodedToken Fmt_move(const AssembleContext& ctx, InstructionCop1Fmt instr)
 	{
@@ -147,8 +172,8 @@ public:
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
-	static DecodedToken CondFmt_template(const AssembleContext& ctx, const AssembleState& state,
-	                                     InstructionCop1Fmt instr)
+	static DecodedToken CondFmt_template(
+		const AssembleContext& ctx, const AssembleState& state, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
 		if constexpr (fmt == FloatingFmt::Word || fmt == FloatingFmt::Long)
@@ -308,7 +333,20 @@ private:
 		}
 	}
 
-	template <typename T>
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/cpu/r4300i.h#L720
+	[[nodiscard]]
+	static bool checkCp1(Cpu& cpu)
+	{
+		if (cpu.GetCop0().Reg().status.Cu1() == false)
+		{
+			Process::ThrowException(cpu, ExceptionKinds::CoprocessorUnusable, 1);
+			return false;
+		}
+		cpu.GetCop1().Fcr().fcr31.Cause().Set(0);
+		return true;
+	}
+
+	[[nodiscard]]
 	static bool handleQNaN(Cpu& cpu, Cop1& cop1)
 	{
 		cop1.Fcr().fcr31.CauseInvalidOperation().Set(true);
@@ -325,7 +363,7 @@ private:
 	}
 
 	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/fpu_instructions.c#L46
-	template <typename T>
+	template <typename T> [[nodiscard]]
 	static inline bool checkValidFloating(Cpu& cpu, Cop1& cop1, T f)
 	{
 		if constexpr (std::same_as<T, float> || std::same_as<T, double>)
@@ -334,7 +372,7 @@ private:
 			switch (std::fpclassify(f))
 			{
 			case FP_NAN:
-				if (IsQNaN(f)) return handleQNaN<T>(cpu, cop1);
+				if (IsQNaN(f)) return handleQNaN(cpu, cop1);
 				[[fallthrough]];
 			case FP_SUBNORMAL:
 				cop1.Fcr().fcr31.CauseUnimplementedOperation().Set(true);
@@ -346,7 +384,7 @@ private:
 		return true;
 	}
 
-	template <typename T>
+	template <typename T> [[nodiscard]]
 	static inline bool checkValidFloating(Cpu& cpu, Cop1& cop1, T fs, T ft)
 	{
 		if (checkValidFloating<T>(cpu, cop1, fs) == false) return false;
@@ -444,6 +482,18 @@ private:
 		}();
 
 		cop1.Fcr().fcr31.Compare().Set(condition);
+		return true;
+	}
+
+	template <BranchType branch, bool trueCompare>
+	N64_ABI static bool helperBC1_template(Cpu& cpu, sint32 offset)
+	{
+		if (checkCp1(cpu) == false) return false;
+
+		const bool condition = trueCompare
+		                       ? cpu.GetCop1().Fcr().fcr31.Compare()
+		                       : cpu.GetCop1().Fcr().fcr31.Compare() == false;
+		Process::BranchVAddr64<branch>(cpu, cpu.GetPc().Curr() + offset, condition);
 		return true;
 	}
 };

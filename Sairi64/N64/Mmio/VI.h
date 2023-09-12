@@ -104,7 +104,7 @@ namespace N64::Mmio
 		uint32 CyclesPerHalfLine() const { return m_cyclesPerHalfLine; }
 
 	private:
-		ViControl32 m_control{};
+		ViControl32 m_control{0xF};
 		uint32 m_origin{};
 		uint32 m_width{320};
 		uint32 m_vInterrupt{256};

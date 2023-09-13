@@ -66,7 +66,7 @@ namespace N64::Rdp_detail
 		case CommandId::SetPrimDepth:
 			break;
 		case CommandId::SetOtherModes:
-			break;
+			return Soft::SetOtherModes(ctx, cmd);
 		case CommandId::LoadTLut:
 			break;
 		case CommandId::SetTileSize:
@@ -96,7 +96,7 @@ namespace N64::Rdp_detail
 		case CommandId::SetMaskImage:
 			break;
 		case CommandId::SetColorImage:
-			break;
+			return Soft::SetColorImage(ctx, cmd);
 		default: ;
 		}
 

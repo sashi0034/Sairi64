@@ -126,5 +126,6 @@ namespace N64::Rdp_detail
 	struct CommanderContext
 	{
 		CommanderState* state;
+		std::span<uint8> rdram;
 	};
 }

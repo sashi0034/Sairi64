@@ -75,26 +75,26 @@ namespace N64::Rdp_detail
 	public:
 		static_assert(offset % 4 == 0);
 
-		bool RightMajor() { return GetBits<55>(Data<offset + 0>()); }
-		uint8 Level() { return GetBits<51, 53>(Data<offset + 0>()); }
-		uint8 Tile() { return GetBits<48, 50>(Data<offset + 0>()); }
-		uint16 Yl() { return GetBits<32, 45>(Data<offset + 0>()); }
-		uint16 Ym() { return GetBits<16, 29>(Data<offset + 0>()); }
-		uint16 Yh() { return GetBits<0, 13>(Data<offset + 0>()); }
+		bool RightMajor() const { return GetBits<55>(Data<offset + 0>()); }
+		uint8 Level() const { return GetBits<51, 53>(Data<offset + 0>()); }
+		uint8 Tile() const { return GetBits<48, 50>(Data<offset + 0>()); }
+		uint16 Yl() const { return GetBits<32, 45>(Data<offset + 0>()); }
+		uint16 Ym() const { return GetBits<16, 29>(Data<offset + 0>()); }
+		uint16 Yh() const { return GetBits<0, 13>(Data<offset + 0>()); }
 
-		uint16 Xl() { return GetBits<48, 63>(Data<offset + 1>()); }
-		uint16 XlFrac() { return GetBits<32, 47>(Data<offset + 1>()); }
-		uint16 DxLDy() { return GetBits<16, 31>(Data<offset + 1>()); }
-		uint16 DxLDyFrac() { return GetBits<0, 15>(Data<offset + 1>()); }
+		uint16 Xl() const { return GetBits<48, 63>(Data<offset + 1>()); }
+		uint16 XlFrac() const { return GetBits<32, 47>(Data<offset + 1>()); }
+		uint16 DxLDy() const { return GetBits<16, 31>(Data<offset + 1>()); }
+		uint16 DxLDyFrac() const { return GetBits<0, 15>(Data<offset + 1>()); }
 
-		uint16 Xh() { return GetBits<48, 63>(Data<offset + 2>()); }
-		uint16 XhFrac() { return GetBits<32, 47>(Data<offset + 2>()); }
-		uint16 DxHDy() { return GetBits<16, 31>(Data<offset + 2>()); }
-		uint16 DxHDyFrac() { return GetBits<0, 15>(Data<offset + 2>()); }
+		uint16 Xh() const { return GetBits<48, 63>(Data<offset + 2>()); }
+		uint16 XhFrac() const { return GetBits<32, 47>(Data<offset + 2>()); }
+		uint16 DxHDy() const { return GetBits<16, 31>(Data<offset + 2>()); }
+		uint16 DxHDyFrac() const { return GetBits<0, 15>(Data<offset + 2>()); }
 
-		uint16 Xm() { return GetBits<48, 63>(Data<offset + 3>()); }
-		uint16 XmFrac() { return GetBits<32, 47>(Data<offset + 3>()); }
-		uint16 DxMDy() { return GetBits<16, 31>(Data<offset + 3>()); }
-		uint16 DxMDyFrac() { return GetBits<0, 15>(Data<offset + 3>()); }
+		uint16 Xm() const { return GetBits<48, 63>(Data<offset + 3>()); }
+		uint16 XmFrac() const { return GetBits<32, 47>(Data<offset + 3>()); }
+		uint16 DxMDy() const { return GetBits<16, 31>(Data<offset + 3>()); }
+		uint16 DxMDyFrac() const { return GetBits<0, 15>(Data<offset + 3>()); }
 	};
 }

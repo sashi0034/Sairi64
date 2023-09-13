@@ -1,14 +1,56 @@
 #pragma once
 
-#include "../SoftCommander.h"
+#include "SoftForward.h"
 
 // https://ultra64.ca/files/documentation/silicon-graphics/SGI_RDP_Command_Summary.pdf
 
-namespace N64::Rdp_detail
+namespace N64::Rdp_detail::Soft
 {
 	class Soft
 	{
 	public:
+		[[nodiscard]]
+		static SoftUnit NonShadedTriangle(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			static TriangleEdgeWalker edgeWalker{};
+			const auto ec = static_cast<EdgeCoefficient<0>>(cmd);
+			auto&& state = *ctx.state;
+			const uint8 bpp = GetBytesPerPixel(state);
+
+			edgeWalker.EdgeWalk(ec, bpp);
+
+			auto&& spans = edgeWalker.GetSpan();
+			const uint32 startY = edgeWalker.GetStartY();
+			for (uint32 y = startY; y < startY + spans.size(); ++y)
+			{
+				const uint32 offset = state.colorImage.dramAddr + y * state.colorImage.width * bpp;
+				uint32 startX = spans[y - startY].startX;
+				uint32 endX = spans[y - startY].endX;
+				if (startX > endX) std::swap(startX, endX);
+
+				for (uint32 x = startX * bpp; x < endX * bpp; x += bpp)
+				{
+					// TODO: サイクル0/1を考慮 (state.otherModes.cycleType)
+					// TODO: color blend
+					switch (bpp)
+					{
+					case 2: {
+						const Color16Bpp color = 0xFFFF'FFFF;
+						WriteBytes16(ctx.rdram, EndianAddress<uint16>(offset + x), color);
+					}
+					case 4: {
+						const Color32Bpp color = 0xFFFF'FFFF'FFFF'FFFF;
+						WriteBytes32(ctx.rdram, EndianAddress<uint32>(offset + x), color);
+					}
+					default: ;
+					}
+				}
+			}
+
+
+			return {};
+		}
+
 		[[nodiscard]]
 		static SoftUnit SetScissor(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
@@ -44,17 +86,17 @@ namespace N64::Rdp_detail
 			otherModes.rgbDitherSel = GetBits<38, 39>(cmd.Data<0>());
 			otherModes.alphaDitherSel = GetBits<36, 37>(cmd.Data<0>());
 
-			otherModes.blenderConfig[0].source1a = from1a(GetBits<30, 31>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source1a = from1a(GetBits<28, 29>(cmd.Data<0>()));
+			otherModes.blenderConfig[0].source1a = From1a(GetBits<30, 31>(cmd.Data<0>()));
+			otherModes.blenderConfig[1].source1a = From1a(GetBits<28, 29>(cmd.Data<0>()));
 
-			otherModes.blenderConfig[0].source1b = from1a(GetBits<26, 27>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source1b = from1a(GetBits<24, 25>(cmd.Data<0>()));
+			otherModes.blenderConfig[0].source1b = From1a(GetBits<26, 27>(cmd.Data<0>()));
+			otherModes.blenderConfig[1].source1b = From1a(GetBits<24, 25>(cmd.Data<0>()));
 
-			otherModes.blenderConfig[0].source2a = from1a(GetBits<22, 23>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source2a = from1a(GetBits<20, 21>(cmd.Data<0>()));
+			otherModes.blenderConfig[0].source2a = From1a(GetBits<22, 23>(cmd.Data<0>()));
+			otherModes.blenderConfig[1].source2a = From1a(GetBits<20, 21>(cmd.Data<0>()));
 
-			otherModes.blenderConfig[0].source2b = from1a(GetBits<18, 19>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source2b = from1a(GetBits<24, 25>(cmd.Data<0>()));
+			otherModes.blenderConfig[0].source2b = From1a(GetBits<18, 19>(cmd.Data<0>()));
+			otherModes.blenderConfig[1].source2b = From1a(GetBits<24, 25>(cmd.Data<0>()));
 
 			otherModes.forceBlend = GetBits<14>(cmd.Data<0>());
 			otherModes.alphaCvgSelect = GetBits<13>(cmd.Data<0>());
@@ -88,55 +130,6 @@ namespace N64::Rdp_detail
 			colorImage.width = GetBits<32, 41>(cmd.Data<0>()) + 1;
 			colorImage.dramAddr = GetBits<0, 25>(cmd.Data<0>());
 			return {};
-		}
-
-	private:
-		static BlendSource from1a(uint8 value)
-		{
-			switch (value)
-			{
-			case 0: return BlendSource::PixelAlpha;
-			case 1: return BlendSource::MemoryColor;
-			case 2: return BlendSource::BlendColor;
-			case 3: return BlendSource::FogColor;
-			default: return {};
-			}
-		}
-
-		static BlendSource from1b(uint8 value)
-		{
-			switch (value)
-			{
-			case 0: return BlendSource::PixelAlpha;
-			case 1: return BlendSource::PrimitiveAlpha;
-			case 2: return BlendSource::ShadeAlpha;
-			case 3: return BlendSource::Zero;
-			default: return {};
-			}
-		}
-
-		static BlendSource from2a(uint8 value)
-		{
-			switch (value)
-			{
-			case 0: return BlendSource::PixelAlpha;
-			case 1: return BlendSource::MemoryColor;
-			case 2: return BlendSource::BlendColor;
-			case 3: return BlendSource::FogColor;
-			default: return {};
-			}
-		}
-
-		static BlendSource from2b(uint8 value)
-		{
-			switch (value)
-			{
-			case 0: return BlendSource::OneMinusAlpha;
-			case 1: return BlendSource::MemoryAlpha;
-			case 2: return BlendSource::One;
-			case 3: return BlendSource::Zero;
-			default: return {};
-			}
 		}
 	};
 }

@@ -102,7 +102,7 @@ private:
 			if (commandId >= 8)
 			{
 				// 実際にコマンド処理
-				rdp.m_commander.EnqueueCommand(RdpCommand::MakeWithRearrangeWords(
+				rdp.m_commander.EnqueueCommand(n64, RdpCommand::MakeWithRearrangeWords(
 					{buffer.list.data(), commandLength}));
 			}
 			if (commandId == RdpCommandFullSync_0x29)

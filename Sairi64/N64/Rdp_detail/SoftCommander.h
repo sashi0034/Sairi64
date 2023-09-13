@@ -13,11 +13,11 @@ namespace N64::Rdp_detail
 	{
 	public:
 		void FullSync();
-		void EnqueueCommand(const RdpCommand& cmd);
+		void EnqueueCommand(N64System& n64, const RdpCommand& cmd);
 
 	private:
 		CommanderState m_state{};
 
-		SoftUnit execute(const RdpCommand& cmd);
+		SoftUnit execute(const CommanderContext& ctx, const RdpCommand& cmd);
 	};
 }

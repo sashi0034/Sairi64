@@ -2,6 +2,7 @@
 #include "SoftCommander.h"
 
 #include "N64/N64Logger.h"
+#include "N64/N64System.h"
 #include "Soft/Soft.h"
 
 namespace N64::Rdp_detail
@@ -11,24 +12,25 @@ namespace N64::Rdp_detail
 		// TODO?
 	}
 
-
-	void SoftCommander::EnqueueCommand(const RdpCommand& cmd)
+	void SoftCommander::EnqueueCommand(N64System& n64, const RdpCommand& cmd)
 	{
 		N64_TRACE(Rdp, U"enqueued rdp command: {:02X}"_fmt(StringifyEnum(cmd.Id())));
 
-		(void)execute(cmd);
+		const CommanderContext ctx{
+			.state = &m_state,
+			.rdram = n64.GetMemory().Rdram()
+		};
+		(void)execute(ctx, cmd);
 	}
 
-	SoftUnit SoftCommander::execute(const RdpCommand& cmd)
+	SoftUnit SoftCommander::execute(const CommanderContext& ctx, const RdpCommand& cmd)
 	{
-		CommanderContext ctx{
-			.state = &m_state
-		};
+		using Soft::Soft;
 
 		switch (cmd.Id())
 		{
 		case CommandId::NonShadedTriangle:
-			break;
+			return Soft::NonShadedTriangle(ctx, cmd);
 		case CommandId::FillZBufferTriangle:
 			break;
 		case CommandId::TextureTriangle:

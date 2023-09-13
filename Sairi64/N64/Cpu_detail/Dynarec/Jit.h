@@ -680,17 +680,17 @@ private:
 		return branchType == BranchType::Normal ? DecodedToken::Branch : DecodedToken::BranchLikely;
 	}
 
-	N64_ABI static void helperDMULT(uint64 rs, uint64 rt, uint64* lo, uint64* hi)
-	{
-		const uint128 result = (uint128)rs * (uint128)rt;
-		*lo = static_cast<uint64>(result);
-		*hi = static_cast<uint64>(result >> 64);;
-	}
-
-	N64_ABI static void helperDMULTU(sint64 rs, sint64 rt, uint64* lo, uint64* hi)
+	N64_ABI static void helperDMULT(sint64 rs, sint64 rt, uint64* lo, uint64* hi)
 	{
 		const int128 result = (int128)rs * (int128)rt;
-		*lo = static_cast<uint64>(result);
+		*lo = static_cast<uint64>(result & 0xFFFFFFFFFFFFFFFF);
+		*hi = static_cast<uint64>(result >> 64);
+	}
+
+	N64_ABI static void helperDMULTU(uint64 rs, uint64 rt, uint64* lo, uint64* hi)
+	{
+		const uint128 result = (uint128)rs * (uint128)rt;
+		*lo = static_cast<uint64>(result & 0xFFFFFFFFFFFFFFFF);
 		*hi = static_cast<uint64>(result >> 64);;
 	}
 

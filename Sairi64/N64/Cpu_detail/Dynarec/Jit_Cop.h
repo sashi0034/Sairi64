@@ -147,6 +147,20 @@ public:
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
+	static DecodedToken Fmt_mathf(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	{
+		JIT_ENTRY;
+		if constexpr (fmt == FloatingFmt::Word || fmt == FloatingFmt::Long)
+		{
+			return AssumeNotImplemented(ctx, instr);
+		}
+		else
+		{
+			return formatMathfInternal<funct, fmt>(ctx, instr);
+		}
+	}
+
+	template <OpCop1FmtFunct funct, FloatingFmt fmt>
 	static DecodedToken Fmt_arithmetic(const AssembleContext& ctx, const AssembleState& state, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
@@ -154,21 +168,10 @@ public:
 		{
 			return AssumeNotImplemented(ctx, instr);
 		}
-		auto&& x86Asm = *ctx.x86Asm;
-		using floating = FloatingFmtType<fmt>::type;
-		const auto validLabel = x86Asm.newLabel();
-
-		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
-		x86Asm.mov(x86::dl, instr.Fd());
-		x86Asm.mov(x86::r8b, instr.Fs());
-		x86Asm.mov(x86::r9b, instr.Ft());
-		x86Asm.call(reinterpret_cast<uint64>(&helperFmt_arithmetic<funct, floating>));
-		x86Asm.test(x86::al, x86::al); // if function was succeeded
-		x86Asm.jne(validLabel); // then goto @valid
-		x86Asm.mov(x86::rax, state.recompiledLength);
-		x86Asm.jmp(ctx.endLabel);
-		x86Asm.bind(validLabel); // @valid
-		return DecodedToken::Continue;
+		else
+		{
+			return formatArithmeticInternal<funct, fmt>(ctx, state, instr);
+		}
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
@@ -331,6 +334,55 @@ private:
 		{
 			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs) * sign);
 		}
+	}
+
+	template <OpCop1FmtFunct funct, FloatingFmt fmt>
+	static DecodedToken formatMathfInternal(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	{
+		auto&& x86Asm = *ctx.x86Asm;
+		using before = FloatingFmtType<fmt>::type;
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::dl, instr.Fd());
+		x86Asm.mov(x86::r8b, instr.Fs());
+		if constexpr (funct == OpCop1FmtFunct::TruncWFmt || funct == OpCop1FmtFunct::TruncLFmt)
+		{
+			using after = TruncTarget<funct>::type;
+			x86Asm.call(reinterpret_cast<uint64>(&helperTruncFmt<after, before>));
+		}
+		else static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
+		return DecodedToken::Continue;
+	}
+
+	template <typename After, typename Before>
+	N64_ABI static void helperTruncFmt(Cpu& cpu, uint8 fd, uint8 fs)
+	{
+		auto&& cop1 = cpu.GetCop1();
+		auto&& cop0 = cpu.GetCop0();
+
+		Before fsF = cop1.GetFgrBy<Before>(cop0, fs);
+		const After result = static_cast<After>(std::trunc(fsF));
+		cop1.SetFgrBy<After>(cop0, fd, result);
+	}
+
+	template <OpCop1FmtFunct funct, FloatingFmt fmt>
+	static DecodedToken formatArithmeticInternal(
+		const AssembleContext& ctx, const AssembleState& state, InstructionCop1Fmt instr)
+	{
+		auto&& x86Asm = *ctx.x86Asm;
+		using floating = FloatingFmtType<fmt>::type;
+		const auto validLabel = x86Asm.newLabel();
+
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::dl, instr.Fd());
+		x86Asm.mov(x86::r8b, instr.Fs());
+		x86Asm.mov(x86::r9b, instr.Ft());
+		x86Asm.call(reinterpret_cast<uint64>(&helperFmt_arithmetic<funct, floating>));
+		x86Asm.test(x86::al, x86::al); // if function was succeeded
+		x86Asm.jne(validLabel); // then goto @valid
+		x86Asm.mov(x86::rax, state.recompiledLength);
+		x86Asm.jmp(ctx.endLabel);
+		x86Asm.bind(validLabel); // @valid
+		return DecodedToken::Continue;
 	}
 
 	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/cpu/r4300i.h#L720

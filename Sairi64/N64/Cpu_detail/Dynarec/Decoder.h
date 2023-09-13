@@ -414,7 +414,7 @@ private:
 		case OpCop1FmtFunct::RoundLFmt:
 			break;
 		case OpCop1FmtFunct::TruncLFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::TruncLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CeilLFmt:
 			break;
 		case OpCop1FmtFunct::FloorLFmt:
@@ -422,7 +422,7 @@ private:
 		case OpCop1FmtFunct::RoundWFmt:
 			break;
 		case OpCop1FmtFunct::TruncWFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::TruncWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CeilWFmt:
 			break;
 		case OpCop1FmtFunct::FloorWFmt:

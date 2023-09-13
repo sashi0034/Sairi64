@@ -156,6 +156,50 @@ namespace N64::Rdp_detail
 		m_display.Render(config);
 	}
 
+	uint32 Rdp::Read32(PAddr32 paddr) const
+	{
+		switch (paddr)
+		{
+		case DpAddress::Start_0x04100000:
+			return m_dpc.start;
+		case DpAddress::End_0x04100004:
+			return m_dpc.end;
+		case DpAddress::Current_0x04100008:
+			return m_dpc.current;
+		case DpAddress::Status_0x0410000C:
+			return m_dpc.status;
+		case DpAddress::Clock_0x04100010:
+			return m_dpc.clock;
+		case DpAddress::CmdBusy_0x04100014:
+			return DpcStatus32(m_dpc.status).CmdBusy();
+		case DpAddress::PipeBusy_0x04100018:
+			return DpcStatus32(m_dpc.status).PipeBusy();
+		case DpAddress::TMem_0x0410001C:
+			return m_dpc.tmem;
+		default: ;
+		}
+		N64Logger::Abort(U"unsupported dp read: {:08X}"_fmt(static_cast<uint32>(paddr)));
+		return {};
+	}
+
+	void Rdp::Write32(N64System& n64, PAddr32 paddr, uint32 value)
+	{
+		switch (paddr)
+		{
+		case DpAddress::Start_0x04100000:
+			Interface::WriteStart(*this, value);
+			return;
+		case DpAddress::End_0x04100004:
+			Interface::WriteEnd(n64, *this, value);
+			return;
+		case DpAddress::Status_0x0410000C:
+			Interface::WriteStatus(n64, *this, value);
+			return;
+		default: ;
+		}
+		N64Logger::Abort(U"unsupported dp write: {:08X}"_fmt(static_cast<uint32>(paddr)));
+	}
+
 	void Rdp::WriteStart(uint32 value)
 	{
 		Interface::WriteStart(*this, value);

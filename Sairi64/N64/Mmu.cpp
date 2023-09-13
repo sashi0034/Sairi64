@@ -169,6 +169,16 @@ namespace N64::Mmu
 			}
 		};
 
+		// RDP
+		map12[0x041] = [](N64System& n64, PAddr32 paddr) // 0x04100000, 0x041FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetRdp().Read32(paddr);
+			}
+			return readPaddr_unsupported<Wire>(paddr);
+		};
+
 		// MI
 		map12[0x043] = [](N64System& n64, PAddr32 paddr) // 0x04300000, 0x043FFFFF
 		{
@@ -376,6 +386,16 @@ namespace N64::Mmu
 				}
 				return writePaddr_unsupported<Wire>(paddr);
 			}
+		};
+
+		// RDP
+		map12[0x041] = [](N64System& n64, PAddr32 paddr, Value value) // 0x04100000, 0x041FFFFF
+		{
+			if constexpr (wire32)
+			{
+				return n64.GetRdp().Write32(n64, paddr, value);
+			}
+			return writePaddr_unsupported<Wire>(paddr);
 		};
 
 		// MI

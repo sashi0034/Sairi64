@@ -4,7 +4,7 @@
 namespace N64::Rdp_detail
 {
 	// CPU処理
-	class OrthoCommander
+	class SoftCommander
 	{
 	public:
 		void FullSync();

@@ -48,6 +48,7 @@ namespace N64
 			constexpr AddressRange<uint32> SpDmem{0x04000000, 0x04000FFF};
 			constexpr AddressRange<uint32> SpImem{0x04001000, 0x04001FFF};
 			constexpr AddressRange<uint32> RspRegisters{0x04040000, 0x040BFFFF};
+			constexpr AddressRange<uint32> Rdp{0x04100000, 0x041FFFFF};
 
 			constexpr AddressRange<uint32> MI{0x04300000, 0x043FFFFF};
 			constexpr AddressRange<uint32> VI{0x04400000, 0x044FFFFF};

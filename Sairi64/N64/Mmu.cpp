@@ -96,7 +96,7 @@ namespace N64::Mmu
 #endif
 
 	template <typename Wire>
-	Wire readPaddr_unsupported(PAddr32 paddr)
+	Wire unsupportedReadPMap(PAddr32 paddr)
 	{
 		N64Logger::Abort(U"read unsupported paddr {}-bit: {:08X}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
@@ -104,10 +104,10 @@ namespace N64::Mmu
 	}
 
 	template <typename Wire>
-	using readPaddr_func = Wire (*)(N64System& n64, PAddr32 paddr);
+	using readPMap_t = Wire (*)(N64System& n64, PAddr32 paddr);
 
 	template <typename Wire>
-	consteval std::array<readPaddr_func<Wire>, 0x1000> readPaddr_map12()
+	consteval std::array<readPMap_t<Wire>, 0x1000> readPMap12()
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
 		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
@@ -115,11 +115,11 @@ namespace N64::Mmu
 		constexpr bool wire8 = std::is_same<Wire, uint8_t>::value;
 		static_assert(wire64 || wire32 || wire16 || wire8);
 
-		std::array<readPaddr_func<Wire>, 0x1000> map12{};
+		std::array<readPMap_t<Wire>, 0x1000> map12{};
 		map12.fill({
 			[](N64System& n64, PAddr32 paddr)
 			{
-				return readPaddr_unsupported<Wire>(paddr);
+				return unsupportedReadPMap<Wire>(paddr);
 			}
 		});
 		constexpr int hi_12 = 12;
@@ -165,7 +165,7 @@ namespace N64::Mmu
 				{
 					if constexpr (wire32) return n64.GetRsp().ReadPAddr32(paddr);
 				}
-				return readPaddr_unsupported<Wire>(paddr);
+				return unsupportedReadPMap<Wire>(paddr);
 			}
 		};
 
@@ -176,7 +176,7 @@ namespace N64::Mmu
 			{
 				return n64.GetRdp().Read32(paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// MI
@@ -186,7 +186,7 @@ namespace N64::Mmu
 			{
 				return n64.GetMI().Read32(paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// VI
@@ -196,7 +196,7 @@ namespace N64::Mmu
 			{
 				return n64.GetVI().Read32(paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// AI
@@ -206,7 +206,7 @@ namespace N64::Mmu
 			{
 				return n64.GetAI().Read32(paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// PI
@@ -216,7 +216,7 @@ namespace N64::Mmu
 			{
 				return n64.GetPI().Read32(n64, paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// RI
@@ -226,7 +226,7 @@ namespace N64::Mmu
 			{
 				return n64.GetRI().Read32(paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// SI
@@ -236,7 +236,7 @@ namespace N64::Mmu
 			{
 				return n64.GetSI().Read32(n64, paddr);
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		// N64DD Registers
@@ -250,7 +250,7 @@ namespace N64::Mmu
 					N64Logger::Warn(U"read n64dd registers paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
 					return static_cast<uint32>(-1);
 				}
-				return readPaddr_unsupported<Wire>(paddr);
+				return unsupportedReadPMap<Wire>(paddr);
 			};
 		}
 
@@ -265,7 +265,7 @@ namespace N64::Mmu
 					N64Logger::Warn(U"read n64dd ipl rom paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
 					return static_cast<uint32>(-1);
 				}
-				return readPaddr_unsupported<Wire>(paddr);
+				return unsupportedReadPMap<Wire>(paddr);
 			};
 		}
 
@@ -280,7 +280,7 @@ namespace N64::Mmu
 					const uint64 offset = paddr - PMap::CartridgeRom.base;
 					return ReadBytes32(n64.GetMemory().GetRom().Data(), offset);
 				}
-				return readPaddr_unsupported<Wire>(paddr);
+				return unsupportedReadPMap<Wire>(paddr);
 			};
 		}
 
@@ -296,24 +296,24 @@ namespace N64::Mmu
 					return ByteSwap32(ReadBytes32(n64.GetSI().GetPifRam(), offset));
 				}
 			}
-			return readPaddr_unsupported<Wire>(paddr);
+			return unsupportedReadPMap<Wire>(paddr);
 		};
 
 		return map12;
 	}
 
 	template <typename Wire>
-	void writePaddr_unsupported(PAddr32 paddr)
+	void unsupportedWritePMap(PAddr32 paddr)
 	{
 		N64Logger::Abort(U"write unsupported paddr {}-bit: {:08X}"_fmt(
 			static_cast<int>(std::numeric_limits<Wire>::digits), static_cast<uint32>(paddr)));
 	}
 
 	template <typename Wire, typename Value>
-	using writePaddr_func = void (*)(N64System& n64, PAddr32 paddr, Value value);
+	using writePMap_t = void (*)(N64System& n64, PAddr32 paddr, Value value);
 
 	template <typename Wire, typename Value>
-	consteval std::array<writePaddr_func<Wire, Value>, 0x1000> writePaddr_map12()
+	consteval std::array<writePMap_t<Wire, Value>, 0x1000> writePMap12()
 	{
 		constexpr bool wire64 = std::is_same<Wire, uint64_t>::value;
 		constexpr bool wire32 = std::is_same<Wire, uint32_t>::value;
@@ -325,11 +325,11 @@ namespace N64::Mmu
 			(wire32 && std::is_same<Value, uint32>::value) ||
 			(wire64 && std::is_same<Value, uint64>::value)); // Valueは32bit以上
 
-		std::array<writePaddr_func<Wire, Value>, 0x1000> map12{};
+		std::array<writePMap_t<Wire, Value>, 0x1000> map12{};
 		map12.fill({
 			[](N64System& n64, PAddr32 paddr, Value value)
 			{
-				return writePaddr_unsupported<Wire>(paddr);
+				return unsupportedWritePMap<Wire>(paddr);
 			}
 		});
 		constexpr int hi_12 = 12;
@@ -384,7 +384,7 @@ namespace N64::Mmu
 				{
 					if constexpr (wire32) return n64.GetRsp().WritePAddr32(n64, paddr, value);
 				}
-				return writePaddr_unsupported<Wire>(paddr);
+				return unsupportedWritePMap<Wire>(paddr);
 			}
 		};
 
@@ -395,7 +395,7 @@ namespace N64::Mmu
 			{
 				return n64.GetRdp().Write32(n64, paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// MI
@@ -405,7 +405,7 @@ namespace N64::Mmu
 			{
 				return n64.GetMI().Write32(n64, paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// VI
@@ -415,7 +415,7 @@ namespace N64::Mmu
 			{
 				return n64.GetVI().Write32(n64, paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// AI
@@ -425,7 +425,7 @@ namespace N64::Mmu
 			{
 				return n64.GetAI().Write32(n64, paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// PI
@@ -435,7 +435,7 @@ namespace N64::Mmu
 			{
 				return n64.GetPI().Write32(n64, paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// RI
@@ -445,7 +445,7 @@ namespace N64::Mmu
 			{
 				return n64.GetRI().Write32(paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// SI
@@ -455,7 +455,7 @@ namespace N64::Mmu
 			{
 				return n64.GetSI().Write32(n64, paddr, value);
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		// N64DD Registers
@@ -464,7 +464,7 @@ namespace N64::Mmu
 			// 0x05000000, 0x05FFFFFF
 			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
 			{
-				return writePaddr_unsupported<Wire>(paddr);
+				return unsupportedWritePMap<Wire>(paddr);
 			};
 		}
 
@@ -474,7 +474,7 @@ namespace N64::Mmu
 			// 0x06000000, 0x07FFFFFF
 			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
 			{
-				return writePaddr_unsupported<Wire>(paddr);
+				return unsupportedWritePMap<Wire>(paddr);
 			};
 		}
 
@@ -484,7 +484,7 @@ namespace N64::Mmu
 			// 0x10000000, 0x1FBFFFFF
 			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr, Value value)
 			{
-				return writePaddr_unsupported<Wire>(paddr);
+				return unsupportedWritePMap<Wire>(paddr);
 			};
 		}
 
@@ -502,23 +502,23 @@ namespace N64::Mmu
 					return;
 				}
 			}
-			return writePaddr_unsupported<Wire>(paddr);
+			return unsupportedWritePMap<Wire>(paddr);
 		};
 
 		return map12;
 	}
 
 	template <typename Wire>
-	Wire readPaddr_internal(N64System& n64, PAddr32 paddr)
+	Wire readPaddrInternal(N64System& n64, PAddr32 paddr)
 	{
-		static constexpr std::array<readPaddr_func<Wire>, 0x1000> map = readPaddr_map12<Wire>();
+		static constexpr std::array<readPMap_t<Wire>, 0x1000> map = readPMap12<Wire>();
 		return map[paddr >> 20](n64, paddr);
 	}
 
 	template <typename Wire>
 	inline Wire readPaddr(N64System& n64, PAddr32 paddr)
 	{
-		const Wire value = readPaddr_internal<Wire>(n64, paddr);
+		const Wire value = readPaddrInternal<Wire>(n64, paddr);
 #ifdef MMU_ACCESS_LOG_READ
 		readPaddr_log(sizeof(Wire) * 8, paddr, value);
 #endif
@@ -526,9 +526,9 @@ namespace N64::Mmu
 	}
 
 	template <typename Wire, typename Value>
-	void writePaddr_internal(N64System& n64, PAddr32 paddr, Value value)
+	void writePaddrInternal(N64System& n64, PAddr32 paddr, Value value)
 	{
-		static constexpr std::array<writePaddr_func<Wire, Value>, 0x1000> map = writePaddr_map12<Wire, Value>();
+		static constexpr std::array<writePMap_t<Wire, Value>, 0x1000> map = writePMap12<Wire, Value>();
 		n64.GetCpu().RecompiledCache().CheckInvalidatePage(EndianAddress<Wire>(paddr));
 		return map[paddr >> 20](n64, paddr, value);
 	}
@@ -539,7 +539,7 @@ namespace N64::Mmu
 #ifdef MMU_ACCESS_LOG_WRITE
 		writePaddr_log(sizeof(Wire) * 8, paddr, value);
 #endif
-		writePaddr_internal<Wire, Value>(n64, paddr, value);
+		writePaddrInternal<Wire, Value>(n64, paddr, value);
 	}
 
 	uint64 ReadPaddr64(N64System& n64, PAddr32 paddr)

@@ -16,7 +16,7 @@ namespace N64::Rdp_detail
 
 	enum class CommandId
 	{
-		FillTriangle = 0x08,
+		NonShadedTriangle = 0x08,
 		FillZBufferTriangle = 0x09,
 		TextureTriangle = 0x0a,
 		TextureZBufferTriangle = 0x0b,
@@ -67,5 +67,34 @@ namespace N64::Rdp_detail
 		explicit RdpCommand(std::span<uint64> span): m_span(span) { return; }
 
 		std::span<uint64> m_span{};
+	};
+
+	template <uint8 offset = 0>
+	class EdgeCoefficient : public RdpCommand
+	{
+	public:
+		static_assert(offset % 4 == 0);
+
+		bool RightMajor() { return GetBits<55>(Data<offset + 0>()); }
+		uint8 Level() { return GetBits<51, 53>(Data<offset + 0>()); }
+		uint8 Tile() { return GetBits<48, 50>(Data<offset + 0>()); }
+		uint16 Yl() { return GetBits<32, 45>(Data<offset + 0>()); }
+		uint16 Ym() { return GetBits<16, 29>(Data<offset + 0>()); }
+		uint16 Yh() { return GetBits<0, 13>(Data<offset + 0>()); }
+
+		uint16 Xl() { return GetBits<48, 63>(Data<offset + 1>()); }
+		uint16 XlFrac() { return GetBits<32, 47>(Data<offset + 1>()); }
+		uint16 DxLDy() { return GetBits<16, 31>(Data<offset + 1>()); }
+		uint16 DxLDyFrac() { return GetBits<0, 15>(Data<offset + 1>()); }
+
+		uint16 Xh() { return GetBits<48, 63>(Data<offset + 2>()); }
+		uint16 XhFrac() { return GetBits<32, 47>(Data<offset + 2>()); }
+		uint16 DxHDy() { return GetBits<16, 31>(Data<offset + 2>()); }
+		uint16 DxHDyFrac() { return GetBits<0, 15>(Data<offset + 2>()); }
+
+		uint16 Xm() { return GetBits<48, 63>(Data<offset + 3>()); }
+		uint16 XmFrac() { return GetBits<32, 47>(Data<offset + 3>()); }
+		uint16 DxMDy() { return GetBits<16, 31>(Data<offset + 3>()); }
+		uint16 DxMDyFrac() { return GetBits<0, 15>(Data<offset + 3>()); }
 	};
 }

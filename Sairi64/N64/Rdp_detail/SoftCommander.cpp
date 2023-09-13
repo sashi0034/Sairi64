@@ -27,7 +27,7 @@ namespace N64::Rdp_detail
 
 		switch (cmd.Id())
 		{
-		case CommandId::FillTriangle:
+		case CommandId::NonShadedTriangle:
 			break;
 		case CommandId::FillZBufferTriangle:
 			break;

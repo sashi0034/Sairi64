@@ -84,7 +84,7 @@ namespace N64::Rdp_detail
 		case CommandId::SetFogColor:
 			break;
 		case CommandId::SetBlendColor:
-			break;
+			return Soft::SetBlendColor(ctx, cmd);
 		case CommandId::SetPrimColor:
 			break;
 		case CommandId::SetEnvColor:

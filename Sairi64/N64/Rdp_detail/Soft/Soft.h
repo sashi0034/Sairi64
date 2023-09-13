@@ -73,6 +73,13 @@ namespace N64::Rdp_detail
 		}
 
 		[[nodiscard]]
+		static SoftUnit SetBlendColor(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			ctx.state->blendColor = cmd.Data<0>();
+			return {};
+		}
+
+		[[nodiscard]]
 		static SoftUnit SetColorImage(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			auto&& colorImage = ctx.state->colorImage;

@@ -18,8 +18,8 @@ namespace N64::Mmio
 	class PifCmdArgs
 	{
 	public:
-		PifCmdArgs(Pif& pif, int cursor) : m_span(pif.Ram().data() + cursor, pif.Ram().size() - cursor) { return; }
-		uint8 Length() const { return m_span[0] & 0x3F; }
+		PifCmdArgs(Pif& pif, int cursor) : m_span(&pif.Ram()[cursor], pif.Ram().size() - cursor) { return; }
+		uint8 Length() const { return m_span[0]; }
 		bool IsEndOfCommands() const { return m_span[1] == 0xFE; }
 		uint8 ResultLength() const { return m_span[1] & 0x3F; }
 		uint8 Index() const { return m_span[2]; }
@@ -34,7 +34,7 @@ namespace N64::Mmio
 	class PifCmdResult
 	{
 	public:
-		PifCmdResult(Pif& pif, int cursor) : m_span(pif.Ram().data() + cursor, pif.Ram().size() - cursor) { return; }
+		PifCmdResult(Pif& pif, int cursor) : m_span(&pif.Ram()[cursor], pif.Ram().size() - cursor) { return; }
 		uint8 Length() const { return m_span[0] & 0x3F; }
 		template <uint8 offset> void SetAt(uint8 value) const { m_span[offset] = value; };
 
@@ -58,51 +58,69 @@ namespace N64::Mmio
 			}
 		}
 	};
+
+	constexpr uint8 pifRamEnd_63 = 63;
+	constexpr uint8 pifRamSize_64 = 64;
 }
 
 class N64::Mmio::Pif::Impl
 {
 public:
+	// https://n64brew.dev/wiki/Joybus_Protocol
 	// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/backend/core/mmio/PIF.cpp#L155
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/mem/pif.c#L593
+	// https://github.com/project64/project64/blob/c0341bb759d511ed75b27fa6f2d82423f7a356f0/Source/Project64-core/N64System/MemoryHandler/PifRamHandler.cpp#L430
 	static void ProcessCommands_1(Pif& pif)
 	{
 		int channel = 0;
-
 		int cursor = 0;
-		while (cursor < 63) // RAMサイズ64分の処理
+		while (cursor < pifRamEnd_63) // RAMサイズ64分の処理
 		{
 			const auto cmd = PifCmdArgs(pif, cursor);
-			const uint8 cmdLength = cmd.Length();
 			cursor++;
 
-			if (cmdLength == 0 || cmdLength == 0x3D)
+			switch (const uint8 cmdLength = cmd.GetAt<0>())
 			{
-				// 0xFD in PIF RAM = send reset signal to this pif channel
+			case 0x00: [[fallthrough]];
+			case 0xFD: // ?
 				channel++;
-				continue;
-			}
-			if (cmdLength == 0x3E) break; // 0xFE in PIF RAM = end of commands
-			if (cmdLength == 0x3F) continue;
-
-			if (cmd.IsEndOfCommands()) break;
-			const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
-			cursor += 1 + cmdLength + result.Length();
-
-			// コマンド処理
-			switch (cmd.Index())
-			{
-			case 0: [[fallthrough]];
+				if (channel >= 6) return;
+				break;
+			case 0xFE:
+				return;
+			case 0x56: [[fallthrough]];
+			case 0xB4: [[fallthrough]];
+			case 0xB8: [[fallthrough]];
 			case 0xFF:
-				readControllerId(pif, channel, result);
-				channel++;
 				break;
-			case 1:
-				if (readButtons(pif, channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
-				channel++;
+			default: {
+				if (cmd.IsEndOfCommands()) return;
+				const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
+				cursor += 1 + cmdLength + result.Length();
+
+				// コマンド処理
+				processCommandIO(pif, &channel, cmd, result);
 				break;
-			default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
 			}
+			} // switch
+		} // while
+	}
+
+private:
+	static void processCommandIO(Pif& pif, int* channel, const PifCmdArgs cmd, const PifCmdResult result)
+	{
+		switch (cmd.Index())
+		{
+		case 0: [[fallthrough]];
+		case 0xFF:
+			readControllerId(pif, *channel, result);
+			(*channel)++;
+			break;
+		case 1:
+			if (readButtons(pif, *channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
+			(*channel)++;
+			break;
+		default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
 		}
 	}
 
@@ -173,6 +191,7 @@ namespace N64::Mmio
 		if (control & 1)
 		{
 			Impl::ProcessCommands_1(*this);
+			m_ram[0x3F] = 0;
 		}
 		if (control & 0x02)
 		{

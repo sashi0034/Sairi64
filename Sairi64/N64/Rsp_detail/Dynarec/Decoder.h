@@ -426,9 +426,9 @@ private:
 		case OpLwc2Funct::LBV:
 			break;
 		case OpLwc2Funct::LSV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LSV>(ctx, instr);
 		case OpLwc2Funct::LLV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LLV>(ctx, instr);
 		case OpLwc2Funct::LDV:
 			return Jit::Vector::LWC2_funct<OpLwc2Funct::LDV>(ctx, instr);
 		case OpLwc2Funct::LQV:
@@ -459,9 +459,9 @@ private:
 		case OpSwc2Funct::SBV:
 			break;
 		case OpSwc2Funct::SSV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SSV>(ctx, instr);
 		case OpSwc2Funct::SLV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SLV>(ctx, instr);
 		case OpSwc2Funct::SDV:
 			return Jit::Vector::SWC2_funct<OpSwc2Funct::SDV>(ctx, instr);
 		case OpSwc2Funct::SQV:

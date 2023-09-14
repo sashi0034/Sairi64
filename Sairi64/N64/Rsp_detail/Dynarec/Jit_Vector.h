@@ -240,6 +240,10 @@ private:
 		else if constexpr (swc2 == OpSwc2Funct::SRV) x86Asm.call((uint64)&helperSRV);
 		else if constexpr (lwc2 == OpLwc2Funct::LDV) x86Asm.call((uint64)&helperLDV);
 		else if constexpr (swc2 == OpSwc2Funct::SDV) x86Asm.call((uint64)&helperSDV);
+		else if constexpr (lwc2 == OpLwc2Funct::LLV) x86Asm.call((uint64)&helperLLV);
+		else if constexpr (swc2 == OpSwc2Funct::SLV) x86Asm.call((uint64)&helperSLV);
+		else if constexpr (lwc2 == OpLwc2Funct::LSV) x86Asm.call((uint64)&helperLSV);
+		else if constexpr (swc2 == OpSwc2Funct::SSV) x86Asm.call((uint64)&helperSSV);
 		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
 
 		return DecodedToken::Continue;
@@ -650,5 +654,45 @@ private:
 			const int element = i + e;
 			dmem.WriteSpByte(address + i, vt.bytes[VuByteIndex(element & 0xF)]);
 		}
+	}
+
+	N64_ABI static void helperLLV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			const int element = i + e;
+			if (element > 15) break;
+			vt.bytes[VuByteIndex(element)] = dmem.ReadSpByte(address + i);
+		}
+	}
+
+	N64_ABI static void helperSLV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			const int element = i + e;
+			dmem.WriteSpByte(address + i, vt.bytes[VuByteIndex(element & 0xF)]);
+		}
+	}
+
+	N64_ABI static void helperLSV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const uint16 value = dmem.ReadSpHalf(address);
+		const uint8 lo = value & 0xFF;
+		const uint8 hi = (value >> 8) & 0xFF;
+		vt.bytes[VuByteIndex(e + 0)] = hi;
+		if (e < 15)
+		{
+			vt.bytes[VuByteIndex(e + 1)] = lo;
+		}
+	}
+
+	N64_ABI static void helperSSV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		const uint8 hi = vt.bytes[VuByteIndex((e + 0) & 15)];
+		const uint8 lo = vt.bytes[VuByteIndex((e + 1) & 15)];
+		const uint16 value = static_cast<uint16>(hi) << 8 | lo;
+
+		dmem.WriteSpHalf(address, value);
 	}
 };

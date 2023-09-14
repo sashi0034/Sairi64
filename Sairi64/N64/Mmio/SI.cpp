@@ -58,24 +58,26 @@ namespace N64::Mmio
 		          dma == DmaType::DramToPif ? U"SI DMA start DRAM to PIF" :
 		          dma == DmaType::PifToDram ? U"SI DMA start PIF to DRAM" : U"");
 
-		m_pifAddr = pifAddr & 0x1FFFFFFF;
-		m_dmaRunning++;
+		if (m_status.DmaBusy()) N64Logger::Abort(U"overlapping si dma transfers");
+		m_status.DmaBusy().Set(true);
 
-		n64.GetScheduler().ScheduleEvent(dmaDelay_131072, [this, &n64, pifAddr]()
+		m_pifAddr = pifAddr & 0x1FFFFFFF;
+
+		n64.GetScheduler().ScheduleEvent(dmaDelay_131072, [this, &n64]()
 		{
 			// DMA結果反映
-			achieveDma<dma>(n64, pifAddr);
+			achieveDma<dma>(n64);
 		});
 	}
 
 	template <SI::DmaType dma>
-	void SI::achieveDma(N64System& n64, uint32 pifAddr)
+	void SI::achieveDma(N64System& n64)
 	{
 		N64_TRACE(Mmio,
 		          dma == DmaType::DramToPif ? U"SI DMA achieved DRAM to PIF" :
 		          dma == DmaType::PifToDram ? U"SI DMA achieved PIF to DRAM" : U"");
 
-		m_dmaRunning--;
+		m_status.DmaBusy().Set(false);
 
 		static_assert(
 			dma == DmaType::PifToDram ||

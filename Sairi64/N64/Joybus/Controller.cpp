@@ -22,8 +22,8 @@ namespace N64::Joybus
 		inputOf(CLeft) = KeyNum4 | KeyHome;
 		inputOf(CDown) = KeyNum2 | KeyPageDown;
 		inputOf(CUp) = KeyNum8 | KeyPageUp;
-		inputOf(R) = KeyZ;
-		inputOf(L) = KeyX;
+		inputOf(R) = KeyX;
+		inputOf(L) = KeyZ;
 		inputOf(Zero) = {};
 		inputOf(JoyReset) = {};
 	}

@@ -78,8 +78,8 @@ namespace N64::Joybus
 	public:
 		Controller(int channel);
 		~Controller() override = default;
-		JoybusType Type() override { return JoybusType::Controller; }
-		AccessorType Accessor() override { return m_accessor; }
+		JoybusType Type() const override { return JoybusType::Controller; }
+		AccessorType Accessor() const override { return m_accessor; }
 		ControllerState ReadState() const;
 
 	private:

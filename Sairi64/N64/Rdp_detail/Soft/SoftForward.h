@@ -106,7 +106,7 @@ namespace N64::Rdp_detail::Soft
 			m_bufferCount = 0;
 
 			// YHからYMまで計算
-			for (uint32 y = yh; yh < ym; ++y)
+			for (uint32 y = yh; y < ym; ++y)
 			{
 				m_buffer[m_bufferCount].startX = startX >> 16;
 				m_buffer[m_bufferCount].endX = endX >> 16;

@@ -103,7 +103,7 @@ private:
 			{
 				// 実際にコマンド処理
 				rdp.m_commander.EnqueueCommand(n64, RdpCommand::MakeWithRearrangeWords(
-					{buffer.list.data(), commandLength}));
+					                               {&buffer.list[bufferIndex], commandLength}));
 			}
 			if (commandId == RdpCommandFullSync_0x29)
 			{

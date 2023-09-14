@@ -24,11 +24,6 @@ void setupWindow()
 	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 }
 
-N64::N64Config debugConfig{
-	// .rom = {U"asset\\rom\\mimi-6126231.z64"}
-	.rom = {U"asset\\rom\\zelda-oot.z64"}
-};
-
 void Main()
 {
 	Addon::Register<DearImGuiAddon>(U"ImGui");
@@ -48,7 +43,7 @@ void Main()
 	const auto n64 = std::make_unique<N64::N64Singleton>();
 	N64::N64System& n64System = n64->GetSystem();
 	N64::N64Frame n64Frame{};
-	const N64::N64Config& n64Config = debugConfig;
+	const N64::N64Config& n64Config = N64::N64Config::LoadToml(U"config.toml", U"asset/config_example.toml");
 
 	Ui::UiManager uiManager{};
 

@@ -531,6 +531,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App\asset\config_example.toml" />
     <Content Include="App\asset\data\.gitignore" />
     <Content Include="App\asset\rom\.gitignore" />
     <Content Include="App\asset\rom\dillonb-n64-tests\addiu_simpleboot.z64" />
@@ -561,6 +562,7 @@
     <Content Include="App\asset\rom\dillonb-n64-tests\subu_simpleboot.z64" />
     <Content Include="App\asset\rom\dillonb-n64-tests\xori_simpleboot.z64" />
     <Content Include="App\asset\rom\dillonb-n64-tests\xor_simpleboot.z64" />
+    <Content Include="App\config.toml" />
     <Content Include="App\tests\list_file_names.py" />
     <Content Include="App\tests\rsp\compelt.golden" />
     <Content Include="App\tests\rsp\compelt.input" />

@@ -275,6 +275,14 @@ public:
 		{
 			x86Asm.call(&writeDmem<uint32>);
 		}
+		else if constexpr (op == Opcode::SH)
+		{
+			x86Asm.call(&writeDmem<uint16>);
+		}
+		else if constexpr (op == Opcode::SB)
+		{
+			x86Asm.call(&writeDmem<uint8>);
+		}
 		else static_assert(AlwaysFalseValue<Opcode, op>);
 		return DecodedToken::Continue;
 	}

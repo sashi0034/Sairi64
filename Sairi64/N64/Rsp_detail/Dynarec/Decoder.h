@@ -77,32 +77,32 @@ public:
 			return Jit::L_load<Opcode::LB>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LH:
 			return Jit::L_load<Opcode::LH>(ctx, static_cast<InstructionI>(instr));
-		case Opcode::LWL:
-			break;
+		// case Opcode::LWL:
+		// 	break;
 		case Opcode::LW:
 			return Jit::L_load<Opcode::LW>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
 			return Jit::L_load<Opcode::LBU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LHU:
 			return Jit::L_load<Opcode::LHU>(ctx, static_cast<InstructionI>(instr));
-		case Opcode::LWR:
-			break;
+		// case Opcode::LWR:
+		// 	break;
 		case Opcode::LWU:
 			return Jit::L_load<Opcode::LWU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SB:
-			break;
+			return Jit::S_store<Opcode::SB>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::SH:
-			break;
-		case Opcode::SWL:
-			break;
+			return Jit::S_store<Opcode::SH>(ctx, static_cast<InstructionI>(instr));
+		// case Opcode::SWL:
+		// 	break;
 		case Opcode::SW:
 			return Jit::S_store<Opcode::SW>(ctx, static_cast<InstructionI>(instr));
-		case Opcode::SDL:
-			break;
-		case Opcode::SDR:
-			break;
-		case Opcode::SWR:
-			break;
+		// case Opcode::SDL:
+		// 	break;
+		// case Opcode::SDR:
+		// 	break;
+		// case Opcode::SWR:
+		// 	break;
 		case Opcode::CACHE:
 			break;
 		case Opcode::LL:

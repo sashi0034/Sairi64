@@ -226,11 +226,20 @@ private:
 		                              : Swc2FunctShiftAmount<swc2>();
 		const sint32 offset = SignExtend7bitOffset(instr.Offset(), shiftAmount);
 
-		x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
+		if constexpr (lwc2 == OpLwc2Funct::LTV || swc2 == OpSwc2Funct::STV)
+		{
+			x86Asm.mov(x86::rcx, (uint64)&rsp); // rcx <- *rsp
+			x86Asm.mov(x86::r8b, instr.Vt()); // r8 <- vt
+		}
+		else
+		{
+			// default
+			x86Asm.mov(x86::rcx, (uint64)&rsp.Dmem()); // rcx <- *dmem
+			x86Asm.mov(x86::r8, reinterpret_cast<uint64>(&vu.regs[instr.Vt()])); // r8 <- *vt
+		}
 		x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(rsp)[instr.Base()])));
 		x86Asm.add(x86::eax, offset);
 		x86Asm.mov(x86::edx, x86::eax); // edx <- address
-		x86Asm.mov(x86::r8, reinterpret_cast<uint64>(&vu.regs[instr.Vt()])); // r8 <- *vt
 		x86Asm.mov(x86::r9b, e); // r9b <- e
 		if constexpr (lwc2 == OpLwc2Funct::LQV) x86Asm.call((uint64)&helperLQV);
 		else if constexpr (swc2 == OpSwc2Funct::SQV) x86Asm.call((uint64)&helperSQV);
@@ -244,6 +253,17 @@ private:
 		else if constexpr (swc2 == OpSwc2Funct::SLV) x86Asm.call((uint64)&helperSLV);
 		else if constexpr (lwc2 == OpLwc2Funct::LSV) x86Asm.call((uint64)&helperLSV);
 		else if constexpr (swc2 == OpSwc2Funct::SSV) x86Asm.call((uint64)&helperSSV);
+		else if constexpr (lwc2 == OpLwc2Funct::LBV) x86Asm.call((uint64)&helperLBV);
+		else if constexpr (swc2 == OpSwc2Funct::SBV) x86Asm.call((uint64)&helperSBV);
+		else if constexpr (lwc2 == OpLwc2Funct::LPV) x86Asm.call((uint64)&helperLPV);
+		else if constexpr (swc2 == OpSwc2Funct::SPV) x86Asm.call((uint64)&helperSPV);
+		else if constexpr (lwc2 == OpLwc2Funct::LUV) x86Asm.call((uint64)&helperLUV);
+		else if constexpr (swc2 == OpSwc2Funct::SUV) x86Asm.call((uint64)&helperSUV);
+		else if constexpr (lwc2 == OpLwc2Funct::LFV) x86Asm.call((uint64)&helperLFV);
+		else if constexpr (swc2 == OpSwc2Funct::SFV) x86Asm.call((uint64)&helperSFV);
+		else if constexpr (swc2 == OpSwc2Funct::SWV) x86Asm.call((uint64)&helperSWV);
+		else if constexpr (lwc2 == OpLwc2Funct::LTV) x86Asm.call((uint64)&helperLTV); // 引数注意
+		else if constexpr (swc2 == OpSwc2Funct::STV) x86Asm.call((uint64)&helperSTV); // 引数注意
 		else static_assert(AlwaysFalseValue<OpLwc2Funct, swc2>);
 
 		return DecodedToken::Continue;
@@ -694,5 +714,221 @@ private:
 		const uint16 value = static_cast<uint16>(hi) << 8 | lo;
 
 		dmem.WriteSpHalf(address, value);
+	}
+
+	N64_ABI static void helperLBV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		vt.bytes[VuByteIndex(e)] = dmem.ReadSpByte(address);
+	}
+
+	N64_ABI static void helperSBV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		dmem.WriteSpByte(address, vt.bytes[VuByteIndex(e)]);
+	}
+
+	N64_ABI static void helperLPV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const uint32 addressOffset = address & 7;
+		address &= ~7;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const int elementOffset = (16 - e + (i + addressOffset)) & 0xF;
+
+			uint16 value = dmem.ReadSpByte(address + elementOffset);
+			value <<= 8;
+			vt.uE[VuElementIndex(i)] = value;
+		}
+	}
+
+	N64_ABI static void helperSPV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		const uint8 start = e;
+		const uint8 end = start + 8;
+
+		for (int offset = start; offset < end; offset++)
+		{
+			if ((offset & 15) < 8)
+			{
+				dmem.WriteSpByte(address++, vt.bytes[VuByteIndex((offset & 7) << 1)]);
+			}
+			else
+			{
+				dmem.WriteSpByte(address++, vt.uE[VuElementIndex(offset & 7)] >> 7);
+			}
+		}
+	}
+
+	N64_ABI static void helperLUV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const uint32 addressOffset = address & 7;
+		address &= ~7;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const int elementOffset = (16 - e + (i + addressOffset)) & 0xF;
+
+			uint16 value = dmem.ReadSpByte(address + elementOffset);
+			value <<= 7;
+			vt.uE[VuElementIndex(i)] = value;
+		}
+	}
+
+	N64_ABI static void helperSUV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		const int start = e;
+		const int end = start + 8;
+		for (int offset = start; offset < end; offset++)
+		{
+			if ((offset & 15) < 8)
+			{
+				dmem.WriteSpByte(address++, vt.uE[VuElementIndex(offset & 7)] >> 7);
+			}
+			else
+			{
+				dmem.WriteSpByte(address++, vt.bytes[VuByteIndex((offset & 7) << 1)]);
+			}
+		}
+	}
+
+	N64_ABI static void helperLFV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)
+	{
+		const uint32 base = (address & 7) - e;
+		address &= ~7;
+
+		const int start = e;
+		const int end = std::min(start + 8, 16);
+
+		Vpr_t temp;
+		for (uint32 offset = 0; offset < 4; offset++)
+		{
+			temp.uE[VuElementIndex(offset + 0)] = dmem.ReadSpByte(address + (base + offset * 4 + 0 & 15)) << 7;
+			temp.uE[VuElementIndex(offset + 4)] = dmem.ReadSpByte(address + (base + offset * 4 + 8 & 15)) << 7;
+		}
+
+		for (uint32 offset = start; offset < end; offset++)
+		{
+			vt.bytes[VuByteIndex(offset)] = temp.bytes[VuByteIndex(offset)];
+		}
+	}
+
+	N64_ABI static void helperSFV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		const uint32 base = address & 7;
+		address &= ~7;
+
+		uint8 values[4] = {0, 0, 0, 0};
+
+		switch (e)
+		{
+		case 0:
+		case 15:
+			values[0] = vt.uE[VuElementIndex(0)] >> 7;
+			values[1] = vt.uE[VuElementIndex(1)] >> 7;
+			values[2] = vt.uE[VuElementIndex(2)] >> 7;
+			values[3] = vt.uE[VuElementIndex(3)] >> 7;
+			break;
+		case 1:
+			values[0] = vt.uE[VuElementIndex(6)] >> 7;
+			values[1] = vt.uE[VuElementIndex(7)] >> 7;
+			values[2] = vt.uE[VuElementIndex(4)] >> 7;
+			values[3] = vt.uE[VuElementIndex(5)] >> 7;
+			break;
+		case 4:
+			values[0] = vt.uE[VuElementIndex(1)] >> 7;
+			values[1] = vt.uE[VuElementIndex(2)] >> 7;
+			values[2] = vt.uE[VuElementIndex(3)] >> 7;
+			values[3] = vt.uE[VuElementIndex(0)] >> 7;
+			break;
+		case 5:
+			values[0] = vt.uE[VuElementIndex(7)] >> 7;
+			values[1] = vt.uE[VuElementIndex(4)] >> 7;
+			values[2] = vt.uE[VuElementIndex(5)] >> 7;
+			values[3] = vt.uE[VuElementIndex(6)] >> 7;
+			break;
+		case 8:
+			values[0] = vt.uE[VuElementIndex(4)] >> 7;
+			values[1] = vt.uE[VuElementIndex(5)] >> 7;
+			values[2] = vt.uE[VuElementIndex(6)] >> 7;
+			values[3] = vt.uE[VuElementIndex(7)] >> 7;
+			break;
+		case 11:
+			values[0] = vt.uE[VuElementIndex(3)] >> 7;
+			values[1] = vt.uE[VuElementIndex(0)] >> 7;
+			values[2] = vt.uE[VuElementIndex(1)] >> 7;
+			values[3] = vt.uE[VuElementIndex(2)] >> 7;
+			break;
+		case 12:
+			values[0] = vt.uE[VuElementIndex(5)] >> 7;
+			values[1] = vt.uE[VuElementIndex(6)] >> 7;
+			values[2] = vt.uE[VuElementIndex(7)] >> 7;
+			values[3] = vt.uE[VuElementIndex(4)] >> 7;
+			break;
+		default:
+			break;
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			dmem.WriteSpByte(address + ((base + (i << 2)) & 15), values[i]);
+		}
+	}
+
+	N64_ABI static void helperSWV(SpDmem& dmem, uint32 address, const Vpr_t& vt, uint8 e)
+	{
+		uint32 base = address & 7;
+		address &= ~7;
+
+		for (int i = e; i < e + 16; i++)
+		{
+			dmem.WriteSpByte(address + (base & 15), vt.bytes[VuByteIndex(i & 15)]);
+			base++;
+		}
+	}
+
+	N64_ABI static void helperLTV(Rsp& rsp, uint32 address, uint8 vt, uint8 e)
+	{
+		auto&& dmem = rsp.Dmem();
+		auto&& vu = Process::AccessVU(rsp);
+
+		uint32 base = address;
+		base &= ~7;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const uint32 offset = (i * 2) + e + ((base) & 8);
+
+			const uint16 hi = dmem.ReadSpByte(base + ((offset + 0) & 0xF));
+			const uint16 lo = dmem.ReadSpByte(base + ((offset + 1) & 0xF));
+
+			const int reg = (vt & 0x18) | ((i + (e >> 1)) & 0x7);
+			vu.regs[reg].uE[VuElementIndex(i & 0x7)] = (hi << 8) | lo;
+		}
+	}
+
+	N64_ABI static void helperSTV(Rsp& rsp, uint32 address, uint8 vt, uint8 e)
+	{
+		auto&& dmem = rsp.Dmem();
+		auto&& vu = Process::AccessVU(rsp);
+
+		uint32 base = address;
+		const uint32 addressOffset = base & 0x7;
+		base &= ~0x7;
+
+		e = e >> 1;
+
+		for (int i = 0; i < 8; i++)
+		{
+			const uint32 offset = (i * 2) + addressOffset;
+
+			const int reg = (vt & 0x18) | ((i + e) & 0x7);
+
+			const uint16 value = vu.regs[reg].uE[VuElementIndex(i & 0x7)];
+			const uint16 hi = (value >> 8) & 0xFF;
+			const uint16 lo = (value >> 0) & 0xFF;
+
+			dmem.WriteSpByte(base + ((offset + 0) & 0xF), hi);
+			dmem.WriteSpByte(base + ((offset + 1) & 0xF), lo);
+		}
 	}
 };

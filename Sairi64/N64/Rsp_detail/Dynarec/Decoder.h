@@ -424,7 +424,7 @@ private:
 		switch (instr.Funct())
 		{
 		case OpLwc2Funct::LBV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LBV>(ctx, instr);
 		case OpLwc2Funct::LSV:
 			return Jit::Vector::LWC2_funct<OpLwc2Funct::LSV>(ctx, instr);
 		case OpLwc2Funct::LLV:
@@ -436,15 +436,15 @@ private:
 		case OpLwc2Funct::LRV:
 			return Jit::Vector::LWC2_funct<OpLwc2Funct::LRV>(ctx, instr);
 		case OpLwc2Funct::LPV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LPV>(ctx, instr);
 		case OpLwc2Funct::LUV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LUV>(ctx, instr);
 		case OpLwc2Funct::LHV:
 			return Jit::Vector::LWC2_funct<OpLwc2Funct::LHV>(ctx, instr);
 		case OpLwc2Funct::LFV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LFV>(ctx, instr);
 		case OpLwc2Funct::LTV:
-			break;
+			return Jit::Vector::LWC2_funct<OpLwc2Funct::LTV>(ctx, instr);
 		default: ;
 		}
 
@@ -457,7 +457,7 @@ private:
 		switch (instr.Funct())
 		{
 		case OpSwc2Funct::SBV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SBV>(ctx, instr);
 		case OpSwc2Funct::SSV:
 			return Jit::Vector::SWC2_funct<OpSwc2Funct::SSV>(ctx, instr);
 		case OpSwc2Funct::SLV:
@@ -469,17 +469,17 @@ private:
 		case OpSwc2Funct::SRV:
 			return Jit::Vector::SWC2_funct<OpSwc2Funct::SRV>(ctx, instr);
 		case OpSwc2Funct::SPV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SPV>(ctx, instr);
 		case OpSwc2Funct::SUV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SUV>(ctx, instr);
 		case OpSwc2Funct::SHV:
 			return Jit::Vector::SWC2_funct<OpSwc2Funct::SHV>(ctx, instr);
 		case OpSwc2Funct::SFV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SFV>(ctx, instr);
 		case OpSwc2Funct::SWV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::SWV>(ctx, instr);
 		case OpSwc2Funct::STV:
-			break;
+			return Jit::Vector::SWC2_funct<OpSwc2Funct::STV>(ctx, instr);
 		default: ;
 		}
 

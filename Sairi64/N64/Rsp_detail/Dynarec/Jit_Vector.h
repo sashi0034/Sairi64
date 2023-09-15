@@ -740,7 +740,9 @@ private:
 		const Vpr_t vte = GetVtE(vt, element);
 		for (int i = 0; i < 8; i++)
 		{
-			vu.vcC.l.uE[i] = VuFlag16((vu.vcO.h.uE[i] == 0) && (vs.uE[i] == vte.uE[i]));
+			const bool eq = vs.uE[i] == vte.uE[i];
+			const bool negative = vu.vcO.h.uE[i] != 0 && vu.vcO.l.uE[i] != 0 && eq;
+			vu.vcC.l.uE[i] = VuFlag16(negative || (vs.sE[i] < vte.sE[i]));
 			vu.accum.l.uE[i] = vu.vcC.l.uE[i] != 0 ? vs.uE[i] : vte.uE[i];
 			vd.uE[i] = vu.accum.l.uE[i];
 

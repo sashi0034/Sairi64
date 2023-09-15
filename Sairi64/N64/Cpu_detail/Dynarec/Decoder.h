@@ -404,29 +404,29 @@ private:
 		case OpCop1FmtFunct::DivFmt:
 			return Jit::Cop::Fmt_arithmetic<OpCop1FmtFunct::DivFmt, fmt>(ctx, state, instr);
 		case OpCop1FmtFunct::SqrtFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::SqrtFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::AbsFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::AbsFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::MovFmt:
 			return Jit::Cop::Fmt_move<OpCop1FmtFunct::MovFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::NegFmt:
 			return Jit::Cop::Fmt_move<OpCop1FmtFunct::NegFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::RoundLFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::RoundLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::TruncLFmt:
 			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::TruncLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CeilLFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::CeilLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::FloorLFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::FloorLFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::RoundWFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::RoundWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::TruncWFmt:
 			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::TruncWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CeilWFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::CeilWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::FloorWFmt:
-			break;
+			return Jit::Cop::Fmt_mathf<OpCop1FmtFunct::FloorWFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtSFmt:
 			return Jit::Cop::Fmt_move<OpCop1FmtFunct::CvtSFmt, fmt>(ctx, instr);
 		case OpCop1FmtFunct::CvtDFmt:

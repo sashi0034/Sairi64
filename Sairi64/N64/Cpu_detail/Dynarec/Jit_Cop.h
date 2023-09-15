@@ -150,14 +150,37 @@ public:
 	static DecodedToken Fmt_mathf(const AssembleContext& ctx, InstructionCop1Fmt instr)
 	{
 		JIT_ENTRY;
-		if constexpr (fmt == FloatingFmt::Word || fmt == FloatingFmt::Long)
+		using fmt_t = FloatingFmtType<fmt>::type;
+		auto&& x86Asm = *ctx.x86Asm;
+		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
+		x86Asm.mov(x86::dl, instr.Fd());
+		x86Asm.mov(x86::r8b, instr.Fs());
+		if constexpr (funct == OpCop1FmtFunct::SqrtFmt)
 		{
-			return AssumeNotImplemented(ctx, instr);
+			x86Asm.call(reinterpret_cast<uint64>(&helperSqrtFmt<fmt_t>));
 		}
-		else
+		else if constexpr (funct == OpCop1FmtFunct::AbsFmt)
 		{
-			return formatMathfInternal<funct, fmt>(ctx, instr);
+			x86Asm.call(reinterpret_cast<uint64>(&helperAbsFmt<fmt_t>));
 		}
+		else if constexpr (funct == OpCop1FmtFunct::RoundWFmt || funct == OpCop1FmtFunct::RoundLFmt)
+		{
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_mathfRounding<funct, fmt_t>));
+		}
+		else if constexpr (funct == OpCop1FmtFunct::TruncWFmt || funct == OpCop1FmtFunct::TruncLFmt)
+		{
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_mathfRounding<funct, fmt_t>));
+		}
+		else if constexpr (funct == OpCop1FmtFunct::CeilWFmt || funct == OpCop1FmtFunct::CeilLFmt)
+		{
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_mathfRounding<funct, fmt_t>));
+		}
+		else if constexpr (funct == OpCop1FmtFunct::FloorWFmt || funct == OpCop1FmtFunct::FloorLFmt)
+		{
+			x86Asm.call(reinterpret_cast<uint64>(&helperFmt_mathfRounding<funct, fmt_t>));
+		}
+		else static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
+		return DecodedToken::Continue;
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>
@@ -336,32 +359,71 @@ private:
 		}
 	}
 
-	template <OpCop1FmtFunct funct, FloatingFmt fmt>
-	static DecodedToken formatMathfInternal(const AssembleContext& ctx, InstructionCop1Fmt instr)
+	template <typename Fmt>
+	N64_ABI static void helperSqrtFmt(Cpu& cpu, uint8 fd, uint8 fs)
 	{
-		auto&& x86Asm = *ctx.x86Asm;
-		using before = FloatingFmtType<fmt>::type;
-		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
-		x86Asm.mov(x86::dl, instr.Fd());
-		x86Asm.mov(x86::r8b, instr.Fs());
-		if constexpr (funct == OpCop1FmtFunct::TruncWFmt || funct == OpCop1FmtFunct::TruncLFmt)
+		if constexpr (std::is_floating_point<Fmt>::value)
 		{
-			using after = TruncTarget<funct>::type;
-			x86Asm.call(reinterpret_cast<uint64>(&helperTruncFmt<after, before>));
+			auto&& cop1 = cpu.GetCop1();
+			auto&& cop0 = cpu.GetCop0();
+
+			const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
+			cop1.SetFgrBy<Fmt>(cop0, fd, std::sqrt(fsF));
 		}
-		else static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
-		return DecodedToken::Continue;
+		else N64Logger::Abort();
 	}
 
-	template <typename After, typename Before>
-	N64_ABI static void helperTruncFmt(Cpu& cpu, uint8 fd, uint8 fs)
+	template <typename Fmt>
+	N64_ABI static void helperAbsFmt(Cpu& cpu, uint8 fd, uint8 fs)
 	{
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();
 
-		Before fsF = cop1.GetFgrBy<Before>(cop0, fs);
-		const After result = static_cast<After>(std::trunc(fsF));
-		cop1.SetFgrBy<After>(cop0, fd, result);
+		if constexpr (std::same_as<Fmt, uint32>)
+		{
+			const sint32 fsF = cop1.GetFgrBy<sint32>(cop0, fs);
+			cop1.SetFgrBy<uint32>(cop0, fd, std::abs(fsF));
+		}
+		else if constexpr (std::same_as<Fmt, uint64>)
+		{
+			const sint64 fsF = cop1.GetFgrBy<sint64>(cop0, fs);
+			cop1.SetFgrBy<uint64>(cop0, fd, std::abs(fsF));
+		}
+		else
+		{
+			const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
+			cop1.SetFgrBy<Fmt>(cop0, fd, std::abs(fsF));
+		}
+	}
+
+	template <OpCop1FmtFunct funct, typename Fmt>
+	N64_ABI static void helperFmt_mathfRounding(Cpu& cpu, uint8 fd, uint8 fs)
+	{
+		if constexpr (std::is_floating_point<Fmt>::value)
+		{
+			auto&& cop1 = cpu.GetCop1();
+			auto&& cop0 = cpu.GetCop0();
+
+			const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
+			if constexpr (funct == OpCop1FmtFunct::RoundWFmt)
+				cop1.SetFgrBy<uint32>(cop0, fd, static_cast<sint32>(std::nearbyint(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::RoundLFmt)
+				cop1.SetFgrBy<uint64>(cop0, fd, static_cast<sint64>(std::nearbyint(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::TruncWFmt)
+				cop1.SetFgrBy<uint32>(cop0, fd, static_cast<sint32>(std::trunc(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::TruncLFmt)
+				cop1.SetFgrBy<uint64>(cop0, fd, static_cast<sint64>(std::trunc(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::CeilWFmt)
+				cop1.SetFgrBy<uint32>(cop0, fd, static_cast<sint32>(std::ceil(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::CeilLFmt)
+				cop1.SetFgrBy<uint64>(cop0, fd, static_cast<sint64>(std::ceil(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::FloorWFmt)
+				cop1.SetFgrBy<uint32>(cop0, fd, static_cast<sint32>(std::floor(fsF)));
+			else if constexpr (funct == OpCop1FmtFunct::FloorLFmt)
+				cop1.SetFgrBy<uint64>(cop0, fd, static_cast<sint64>(std::floor(fsF)));
+			else static_assert(AlwaysFalse<Fmt>);
+		}
+		else N64Logger::Abort();
 	}
 
 	template <OpCop1FmtFunct funct, FloatingFmt fmt>

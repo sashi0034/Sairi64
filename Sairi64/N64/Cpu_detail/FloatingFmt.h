@@ -51,22 +51,6 @@ namespace N64::Cpu_detail
 		using type = uint64;
 	};
 
-	// Trunc
-	template <OpCop1FmtFunct funct> struct TruncTarget
-	{
-		static_assert(AlwaysFalseValue<OpCop1FmtFunct, funct>);
-	};
-
-	template <> struct TruncTarget<OpCop1FmtFunct::TruncWFmt>
-	{
-		using type = sint32;
-	};
-
-	template <> struct TruncTarget<OpCop1FmtFunct::TruncLFmt>
-	{
-		using type = sint64;
-	};
-
 	// https://github.com/Dillonb/n64/blob/42e5ad9887ce077dd9d9ab97a3a3e03086f7e2d8/src/cpu/float_util.h#L25
 	template <typename T>
 	static inline bool IsQNaN(T f)

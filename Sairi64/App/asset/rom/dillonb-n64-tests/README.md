@@ -1,4 +1,6 @@
-Pre-build binary from https://github.com/Dillonb/n64-tests
+These are pre-build binary from https://github.com/Dillonb/n64-tests
+
+I would like to thank the authors and contributors.
 
 # Dillon's n64 tests
 A WIP N64 test suite designed for young emulators

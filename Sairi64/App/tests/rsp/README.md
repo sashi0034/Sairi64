@@ -1,6 +1,6 @@
 # RSP Test Cases
 
-This directory contains test cases for the [n64](https://github.com/Dillonb/n64/tree/cccc33fd1b7cbc08588206dccbe077e17b642f88/tests/testcases/rsp) project. These test cases were originally imported from the [gengolden](https://github.com/rasky/r64emu/tree/master/tests/gengolden) directory.
+This directory contains test cases for the [n64](https://github.com/Dillonb/n64/tree/cccc33fd1b7cbc08588206dccbe077e17b642f88/tests/testcases/rsp) project. These test cases were originally imported from the [rasky/r64emu/tree/master/tests/gengolden](https://github.com/rasky/r64emu/tree/master/tests/gengolden) directory.
 
 ## Acknowledgements
 

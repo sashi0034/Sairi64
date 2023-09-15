@@ -53,6 +53,30 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpCopSub sub> [[nodiscard]]
+	static DecodedToken MC2_template(const AssembleContext& ctx, InstructionCop2VecSub instr)
+	{
+		JIT_SP;
+		const uint8 rt = instr.Rt();
+		if constexpr (sub == OpCopSub::MFC)
+		{
+			if (rt == 0) return DecodedToken::Continue;
+		}
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		auto&& gpr = Process::AccessGpr(rsp);
+
+		x86Asm.mov(x86::rcx, (uint64)&gpr[rt]); // rcx <- *rt
+		x86Asm.mov(x86::rdx, (uint64)&Process::AccessVU(rsp).regs[instr.Rd()]);
+		x86Asm.mov(x86::r8b, instr.Element());
+		if constexpr (sub == OpCopSub::MFC)
+			x86Asm.call((uint64)&helperMFC2);
+		else if constexpr (sub == OpCopSub::MTC)
+			x86Asm.call((uint64)&helperMTC2);
+		else static_assert(AlwaysFalseValue<OpCopSub, sub>);
+		return DecodedToken::Continue;
+	}
+
 	[[nodiscard]]
 	static DecodedToken VSAR(const AssembleContext& ctx, InstructionCop2VecFunct instr)
 	{
@@ -211,6 +235,23 @@ private:
 				vu.vcE.uE[VuElementIndex(i)] = VuFlag16(((value >> i) & 1) == 1);
 			}
 		}
+	}
+
+	N64_ABI static void helperMFC2(uint32* rt, const Vpr_t& rd, uint8 e)
+	{
+		const uint8 hi = rd.bytes[VuByteIndex(e)];
+		const uint8 lo = rd.bytes[VuByteIndex((e + 1) & 0xF)];
+		const sint32 element = static_cast<sint16>(hi << 8 | lo);
+		*rt = element;
+	}
+
+	N64_ABI static void helperMTC2(const uint32* rt, Vpr_t& rd, uint8 e)
+	{
+		const uint16 element = *rt;
+		const uint8 lo = element & 0xFF;
+		const uint8 hi = (element >> 8) & 0xFF;
+		rd.bytes[VuByteIndex(e + 0)] = hi;
+		if (e < 0xF) rd.bytes[VuByteIndex(e + 1)] = lo;
 	}
 
 	template <OpLwc2Funct lwc2, OpSwc2Funct swc2, typename Instr> [[nodiscard]]

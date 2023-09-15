@@ -142,7 +142,14 @@ TEST_CASE("RspTest")
 	// REQUIRE(rspTest(U"vmadm")); // OK
 	// REQUIRE(rspTest(U"vmadn")); // OK
 	// REQUIRE(rspTest(U"ldv_sdv")); // OK
+	// REQUIRE(rspTest(U"memaccess")); // OK
+	// REQUIRE(rspTest(U"ltv")); // OK
+	// REQUIRE(rspTest(U"stv")); // OK
+	// REQUIRE(rspTest(U"mfc2")); // OK
+	// REQUIRE(rspTest(U"mtc2")); // OK
 
+	REQUIRE(rspTest(U"vlogical"));
+	REQUIRE(rspTest(U"compelt"));
 	REQUIRE(rspTest(U"vlt"));
 	REQUIRE(rspTest(U"llv_slv"));
 	REQUIRE(rspTest(U"vcr"));
@@ -150,10 +157,7 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"lsv_ssv"));
 	REQUIRE(rspTest(U"vrcpl"));
 	REQUIRE(rspTest(U"lpv_spv"));
-	REQUIRE(rspTest(U"ldv_sdv"));
-	REQUIRE(rspTest(U"mtc2"));
 	REQUIRE(rspTest(U"luv_suv"));
-	REQUIRE(rspTest(U"compelt"));
 	REQUIRE(rspTest(U"vge"));
 	REQUIRE(rspTest(U"vmrg"));
 	REQUIRE(rspTest(U"swv"));
@@ -162,17 +166,12 @@ TEST_CASE("RspTest")
 	REQUIRE(rspTest(U"vmacu"));
 	REQUIRE(rspTest(U"vmulf"));
 	REQUIRE(rspTest(U"vcl"));
-	REQUIRE(rspTest(U"stv"));
 	REQUIRE(rspTest(U"lfv_sfv"));
 	REQUIRE(rspTest(U"vne"));
 	REQUIRE(rspTest(U"vrsq"));
 	REQUIRE(rspTest(U"veq"));
-	REQUIRE(rspTest(U"memaccess"));
 	REQUIRE(rspTest(U"vmacf"));
-	REQUIRE(rspTest(U"ltv"));
 	REQUIRE(rspTest(U"vsubb"));
 	REQUIRE(rspTest(U"lbv_sbv"));
-	REQUIRE(rspTest(U"mfc2"));
-	REQUIRE(rspTest(U"vlogical"));
 }
 #endif

@@ -405,9 +405,9 @@ private:
 		switch (instr.Sub())
 		{
 		case OpCopSub::MFC:
-			break;
+			return Jit::Vector::MC2_template<OpCopSub::MFC>(ctx, instr);
 		case OpCopSub::MTC:
-			break;
+			return Jit::Vector::MC2_template<OpCopSub::MTC>(ctx, instr);
 		case OpCopSub::CFC:
 			return Jit::Vector::CFC2(ctx, instr);
 		case OpCopSub::CTC:

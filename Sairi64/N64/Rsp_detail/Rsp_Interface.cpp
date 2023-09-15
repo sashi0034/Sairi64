@@ -26,11 +26,11 @@ namespace N64::Rsp_detail
 			const uint16 targetSpAddr = (spAddr + x) & SpMemoryMask_0xFFF;
 			if constexpr (dma == DmaType::RdramToSp)
 			{
-				spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)] = rdram[dramAddr + x];
+				spMem[targetSpAddr] = rdram[dramAddr + x];
 			}
 			else if constexpr (dma == DmaType::SpToRdram)
 			{
-				rdram[dramAddr + x] = spMem[isImemTarget ? targetSpAddr : EndianAddress<uint8>(targetSpAddr)];
+				rdram[dramAddr + x] = spMem[targetSpAddr];
 			}
 			else static_assert(AlwaysFalseValue<DmaType, dma>);
 		}
@@ -116,7 +116,7 @@ public:
 		const uint32 transferLength = ((dmaLength.Length() + 1) + 0x7) & ~0x7;
 
 		uint32 spAddr = rsp.m_dmaSpAddr & 0xFF8;
-		uint32 dramAddr = rsp.m_dmaDramAddr & 0xFFFFF8;
+		uint32 dramAddr = rsp.m_dmaDramAddr & 0xFFFFF8; // TODO: 調査
 
 		const std::span<uint8> spMem = isImemTarget ? rsp.Imem() : rsp.Dmem();
 		auto&& rdram = n64.GetMemory().Rdram();

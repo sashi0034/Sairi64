@@ -353,7 +353,7 @@ public:
 	}
 
 	[[nodiscard]]
-	static DecodedToken MTC0(const AssembleContext& ctx, InstructionR instr)
+	static DecodedToken MTC0(const AssembleContext& ctx, InstructionCopSub instr)
 	{
 		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -367,7 +367,7 @@ public:
 	}
 
 	[[nodiscard]]
-	static DecodedToken MFC0(const AssembleContext& ctx, InstructionR instr)
+	static DecodedToken MFC0(const AssembleContext& ctx, InstructionCopSub instr)
 	{
 		JIT_SP;
 		const uint8 rt = instr.Rt();

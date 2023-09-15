@@ -223,9 +223,9 @@ private:
 		switch (instr.Sub())
 		{
 		case OpCopSub::MTC:
-			return Jit::MTC0(ctx, static_cast<InstructionR>(instr));
+			return Jit::MTC0(ctx, static_cast<InstructionCopSub>(instr));
 		case OpCopSub::MFC:
-			return Jit::MFC0(ctx, static_cast<InstructionR>(instr));
+			return Jit::MFC0(ctx, static_cast<InstructionCopSub>(instr));
 		default: break;
 		}
 

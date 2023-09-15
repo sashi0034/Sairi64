@@ -13,7 +13,7 @@ namespace N64::Rsp_detail
 	public:
 		using addr_t = uint32;
 		void WriteSpByte(addr_t addr, uint8 value) { spByte(addr) = value; }
-		uint8 ReadSpByte(uint8 addr) const { return spByte(addr); }
+		uint8 ReadSpByte(addr_t addr) const { return spByte(addr); }
 
 		uint16 ReadSpHalf(addr_t addr) const
 		{

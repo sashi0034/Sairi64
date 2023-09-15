@@ -147,6 +147,34 @@ public:
 			x86Asm.call((uint64)&helperVMADM);
 		else if constexpr (funct == OpCop2VecFunct::VMADN)
 			x86Asm.call((uint64)&helperVMADN);
+		else if constexpr (funct == OpCop2VecFunct::VMULF)
+			x86Asm.call((uint64)&helperVMULF);
+		else if constexpr (funct == OpCop2VecFunct::VMULU)
+			x86Asm.call((uint64)&helperVMULU);
+		else if constexpr (funct == OpCop2VecFunct::VMULQ)
+			x86Asm.call((uint64)&helperVMULQ);
+		else if constexpr (funct == OpCop2VecFunct::VMACF)
+			x86Asm.call((uint64)&helperVMACF);
+		else if constexpr (funct == OpCop2VecFunct::VMACU)
+			x86Asm.call((uint64)&helperVMACU);
+		else if constexpr (funct == OpCop2VecFunct::VABS)
+			x86Asm.call((uint64)&helperVABS);
+		else if constexpr (funct == OpCop2VecFunct::VLT)
+			x86Asm.call((uint64)&helperVLT);
+		else if constexpr (funct == OpCop2VecFunct::VEQ)
+			x86Asm.call((uint64)&helperVEQ);
+		else if constexpr (funct == OpCop2VecFunct::VNE)
+			x86Asm.call((uint64)&helperVNE);
+		else if constexpr (funct == OpCop2VecFunct::VGE)
+			x86Asm.call((uint64)&helperVGE);
+		else if constexpr (funct == OpCop2VecFunct::VCL)
+			x86Asm.call((uint64)&helperVCL);
+		else if constexpr (funct == OpCop2VecFunct::VCH)
+			x86Asm.call((uint64)&helperVCH);
+		else if constexpr (funct == OpCop2VecFunct::VCR)
+			x86Asm.call((uint64)&helperVCR);
+		else if constexpr (funct == OpCop2VecFunct::VMRG)
+			x86Asm.call((uint64)&helperVMRG);
 		else
 			x86Asm.call(reinterpret_cast<uint64>(&helperCP2_arithmetic<funct>));
 		return DecodedToken::Continue;
@@ -358,8 +386,33 @@ private:
 			}
 			else if constexpr (funct == OpCop2VecFunct::VXOR)
 			{
-				vu.accum.l.uE[i] = vte.uE[i] ^ vs.uE[i];
+				const uint16 result = vte.uE[i] ^ vs.uE[i];
+				vu.accum.l.uE[i] = result;
 				vd.uE[i] = vu.accum.l.uE[i];
+			}
+			else if constexpr (funct == OpCop2VecFunct::VNAND)
+			{
+				const uint16 result = ~(vte.uE[i] & vs.uE[i]);
+				vd.uE[i] = result;
+				vu.accum.l.uE[i] = result;
+			}
+			else if constexpr (funct == OpCop2VecFunct::VOR)
+			{
+				const uint16 result = vte.uE[i] | vs.uE[i];
+				vd.uE[i] = result;
+				vu.accum.l.uE[i] = result;
+			}
+			else if constexpr (funct == OpCop2VecFunct::VNOR)
+			{
+				const uint16 result = ~(vte.uE[i] | vs.uE[i]);
+				vd.uE[i] = result;
+				vu.accum.l.uE[i] = result;
+			}
+			else if constexpr (funct == OpCop2VecFunct::VNXOR)
+			{
+				const uint16 result = ~(vte.uE[i] ^ vs.uE[i]);
+				vd.uE[i] = result;
+				vu.accum.l.uE[i] = result;
 			}
 			else if constexpr (funct == OpCop2VecFunct::Undocumented_0xFE)
 			{
@@ -396,7 +449,7 @@ private:
 			const uint64 multiplicand1 = vte.uE[e];
 			const uint64 multiplicand2 = vs.uE[e];
 			const uint64 product = multiplicand1 * multiplicand2;
-			uint64 accum = product >> 16;
+			const uint64 accum = product >> 16;
 			SetAccum48(vu, e, accum);
 			uint16 result;
 			if (IsSignExtension(vu.accum.h.sE[e], vu.accum.m.sE[e]))
@@ -470,10 +523,10 @@ private:
 			const sint32 product = multiplicand1 * multiplicand2;
 			const uint32 uP = product;
 			const uint64 accumDelta = static_cast<uint64>(uP) << 16;
-			sint64 acc = GetAccum48(vu, e) + accumDelta;
-			SetAccum48(vu, e, acc);
-			acc = GetAccum48(vu, e);
-			const sint16 result = SignedClamp(acc >> 16);
+			sint64 accum = GetAccum48(vu, e) + accumDelta;
+			SetAccum48(vu, e, accum);
+			accum = GetAccum48(vu, e);
+			const sint16 result = SignedClamp(accum >> 16);
 			vd.uE[e] = result;
 		}
 	}
@@ -549,6 +602,328 @@ private:
 				result = 0xFFFF;
 			}
 			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMULF(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+
+			sint64 accum = product;
+			accum = (accum * 2) + 0x8000;
+
+			SetAccum48(vu, e, accum);
+
+			const sint16 result = SignedClamp(accum >> 16);
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMULU(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+
+			sint64 accum = product;
+			accum = (accum * 2) + 0x8000;
+
+			const uint16 result = UnsignedClamp(accum >> 16);
+
+			SetAccum48(vu, e, accum);
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMULQ(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			sint32 product = vs.sE[i] * vte.sE[i];
+			if (product < 0)
+			{
+				product += 31;
+			}
+
+			vu.accum.h.uE[i] = product >> 16;
+			vu.accum.m.uE[i] = product;
+			vu.accum.l.uE[i] = 0;
+			vd.uE[i] = SignedClamp(product >> 1) & ~15;
+		}
+	}
+
+	N64_ABI static void helperVMACF(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+
+			sint64 accumDelta = product;
+			accumDelta *= 2;
+			sint64 accum = GetAccum48(vu, e) + accumDelta;
+			SetAccum48(vu, e, accum);
+			accum = GetAccum48(vu, e);
+
+			const sint16 result = SignedClamp(accum >> 16);
+
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVMACU(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int e = 0; e < 8; e++)
+		{
+			const sint16 multiplicand1 = vte.uE[e];
+			const sint16 multiplicand2 = vs.uE[e];
+			const sint32 product = multiplicand1 * multiplicand2;
+
+			sint64 acc_delta = product;
+			acc_delta *= 2;
+			sint64 accum = GetAccum48(vu, e) + acc_delta;
+			SetAccum48(vu, e, accum);
+			accum = GetAccum48(vu, e);
+
+			const uint16 result = UnsignedClamp(accum >> 16);
+
+			vd.uE[e] = result;
+		}
+	}
+
+	N64_ABI static void helperVABS(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			if (vs.sE[i] < 0)
+			{
+				if ((vte.uE[i] == 0x8000))
+				[[unlikely]]
+				{
+					vd.uE[i] = 0x7FFF;
+					vu.accum.l.uE[i] = 0x8000;
+				}
+				else
+				{
+					vd.uE[i] = -vte.sE[i];
+					vu.accum.l.uE[i] = -vte.sE[i];
+				}
+			}
+			else if (vs.uE[i] == 0)
+			{
+				vd.uE[i] = 0x0000;
+				vu.accum.l.uE[i] = 0x0000;
+			}
+			else
+			{
+				vd.uE[i] = vte.uE[i];
+				vu.accum.l.uE[i] = vte.uE[i];
+			}
+		}
+	}
+
+	N64_ABI static void helperVLT(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			vu.vcC.l.uE[i] = VuFlag16((vu.vcO.h.uE[i] == 0) && (vs.uE[i] == vte.uE[i]));
+			vu.accum.l.uE[i] = vu.vcC.l.uE[i] != 0 ? vs.uE[i] : vte.uE[i];
+			vd.uE[i] = vu.accum.l.uE[i];
+
+			vu.vcC.h.uE[i] = VuFlag16(0);
+			vu.vcO.h.uE[i] = VuFlag16(0);
+			vu.vcO.l.uE[i] = VuFlag16(0);
+		}
+	}
+
+	N64_ABI static void helperVEQ(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			vu.vcC.l.uE[i] = VuFlag16((vu.vcO.h.uE[i] == 0) && (vs.uE[i] == vte.uE[i]));
+			vu.accum.l.uE[i] = vu.vcC.l.uE[i] != 0 ? vs.uE[i] : vte.uE[i];
+			vd.uE[i] = vu.accum.l.uE[i];
+
+			vu.vcC.h.uE[i] = VuFlag16(0);
+			vu.vcO.h.uE[i] = VuFlag16(0);
+			vu.vcO.l.uE[i] = VuFlag16(0);
+		}
+	}
+
+	N64_ABI static void helperVNE(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			vu.vcC.l.uE[i] = VuFlag16((vu.vcO.h.uE[i] != 0) || (vs.uE[i] != vte.uE[i]));
+			vu.accum.l.uE[i] = vu.vcC.l.uE[i] != 0 ? vs.uE[i] : vte.uE[i];
+			vd.uE[i] = vu.accum.l.uE[i];
+
+			vu.vcC.h.uE[i] = VuFlag16(0);
+			vu.vcO.h.uE[i] = VuFlag16(0);
+			vu.vcO.l.uE[i] = VuFlag16(0);
+		}
+	}
+
+	N64_ABI static void helperVGE(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			const bool eql = vs.sE[i] == vte.sE[i];
+			const bool neg = !(vu.vcO.l.uE[i] != 0 && vu.vcO.h.uE[i] != 0) && eql;
+
+			vu.vcC.l.uE[i] = VuFlag16(neg || (vs.sE[i] > vte.sE[i]));
+			vu.accum.l.uE[i] = vu.vcC.l.uE[i] != 0 ? vs.uE[i] : vte.uE[i];
+			vd.uE[i] = vu.accum.l.uE[i];
+			vu.vcC.h.uE[i] = VuFlag16(0);
+			vu.vcO.h.uE[i] = VuFlag16(0);
+			vu.vcO.l.uE[i] = VuFlag16(0);
+		}
+	}
+
+	N64_ABI static void helperVCL(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			uint16 vsElement = vs.uE[i];
+			uint16 vteElement = vte.uE[i];
+
+			if (vu.vcO.l.uE[i])
+			{
+				if (vu.vcO.h.uE[i])
+				{
+					vu.accum.l.uE[i] = vu.vcC.l.uE[i] ? -vteElement : vsElement;
+				}
+				else
+				{
+					const uint16 clampedSum = vsElement + vteElement;
+					const bool overflow = (vsElement + vteElement) != clampedSum;
+					if (vu.vcE.uE[i])
+					{
+						vu.vcC.l.uE[i] = VuFlag16(!clampedSum || !overflow);
+						vu.accum.l.uE[i] = vu.vcC.l.uE[i] ? -vteElement : vsElement;
+					}
+					else
+					{
+						vu.vcC.l.uE[i] = VuFlag16(!clampedSum && !overflow);
+						vu.accum.l.uE[i] = vu.vcC.l.uE[i] ? -vteElement : vsElement;
+					}
+				}
+			}
+			else
+			{
+				if (vu.vcO.h.uE[i])
+				{
+					vu.accum.l.uE[i] = vu.vcC.h.uE[i] ? vteElement : vsElement;
+				}
+				else
+				{
+					vu.vcC.h.uE[i] = VuFlag16(static_cast<sint32>(vsElement) - static_cast<sint32>(vteElement) >= 0);
+					vu.accum.l.uE[i] = vu.vcC.h.uE[i] ? vteElement : vsElement;
+				}
+			}
+		}
+
+		memset(&vu.vcO.l, 0, sizeof(Vpr_t));
+		memset(&vu.vcO.h, 0, sizeof(Vpr_t));
+		memset(&vu.vcE, 0, sizeof(Vpr_t));
+		memcpy(&vd, &vu.accum.l, sizeof(Vpr_t));
+	}
+
+	N64_ABI static void helperVCH(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			const sint16 vsElement = vs.sE[i];
+			const sint16 vteElement = vte.sE[i];
+
+			if ((vsElement ^ vteElement) < 0)
+			{
+				const sint16 result = vsElement + vteElement;
+
+				vu.accum.l.sE[i] = (result <= 0 ? -vteElement : vsElement);
+				vu.vcC.l.uE[i] = VuFlag16(result <= 0);
+				vu.vcC.h.uE[i] = VuFlag16(vteElement < 0);
+				vu.vcO.l.uE[i] = VuFlag16(1);
+				vu.vcO.h.uE[i] = VuFlag16(
+					result != 0 && static_cast<uint16>(vsElement) != (static_cast<uint16>(vteElement) ^ 0xFFFF));
+				vu.vcE.uE[i] = VuFlag16(result == -1);
+			}
+			else
+			{
+				const sint16 result = vsElement - vteElement;
+
+				vu.accum.l.uE[i] = (result >= 0 ? vteElement : vsElement);
+				vu.vcC.l.uE[i] = VuFlag16(vteElement < 0);
+				vu.vcC.h.uE[i] = VuFlag16(result >= 0);
+				vu.vcO.l.uE[i] = VuFlag16(0);
+				vu.vcO.h.uE[i] = VuFlag16(
+					result != 0 && static_cast<uint16>(vsElement) != (static_cast<uint16>(vteElement) ^ 0xFFFF));
+				vu.vcE.uE[i] = VuFlag16(0);
+			}
+
+			vd.uE[i] = vu.accum.l.uE[i];
+		}
+	}
+
+	N64_ABI static void helperVCR(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			const uint16 vsElement = vs.uE[i];
+			const uint16 vteElement = vte.uE[i];
+
+			const bool signDifferent = (0x8000 & (vsElement ^ vteElement)) == 0x8000;
+
+			const uint16 vtAbs = signDifferent ? ~vteElement : vteElement;
+
+			const bool gte = static_cast<sint16>(vteElement) <= static_cast<sint16>(signDifferent ? 0xFFFF : vsElement);
+			const bool lte = (((signDifferent ? vsElement : 0) + vteElement) & 0x8000) == 0x8000;
+
+			const bool check = signDifferent ? lte : gte;
+			const uint16 result = check ? vtAbs : vsElement;
+
+			vu.accum.l.uE[i] = result;
+			vd.uE[i] = result;
+
+			vu.vcC.h.uE[i] = VuFlag16(gte);
+			vu.vcC.l.uE[i] = VuFlag16(lte);
+
+			vu.vcO.l.uE[i] = VuFlag16(0);
+			vu.vcO.h.uE[i] = VuFlag16(0);
+			vu.vcE.uE[i] = VuFlag16(0);
+		}
+	}
+
+	N64_ABI static void helperVMRG(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
+	{
+		const Vpr_t vte = GetVtE(vt, element);
+		for (int i = 0; i < 8; i++)
+		{
+			vu.accum.l.uE[i] = vu.vcC.l.uE[i] != 0 ? vs.uE[i] : vte.uE[i];
+			vd.uE[i] = vu.accum.l.uE[i];
+
+			vu.vcO.l.uE[i] = VuFlag16(0);
+			vu.vcO.h.uE[i] = VuFlag16(0);
 		}
 	}
 

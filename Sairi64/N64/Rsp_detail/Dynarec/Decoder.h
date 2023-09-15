@@ -264,13 +264,13 @@ private:
 		switch (instr.Funct())
 		{
 		case OpCop2VecFunct::VMULF:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMULF>(ctx, instr);
 		case OpCop2VecFunct::VMULU:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMULU>(ctx, instr);
 		case OpCop2VecFunct::VRNDP:
 			break;
 		case OpCop2VecFunct::VMULQ:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMULQ>(ctx, instr);
 		case OpCop2VecFunct::VMUDL:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMUDL>(ctx, instr);
 		case OpCop2VecFunct::VMUDM:
@@ -280,9 +280,9 @@ private:
 		case OpCop2VecFunct::VMUDH:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMUDH>(ctx, instr);
 		case OpCop2VecFunct::VMACF:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMACF>(ctx, instr);
 		case OpCop2VecFunct::VMACU:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMACU>(ctx, instr);
 		case OpCop2VecFunct::VRNDN:
 			break;
 		case OpCop2VecFunct::VMACQ:
@@ -300,7 +300,7 @@ private:
 		case OpCop2VecFunct::VSUB:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VSUB>(ctx, instr);
 		case OpCop2VecFunct::VABS:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VABS>(ctx, instr);
 		case OpCop2VecFunct::VADDC:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VADDC>(ctx, instr);
 		case OpCop2VecFunct::VSUBC:
@@ -308,33 +308,33 @@ private:
 		case OpCop2VecFunct::VSAR:
 			return Jit::Vector::VSAR(ctx, instr);
 		case OpCop2VecFunct::VLT:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VLT>(ctx, instr);
 		case OpCop2VecFunct::VEQ:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VEQ>(ctx, instr);
 		case OpCop2VecFunct::VNE:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VNE>(ctx, instr);
 		case OpCop2VecFunct::VGE:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VGE>(ctx, instr);
 		case OpCop2VecFunct::VCL:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VCL>(ctx, instr);
 		case OpCop2VecFunct::VCH:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VCH>(ctx, instr);
 		case OpCop2VecFunct::VCR:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VCR>(ctx, instr);
 		case OpCop2VecFunct::VMRG:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VMRG>(ctx, instr);
 		case OpCop2VecFunct::VAND:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VAND>(ctx, instr);
 		case OpCop2VecFunct::VNAND:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VNAND>(ctx, instr);
 		case OpCop2VecFunct::VOR:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VOR>(ctx, instr);
 		case OpCop2VecFunct::VNOR:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VNOR>(ctx, instr);
 		case OpCop2VecFunct::VXOR:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VXOR>(ctx, instr);
 		case OpCop2VecFunct::VNXOR:
-			break;
+			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VNXOR>(ctx, instr);
 		case OpCop2VecFunct::VRCP:
 			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCP>(ctx, instr);
 		case OpCop2VecFunct::VRCPL:

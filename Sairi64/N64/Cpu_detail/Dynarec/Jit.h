@@ -539,6 +539,20 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <Opcode op> [[nodiscard]]
+	static DecodedToken L_loadShifted(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
+	{
+		JIT_ENTRY;
+		return memoryAccessShifted<op, BusAccess::Load>(ctx, state, instr);
+	}
+
+	template <Opcode op> [[nodiscard]]
+	static DecodedToken S_storeShifted(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
+	{
+		JIT_ENTRY;
+		return memoryAccessShifted<op, BusAccess::Store>(ctx, state, instr);
+	}
+
 	class Cop;
 
 private:
@@ -733,5 +747,102 @@ private:
 			*lo = quotient;
 			*hi = remainder;
 		}
+	}
+
+	template <Opcode op, BusAccess access> [[nodiscard]]
+	static DecodedToken memoryAccessShifted(const AssembleContext& ctx, const AssembleState& state, InstructionFi instr)
+	{
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.cpu->GetGpr();
+		const sint64 offset = static_cast<sint16>(instr.Offset());
+		const auto resolvedLabel = x86Asm.newLabel();
+
+		x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
+		x86Asm.mov(x86::rdx, (uint64)ctx.cpu); // rdx <- *cpu
+		x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[instr.Base()])));
+		x86Asm.add(x86::rax, offset);
+		x86Asm.mov(x86::r8, x86::rax); // r8 <- vaddr
+		if constexpr (access == BusAccess::Load)
+		{
+			x86Asm.mov(x86::r9, (uint64)&gpr.Raw()[instr.Rt()]); // r9 <- *rt
+			x86Asm.call(reinterpret_cast<uint64>(&helperL_loadShifted<op>));
+		}
+		else if constexpr (access == BusAccess::Store)
+		{
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[instr.Rt()])));
+			x86Asm.mov(x86::r9, x86::rax); // r9 <- rt
+			x86Asm.call(reinterpret_cast<uint64>(&helperS_storeShifted<op>));
+		}
+		else static_assert(AlwaysFalseValue<BusAccess, access>);
+
+		x86Asm.cmp(x86::al, 0);
+		x86Asm.jne(resolvedLabel);
+		// now, error occured
+		x86Asm.mov(x86::rax, state.recompiledLength);
+		x86Asm.jmp(ctx.endLabel);
+		x86Asm.bind(resolvedLabel); // @resolved
+		return DecodedToken::Continue;
+	}
+
+	template <Opcode op>
+	N64_ABI static bool helperL_loadShifted(N64System& n64, Cpu& cpu, uint64 vaddr, uint64* rt)
+	{
+		const auto paddr = Mmu::ResolveVAddr(cpu, vaddr);
+		if (paddr.has_value() == false)
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Load>(), 0);
+			return false;
+		}
+
+		if (rt == &cpu.GetGpr().Raw()[0]) return true;
+
+		if constexpr (op == Opcode::LDL)
+		{
+			const sint32 shift = 8 * ((vaddr ^ 0) & 7);
+			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF << shift;
+			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
+			const uint64 oldRt = *rt;
+			*rt = (oldRt & ~mask) | (data << shift);
+		}
+		else if constexpr (op == Opcode::LDR)
+		{
+			const sint32 shift = 8 * ((vaddr ^ 7) & 7);
+			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF >> shift;
+			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
+			const uint64 oldRt = *rt;
+			*rt = (oldRt & ~mask) | (data >> shift);
+		}
+
+		return true;
+	}
+
+	template <Opcode op>
+	N64_ABI static bool helperS_storeShifted(N64System& n64, Cpu& cpu, uint64 vaddr, uint64 rt)
+	{
+		const auto paddr = Mmu::ResolveVAddr(cpu, vaddr);
+		if (paddr.has_value() == false)
+		{
+			cpu.GetCop0().HandleTlbException(vaddr);
+			Process::ThrowException(cpu, cpu.GetCop0().GetTlbExceptionCode<BusAccess::Store>(), 0);
+			return false;
+		}
+
+		if constexpr (op == Opcode::SDL)
+		{
+			const sint32 shift = 8 * ((vaddr ^ 0) & 7);
+			const uint64 mask = 0xFFFFFFFFFFFFFFFF >> shift;
+			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
+			Mmu::WritePaddr64(n64, PAddr32(paddr.value() & ~7), (data & ~mask) | ((rt) >> shift));
+		}
+		else if constexpr (op == Opcode::SDR)
+		{
+			const sint32 shift = 8 * ((vaddr ^ 7) & 7);
+			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF << shift;
+			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
+			Mmu::WritePaddr64(n64, PAddr32(paddr.value() & ~7), (data & ~mask) | (rt << shift));
+		}
+
+		return true;
 	}
 };

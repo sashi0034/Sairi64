@@ -69,9 +69,9 @@ public:
 		case Opcode::DADDIU:
 			return Jit::I_immediateArithmetic<Opcode::DADDIU>(ctx, static_cast<InstructionI>(instr));
 		case Opcode::LDL:
-			return UseInterpreter(ctx, instr, &interpret::LDL);
+			return Jit::L_loadShifted<Opcode::LDL>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LDR:
-			return UseInterpreter(ctx, instr, &interpret::LDR);
+			return Jit::L_loadShifted<Opcode::LDR>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::RDHWR:
 			break;
 		case Opcode::LB:
@@ -99,9 +99,9 @@ public:
 		case Opcode::SW:
 			return Jit::S_store<Opcode::SW>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SDL:
-			return UseInterpreter(ctx, instr, &interpret::SDL);
+			return Jit::S_storeShifted<Opcode::SDL>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::SDR:
-			return UseInterpreter(ctx, instr, &interpret::SDR);
+			return Jit::S_storeShifted<Opcode::SDR>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::SWR:
 			break;
 		case Opcode::CACHE:

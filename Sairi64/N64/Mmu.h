@@ -59,6 +59,7 @@ namespace N64
 
 			constexpr AddressRange<uint32> N64DdRegisters{0x05000000, 0x05FFFFFF};
 			constexpr AddressRange<uint32> N64DdIplRom{0x06000000, 0x07FFFFFF};
+			constexpr AddressRange<uint32> CartridgeSram{0x08000000, 0x0FFFFFFF};
 			constexpr AddressRange<uint32> CartridgeRom{0x10000000, 0x1FBFFFFF};
 			constexpr AddressRange<uint32> PifRam{0x1FC007C0, 0x1FC007FF};
 		}

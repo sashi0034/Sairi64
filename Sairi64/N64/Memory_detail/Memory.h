@@ -18,9 +18,11 @@ namespace N64::Memory_detail
 		Rom& GetRom() { return m_rom; }
 		bool IsRomPal() const { return m_rom.IsPal(); }
 		std::array<uint8, RdramSize_0x00800000>& Rdram() { return m_rdram; }
+		Array<uint8> Sram() { return m_sram; }
 
 	private:
 		Rom m_rom{};
 		std::array<uint8, RdramSize_0x00800000> m_rdram{};
+		Array<uint8> m_sram{};
 	};
 }

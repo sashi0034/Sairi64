@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "PI.h"
 
+#include "N64/Mmu.h"
 #include "N64/N64Logger.h"
 #include "N64/N64System.h"
 
@@ -42,7 +43,7 @@ namespace N64::Mmio
 		default: break;
 		}
 
-		N64Logger::Abort();
+		N64Logger::Abort(U"unsupported pi read: paddr={:08X}"_fmt(static_cast<uint32>(paddr)));
 		return 0;
 	}
 
@@ -92,7 +93,18 @@ namespace N64::Mmio
 		default: break;
 		}
 
-		N64Logger::Abort();
+		N64Logger::Abort(U"unsupported pi write: paddr={:08X}, value={:08X}"_fmt(static_cast<uint32>(paddr), value));
+	}
+
+	uint8 readCartridge(Memory& memory, uint32 address)
+	{
+		// TODO: 最適化
+		if (Mmu::PMap::CartridgeRom.IsBetween(address))
+			return memory.GetRom().Data()[EndianAddress<uint8>(address - Mmu::PMap::CartridgeRom.base)];
+		else if (Mmu::PMap::CartridgeSram.IsBetween(address))
+			return memory.Sram()[address - Mmu::PMap::CartridgeSram.base];
+		else N64Logger::Abort();
+		return {};
 	}
 
 	void PI::dmaWrite(N64System& n64, uint32 wrLen)
@@ -100,7 +112,7 @@ namespace N64::Mmio
 		m_wrLen = wrLen;
 
 		const uint32 dramAddr = m_dramAddr & 0x7FFFFE;
-		const uint32 cartAddr = m_cartAddr;
+		const uint32 cartAddr = m_cartAddr & 0xFFFFFFFE;
 		const uint32 transferLength = [&]()
 		{
 			uint32 value = (wrLen & 0x00FF'FFFF) + 1;
@@ -110,15 +122,13 @@ namespace N64::Mmio
 
 		N64_TRACE(Mmio, U"start PI DMA write: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr));
 
-		if (cartAddr < 0x1000'0000 || 0xFFFF'FFFF < cartAddr)
+		if (cartAddr < Mmu::PMap::N64DdIplRom.base)
 			N64Logger::Abort(U"PI DMA transfer card address is out of range: {}"_fmt(cartAddr));
 
-		const uint32 cartAddrOffset = cartAddr - 0x1000'0000;
 		for (uint32 i = 0; i < transferLength; ++i)
 		{
 			// データ転送
-			n64.GetMemory().Rdram()[EndianAddress<uint8>(dramAddr + i)] =
-				n64.GetMemory().GetRom().Data()[EndianAddress<uint8>(cartAddrOffset + i)];
+			n64.GetMemory().Rdram()[EndianAddress<uint8>(dramAddr + i)] = readCartridge(n64.GetMemory(), cartAddr + i);
 		}
 
 		// 対応する再コンパイル済みキャッシュも無効に

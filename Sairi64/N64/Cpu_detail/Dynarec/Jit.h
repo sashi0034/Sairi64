@@ -813,7 +813,23 @@ private:
 			const uint64 oldRt = *rt;
 			*rt = (oldRt & ~mask) | (data >> shift);
 		}
-
+		else if constexpr (op == Opcode::LWL)
+		{
+			const uint32 shift = 8 * ((vaddr ^ 0) & 3);
+			const uint32 mask = 0xFFFFFFFF << shift;
+			const uint32 data = PAddr32(paddr.value() & ~3);
+			const sint32 result = (*rt & ~mask) | data << shift;
+			*rt = static_cast<sint64>(result);
+		}
+		else if constexpr (op == Opcode::LWR)
+		{
+			const uint32 shift = 8 * ((vaddr ^ 3) & 3);
+			const uint32 mask = 0xFFFFFFFF >> shift;
+			const uint32 data = PAddr32(paddr.value() & ~3);
+			const sint32 result = (*rt & ~mask) | data >> shift;
+			*rt = static_cast<sint64>(result);
+		}
+		else static_assert(AlwaysFalseValue<Opcode, op>);
 		return true;
 	}
 
@@ -842,7 +858,21 @@ private:
 			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
 			Mmu::WritePaddr64(n64, PAddr32(paddr.value() & ~7), (data & ~mask) | (rt << shift));
 		}
-
+		else if constexpr (op == Opcode::SWL)
+		{
+			const uint32 shift = 8 * ((vaddr ^ 0) & 3);
+			const uint32 mask = 0xFFFFFFFF >> shift;
+			const uint32 data = Mmu::ReadPaddr32(n64, PAddr32(paddr.value() & ~3));
+			Mmu::WritePaddr32(n64, PAddr32(paddr.value() & ~3), (data & ~mask) | (rt >> shift));
+		}
+		else if constexpr (op == Opcode::SWR)
+		{
+			const uint32 shift = 8 * ((vaddr ^ 3) & 3);
+			const uint32 mask = 0xFFFFFFFF << shift;
+			const uint32 data = Mmu::ReadPaddr32(n64, PAddr32(paddr.value() & ~3));
+			Mmu::WritePaddr32(n64, PAddr32(paddr.value() & ~3), (data & ~mask) | rt << shift);
+		}
+		else static_assert(AlwaysFalseValue<Opcode, op>);
 		return true;
 	}
 };

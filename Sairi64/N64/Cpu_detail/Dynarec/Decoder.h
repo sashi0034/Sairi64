@@ -79,7 +79,7 @@ public:
 		case Opcode::LH:
 			return Jit::L_load<Opcode::LH>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LWL:
-			break;
+			return Jit::L_loadShifted<Opcode::LWL>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LW:
 			return Jit::L_load<Opcode::LW>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LBU:
@@ -87,7 +87,7 @@ public:
 		case Opcode::LHU:
 			return Jit::L_load<Opcode::LHU>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::LWR:
-			break;
+			return Jit::L_loadShifted<Opcode::LWR>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::LWU:
 			return Jit::L_load<Opcode::LWU>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SB:
@@ -95,7 +95,7 @@ public:
 		case Opcode::SH:
 			return Jit::S_store<Opcode::SH>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SWL:
-			break;
+			return Jit::S_storeShifted<Opcode::SWL>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::SW:
 			return Jit::S_store<Opcode::SW>(ctx, state, static_cast<InstructionI>(instr));
 		case Opcode::SDL:
@@ -103,7 +103,7 @@ public:
 		case Opcode::SDR:
 			return Jit::S_storeShifted<Opcode::SDR>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::SWR:
-			break;
+			return Jit::S_storeShifted<Opcode::SWR>(ctx, state, static_cast<InstructionFi>(instr));
 		case Opcode::CACHE:
 			return Jit::CACHE(static_cast<InstructionR>(instr));
 		case Opcode::LL:

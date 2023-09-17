@@ -21,7 +21,7 @@ namespace N64::Rsp_detail::Dynarec
 
 	RecompiledCodeHandler ImemCache::HitBlockOrRecompile(N64System& n64, Rsp& rsp, ImemAddr16 pc)
 	{
-		const uint8 pcIndex = GetBlockIndex(pc);
+		const BlockIndex pcIndex = GetBlockIndex(pc);
 
 		if (m_tagList[pcIndex] && m_codeList[pcIndex].code != nullptr)
 		{
@@ -47,7 +47,7 @@ namespace N64::Rsp_detail::Dynarec
 		const auto recompiled = SpRecompileFreshCode(n64, rsp, pc);
 		m_tagList[pcIndex] = true;
 		m_codeList[pcIndex].code = recompiled.code;
-		for (int i = pcIndex; i < pcIndex + recompiled.recompiledLength; ++i)
+		for (BlockIndex i = pcIndex; i < pcIndex + recompiled.recompiledLength; ++i)
 		{
 			// 先頭情報更新
 			if (m_headList[i] == invalidHead_0xFFFF || m_headList[i] > pcIndex)
@@ -61,9 +61,14 @@ namespace N64::Rsp_detail::Dynarec
 
 	void ImemCache::InvalidBlock(ImemAddr16 addr)
 	{
-		const uint8 index = GetBlockIndex(addr);
+		const BlockIndex index = GetBlockIndex(addr);
 		if (m_headList[index] == invalidHead_0xFFFF) [[likely]] return;
 
+		invalidBlockIndex(index);
+	}
+
+	void ImemCache::invalidBlockIndex(BlockIndex index)
+	{
 		const int headCursor = m_headList[index];
 		int currentCursor = index;
 		// 書き換えられたデータをコンパイルしていたコードを、ヘッド情報から全て無効化
@@ -82,14 +87,14 @@ namespace N64::Rsp_detail::Dynarec
 
 	void ImemCache::InvalidBlockBetween(ImemAddr16 beginInclusive, ImemAddr16 endInclusive)
 	{
-		uint16 beginIndex = GetBlockIndex(beginInclusive);
-		uint16 endIndex = GetBlockIndex(endInclusive);
+		BlockIndex beginIndex = GetBlockIndex(beginInclusive);
+		BlockIndex endIndex = GetBlockIndex(endInclusive);
 
 		if (beginIndex > endIndex) std::swap(beginIndex, endIndex);
 
-		for (uint16 i = beginIndex; i <= endIndex; ++i)
+		for (BlockIndex i = beginIndex; i <= endIndex; ++i)
 		{
-			InvalidBlock(ImemAddr16(i));
+			invalidBlockIndex(i);
 		}
 	}
 }

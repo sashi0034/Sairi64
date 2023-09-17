@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "AudioStreaming.h"
 #include "N64/Forward.h"
 
 namespace N64::Mmio
@@ -19,11 +20,15 @@ namespace N64::Mmio
 	class AI
 	{
 	public:
+		AI();
 		uint32 Read32(PAddr32 paddr) const;
 		void Write32(N64System& n64, PAddr32 paddr, uint32 value);
-		// TODO: Step関数
+		uint32 Step(N64System& n64);
 
 	private:
+		std::shared_ptr<AudioStreaming> m_stream{};
+		s3d::Audio m_audio{};
+
 		bool m_dmaEnable{};
 		uint16 m_dacRate{};
 		uint8 m_bitRate{};
@@ -31,11 +36,10 @@ namespace N64::Mmio
 		std::array<uint32, 2> m_dmaLength{};
 		std::array<uint32, 2> m_dmaAddr{};
 		bool m_dmaAddrCarry{};
-		int m_cycles{};
 
 		struct
 		{
-			uint32 freq{44100};
+			uint32 freq{DefaultAudioSampleRate_44100};
 			uint32 period{CpuFreq_93750000 / freq};
 			uint32 precision{16};
 		} m_dac;

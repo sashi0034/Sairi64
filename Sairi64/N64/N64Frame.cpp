@@ -56,6 +56,14 @@ namespace N64
 		// 1ライン終了
 		state.cpuEarnedCycles -= cyclesPerHalfLine;
 
+		// 音響ステップ
+		state.audioConsumableCycles += cyclesPerHalfLine;
+		while (state.audioConsumableCycles > 0)
+		{
+			const uint32 takenAudio = n64.GetAI().Step(n64);
+			state.audioConsumableCycles -= takenAudio;
+		}
+
 		return false;
 	}
 

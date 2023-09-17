@@ -9,6 +9,7 @@ namespace N64
 		int currentField;
 		int cpuEarnedCycles;
 		int rspConsumableCycles;
+		int audioConsumableCycles;
 	};
 
 	struct N64FrameInfo

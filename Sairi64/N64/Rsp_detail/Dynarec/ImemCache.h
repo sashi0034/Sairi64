@@ -5,11 +5,9 @@
 namespace N64::Rsp_detail::Dynarec
 {
 	using BlockIndex = uint16;
-	using BlockTag = uint8;
+	using ValidTag = uint8;
 
 	constexpr int BlockSize_0x400 = SpImemSize_0x1000 / 4;
-	constexpr uint8 InvalidTag_0xFF = 0xFF;
-	inline BlockTag GetBlockTag(ImemAddr16 addr) { return GetBits<0, 1, uint16>(addr); };
 	inline uint16 GetBlockIndex(ImemAddr16 addr) { return addr >> 2; }
 
 	typedef RspCycles (*RecompiledCodeHandler)();
@@ -38,7 +36,7 @@ namespace N64::Rsp_detail::Dynarec
 		void InvalidBlockBetween(ImemAddr16 beginInclusive, ImemAddr16 endInclusive);
 
 	private:
-		std::array<BlockTag, BlockSize_0x400> m_tagList{};
+		std::array<ValidTag, BlockSize_0x400> m_tagList{};
 		std::array<BlockCode, BlockSize_0x400> m_codeList{};
 		std::array<BlockIndex, BlockSize_0x400> m_headList{};
 	};

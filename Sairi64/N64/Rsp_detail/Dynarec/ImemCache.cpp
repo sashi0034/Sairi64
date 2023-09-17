@@ -21,15 +21,13 @@ namespace N64::Rsp_detail::Dynarec
 
 	RecompiledCodeHandler ImemCache::HitBlockOrRecompile(N64System& n64, Rsp& rsp, ImemAddr16 pc)
 	{
-		// TODO: タグを廃止、有効フラグにする
-		const BlockTag pcTag = GetBlockTag(pc);
 		const uint8 pcIndex = GetBlockIndex(pc);
 
-		if (m_tagList[pcIndex] == pcTag && m_codeList[pcIndex].code != nullptr)
+		if (m_tagList[pcIndex] && m_codeList[pcIndex].code != nullptr)
 		{
 			// キャッシュヒット
-			N64_TRACE(Rsp, U"hit imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
-				pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
+			N64_TRACE(Rsp, U"hit imem cache: index={:04X} tag={} head={:04X}"_fmt(
+				          pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
 			return m_codeList[pcIndex].code;
 		}
 
@@ -38,8 +36,8 @@ namespace N64::Rsp_detail::Dynarec
 		if (m_codeList[pcIndex].code != nullptr)
 		{
 			// コード開放
-			N64_TRACE(Rsp, U"release imem cache: index={:04X} tag={:02X} head={:04X}"_fmt(
-				pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
+			N64_TRACE(Rsp, U"release imem cache: index={:04X} tag={} head={:04X}"_fmt(
+				          pcIndex, m_tagList[pcIndex], m_headList[pcIndex]));
 			n64.GetJit().release(m_codeList[pcIndex].code);
 		}
 
@@ -47,7 +45,7 @@ namespace N64::Rsp_detail::Dynarec
 
 		// 再コンパイル処理
 		const auto recompiled = SpRecompileFreshCode(n64, rsp, pc);
-		m_tagList[pcIndex] = pcTag;
+		m_tagList[pcIndex] = true;
 		m_codeList[pcIndex].code = recompiled.code;
 		for (int i = pcIndex; i < pcIndex + recompiled.recompiledLength; ++i)
 		{
@@ -71,7 +69,7 @@ namespace N64::Rsp_detail::Dynarec
 		// 書き換えられたデータをコンパイルしていたコードを、ヘッド情報から全て無効化
 		while (true)
 		{
-			m_tagList[currentCursor] = InvalidTag_0xFF;
+			m_tagList[currentCursor] = false;
 			m_headList[currentCursor] = invalidHead_0xFFFF;
 			currentCursor--;
 			if (currentCursor < headCursor) break;

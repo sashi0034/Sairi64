@@ -44,6 +44,8 @@ namespace N64::Mmio
 		void Write32(N64System& n64, PAddr32 paddr, uint32 value);
 
 	private:
+		class Impl;
+
 		uint32 m_dramAddr{};
 		uint32 m_cartAddr{};
 		uint32 m_rdLen{};
@@ -57,7 +59,5 @@ namespace N64::Mmio
 		uint32 m_bsdDom2Pwd{};
 		uint32 m_bsdDom2Pgs{};
 		uint32 m_bsdDom2Rls{};
-
-		void dmaWrite(N64System& n64, uint32 wrLen);
 	};
 }

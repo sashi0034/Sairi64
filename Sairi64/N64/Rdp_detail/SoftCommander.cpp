@@ -23,6 +23,14 @@ namespace N64::Rdp_detail
 		(void)execute(ctx, cmd);
 	}
 
+	inline void unimplementedCommand(CommandId cmd)
+	{
+		static bool warned[64]{};
+		if (warned[static_cast<int>(cmd)]) return;
+		warned[static_cast<int>(cmd)] = true;
+		N64Logger::Warn(U"not implemented rdp command: {}"_fmt(StringifyEnum(cmd)));
+	}
+
 	SoftUnit SoftCommander::execute(const CommanderContext& ctx, const RdpCommand& cmd)
 	{
 		using Soft::Soft;
@@ -102,7 +110,7 @@ namespace N64::Rdp_detail
 		default: ;
 		}
 
-		N64Logger::Abort(U"not implemented rdp command: {}"_fmt(StringifyEnum(cmd.Id())));
+		unimplementedCommand(cmd.Id());
 		return {};
 	}
 }

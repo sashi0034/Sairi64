@@ -24,7 +24,7 @@ namespace N64::Cpu_detail
 		static uint64* AddressLo(Cpu& cpu) { return &cpu.m_lo; }
 
 		template <BranchType branch>
-		static void BranchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
+		N64_ABI static void BranchVAddr64(Cpu& cpu, uint64 vaddr, bool condition)
 		{
 			if (condition)
 			{
@@ -48,7 +48,7 @@ namespace N64::Cpu_detail
 		}
 
 		template <BranchType branch, bool condition>
-		static void StaticBranchVAddr64(Cpu& cpu, uint64 vaddr)
+		N64_ABI static void StaticBranchVAddr64(Cpu& cpu, uint64 vaddr)
 		{
 			BranchVAddr64<branch>(cpu, vaddr, condition);
 		}

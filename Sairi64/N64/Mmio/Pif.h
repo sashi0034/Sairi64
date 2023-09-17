@@ -12,6 +12,7 @@ namespace N64::Mmio
 	class Pif
 	{
 	public:
+		Pif();
 		PifRam& Ram() { return m_ram; }
 		void ProcessCommands();
 
@@ -22,5 +23,7 @@ namespace N64::Mmio
 
 		PifRam m_ram{};
 		Joybus::JoybusDeviceManager m_deviceManager{};
+
+		Array<uint8> m_controllerPack{};
 	};
 }

@@ -27,6 +27,8 @@ namespace N64::Mmio
 		template <uint8 offset> void SetAt(uint8 value) const { m_span[offset] = value; }
 		template <uint8 offset> uint8 GetAt() const { return m_span[offset]; }
 
+		std::span<uint8> Raw() const { return m_span; }
+
 	private:
 		std::span<uint8> m_span{};
 	};
@@ -45,6 +47,8 @@ namespace N64::Mmio
 			setFromInternal<startOffset>(values...);
 		}
 
+		std::span<uint8> Raw() const { return m_span; }
+
 	private:
 		std::span<uint8> m_span{};
 
@@ -61,6 +65,8 @@ namespace N64::Mmio
 
 	constexpr uint8 pifRamEnd_63 = 63;
 	constexpr uint8 pifRamSize_64 = 64;
+
+	constexpr uint32 controllerPackSize_0x8000 = 0x8000;
 }
 
 class N64::Mmio::Pif::Impl
@@ -111,14 +117,20 @@ private:
 	{
 		switch (cmd.Index())
 		{
-		case 0: [[fallthrough]];
+		case 0x00: [[fallthrough]];
 		case 0xFF:
 			readControllerId(pif, *channel, result);
 			(*channel)++;
 			break;
-		case 1:
+		case 0x01:
 			if (readButtons(pif, *channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
 			(*channel)++;
+			break;
+		case 0x02:
+			readMemPack(pif, *channel, cmd, result);
+			break;
+		case 0x03:
+			writeMemPack(pif, *channel, cmd, result);
 			break;
 		default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));
 		}
@@ -177,10 +189,99 @@ private:
 			return false;
 		}
 	}
+
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/mem/pif.c#L428
+	static uint8 dataCrc(const uint8* data)
+	{
+		uint8 crc = 0;
+		for (int i = 0; i <= 32; i++)
+		{
+			for (int j = 7; j >= 0; j--)
+			{
+				const uint8 xorValue = ((crc & 0x80) != 0) ? 0x85 : 0x00;
+				crc <<= 1;
+				if (i < 32)
+				{
+					if ((data[i] & (1 << j)) != 0)
+					{
+						crc |= 1;
+					}
+				}
+				crc ^= xorValue;
+			}
+		}
+		return crc;
+	}
+
+	static void readMemPack(Pif& pif, int channel, const PifCmdArgs& cmd, const PifCmdResult& result)
+	{
+		const uint16 offset = [&]()
+		{
+			uint16 value = (cmd.GetAt<3>() << 8) | cmd.GetAt<4>();
+			value &= ~0x1F;
+			return value;
+		}();
+
+		if (const auto device = pif.m_deviceManager.TryGet(channel))
+		{
+			switch (device->Accessor())
+			{
+			case Joybus::AccessorType::None:
+				break;
+			case Joybus::AccessorType::MemPack:
+				if (offset <= controllerPackSize_0x8000 - 0x20)
+				{
+					std::copy_n(pif.m_controllerPack.begin() + offset, 0x20, &result.Raw()[0]);
+				}
+				break;
+			case Joybus::AccessorType::RumblePack:
+				memset(&result.Raw()[0], 0x80, 32);
+				break;
+			default: ;
+			}
+		}
+		result.SetAt<32>(dataCrc(&result.Raw()[0]));
+	}
+
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/mem/pif.c#L481
+	// https://github.com/SimoneN64/Kaizen/blob/9f14d2421bf3644e0b323eff1db8d012c3a27a73/src/backend/core/mmio/PIF.cpp#L276
+	static void writeMemPack(Pif& pif, int channel, const PifCmdArgs& cmd, const PifCmdResult& result)
+	{
+		const uint16 offset = [&]()
+		{
+			uint16 value = (cmd.GetAt<3>() << 8) | cmd.GetAt<4>();
+			value &= ~0x1F;
+			return value;
+		}();
+
+		if (const auto device = pif.m_deviceManager.TryGet(channel))
+		{
+			switch (device->Accessor())
+			{
+			case Joybus::AccessorType::None:
+				break;
+			case Joybus::AccessorType::MemPack:
+				if (offset <= controllerPackSize_0x8000 - 0x20)
+				{
+					std::copy_n(&cmd.Raw()[5], 0x20, pif.m_controllerPack.begin() + offset);
+				}
+				break;
+			case Joybus::AccessorType::RumblePack:
+				break;
+			default: ;
+			}
+		}
+		result.SetAt<0>(dataCrc(&cmd.Raw()[5]));
+	}
 };
 
 namespace N64::Mmio
 {
+	Pif::Pif()
+	{
+		m_controllerPack.resize(controllerPackSize_0x8000);
+	}
+
 	// https://github.com/SimoneN64/Kaizen/blob/74dccb6ac6a679acbf41b497151e08af6302b0e9/src/backend/core/mmio/PIF.cpp#L155
 	// https://github.com/Dillonb/n64/blob/6502f7d2f163c3f14da5bff8cd6d5ccc47143156/src/mem/pif.c#L593
 	void Pif::ProcessCommands()

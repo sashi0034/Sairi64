@@ -56,10 +56,10 @@ public:
 		}();
 
 		N64_TRACE(Mmio, dma == PiDma::RdramToCartridge
-		          ? U"start pi dma rdram to cartridge: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr
-		          )
-		          : U"start pi dma cartridge to rdram: {} bytes {:08X} -> {:08X}"_fmt(transferLength, cartAddr, dramAddr
-		          ));
+		          ? U"start pi dma rdram to cartridge: {} bytes {:08X} -> {:08X}"_fmt(
+			          transferLength, cartAddr, dramAddr)
+		          : U"start pi dma cartridge to rdram: {} bytes {:08X} -> {:08X}"_fmt(
+			          transferLength, cartAddr, dramAddr));
 
 		if (cartAddr < Mmu::PMap::N64DdIplRom.base)
 			N64Logger::Abort(U"pi dma transfer card address is out of range: {}"_fmt(cartAddr));

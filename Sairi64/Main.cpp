@@ -61,4 +61,6 @@ void Main()
 
 		uiManager.Update(n64System, n64Frame, n64Config);
 	}
+
+	n64Frame.HaltTasks();
 }

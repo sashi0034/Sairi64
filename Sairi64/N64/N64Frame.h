@@ -31,6 +31,8 @@ namespace N64
 		void SetSuspend(bool isSuspended) { m_isSuspended = isSuspended; }
 		bool IsSuspended() const { return m_isSuspended; }
 
+		void HaltTasks();
+
 	private:
 		void runFrame(N64System& n64, const N64Config& config);
 		void checkHandleError();

@@ -17,7 +17,7 @@ namespace N64::Mmio
 	// https://github.com/SimoneN64/Kaizen/blob/d0bccfc7e7c0d6eaa3662e8286b9d2bf5888b74f/src/backend/core/mmio/AI.cpp#L20
 	uint32 AI::Read32(PAddr32 paddr) const
 	{
-		if (paddr == 0x0450000C)
+		if (paddr == AiAddress::Status_0x0450000C)
 		{
 			uint32 value = 0;
 			value |= (m_dmaCount > 1);
@@ -80,7 +80,7 @@ namespace N64::Mmio
 		if (shouldSample == false) return m_dac.period;
 
 		const uint32 addrHi = ((m_dmaAddr[0] >> 13) + m_dmaAddrCarry) & 0x7FF;
-		m_dmaAddr[0] = (addrHi << 13) | (m_dmaAddr[0] & 0x1fff);
+		m_dmaAddr[0] = (addrHi << 13) | (m_dmaAddr[0] & 0x1FFF);
 		const uint32 data = Utils::ReadBytes32(
 			n64.GetMemory().Rdram(), m_dmaAddr[0] & RdramSizeMask_0x007FFFFF);
 		const sint16 l = static_cast<sint16>(data >> 16);

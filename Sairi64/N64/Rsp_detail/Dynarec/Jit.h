@@ -30,7 +30,7 @@ public:
 		JIT_SP;
 		const uint8 rt = instr.Rt();
 		if (rt == 0) return DecodedToken::Continue;
-		const sint32 imm = (uint16)instr.Imm() << 16;
+		const uint32 imm = (uint16)instr.Imm() << 16;
 		auto&& x86Asm = *ctx.x86Asm;
 		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[rt])), imm);
 		return DecodedToken::Continue;

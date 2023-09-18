@@ -157,6 +157,12 @@ namespace N64
 		return isSuspended;
 	}
 
+	void N64Frame::HaltTasks()
+	{
+		m_fragmentTime = 0;
+		if (m_frameTask.isValid()) m_frameTask.wait();
+	}
+
 	void N64Frame::runFrame(N64System& n64, const N64Config& config)
 	{
 		const double virtualDeltaTime = 1.0 / GetFps_60_50(n64.GetMemory().IsRomPal());

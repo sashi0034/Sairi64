@@ -115,6 +115,13 @@ namespace N64::Rdp_detail::Soft
 		}
 
 		[[nodiscard]]
+		static SoftUnit SetFillColor(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			ctx.state->fillColor = GetBits<0, 31>(cmd.Data<0>());
+			return {};
+		}
+
+		[[nodiscard]]
 		static SoftUnit SetBlendColor(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			ctx.state->blendColor = cmd.Data<0>();

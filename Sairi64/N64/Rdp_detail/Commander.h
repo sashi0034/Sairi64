@@ -82,8 +82,6 @@ namespace N64::Rdp_detail
 			uint32 dramAddr;
 		} colorImage;
 
-		Color32Bpp blendColor;
-
 		struct
 		{
 			bool atomicPrim;
@@ -142,6 +140,8 @@ namespace N64::Rdp_detail
 			uint8 addAlpha1;
 		} combine;
 
+		uint32 fillColor;
+		Color32Bpp blendColor;
 		uint32 zImage;
 	};
 

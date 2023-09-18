@@ -154,5 +154,12 @@ namespace N64::Rdp_detail::Soft
 			colorImage.dramAddr = GetBits<0, 25>(cmd.Data<0>());
 			return {};
 		}
+
+		[[nodiscard]]
+		static SoftUnit SetMaskImage(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			ctx.state->zImage = GetBits<0, 25>(cmd.Data<0>());
+			return {};
+		}
 	};
 }

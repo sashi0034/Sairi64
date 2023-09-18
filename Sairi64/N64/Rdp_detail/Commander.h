@@ -141,6 +141,8 @@ namespace N64::Rdp_detail
 			uint8 subB_Alpha1;
 			uint8 addAlpha1;
 		} combine;
+
+		uint32 zImage;
 	};
 
 	struct CommanderContext

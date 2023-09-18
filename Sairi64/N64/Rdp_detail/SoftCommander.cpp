@@ -88,7 +88,7 @@ namespace N64::Rdp_detail
 		case CommandId::SetTile:
 			break;
 		case CommandId::FillRectangle:
-			break;
+			return Soft::FillRectangle(ctx, cmd);
 		case CommandId::SetFillColor:
 			return Soft::SetFillColor(ctx, cmd);
 		case CommandId::SetFogColor:

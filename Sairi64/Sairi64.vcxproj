@@ -424,8 +424,10 @@
     <ClInclude Include="N64\Rdp_detail\DisplayManager.h" />
     <ClInclude Include="N64\Rdp_detail\RdpCommand.h" />
     <ClInclude Include="N64\Rdp_detail\Rdp_Interface.h" />
+    <ClInclude Include="N64\Rdp_detail\Soft\SoftEdgeWalker.h" />
+    <ClInclude Include="N64\Rdp_detail\Soft\SoftRasterizer.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\Soft.h" />
-    <ClInclude Include="N64\Rdp_detail\Soft\SoftForward.h" />
+    <ClInclude Include="N64\Rdp_detail\Soft\SoftCommon.h" />
     <ClInclude Include="N64\Rsp.h" />
     <ClInclude Include="N64\Rsp_detail\Dynarec\Decoder.h" />
     <ClInclude Include="N64\Rsp_detail\Dynarec\ImemCache.h" />

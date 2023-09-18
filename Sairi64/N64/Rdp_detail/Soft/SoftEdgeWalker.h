@@ -1,79 +1,34 @@
 #pragma once
-
-#include "../SoftCommander.h"
+#include "SoftCommon.h"
 
 namespace N64::Rdp_detail::Soft
 {
-	static BlendSource From1a(uint8 value)
+	class RectangleEdgeWalker
 	{
-		switch (value)
+	public:
+		RectangleEdgeWalker(uint32 startY, uint32 vLength, const HSpan& hSpan):
+			m_startY(startY),
+			m_endY(vLength),
+			m_hSpan(hSpan)
 		{
-		case 0: return BlendSource::PixelAlpha;
-		case 1: return BlendSource::MemoryColor;
-		case 2: return BlendSource::BlendColor;
-		case 3: return BlendSource::FogColor;
-		default: return {};
 		}
-	}
 
-	static BlendSource From1b(uint8 value)
-	{
-		switch (value)
-		{
-		case 0: return BlendSource::PixelAlpha;
-		case 1: return BlendSource::PrimitiveAlpha;
-		case 2: return BlendSource::ShadeAlpha;
-		case 3: return BlendSource::Zero;
-		default: return {};
-		}
-	}
+		uint32 GetStartY() const { return m_startY; }
+		uint32 GetEndY() const { return m_endY; }
+		const HSpan& GetHSpan(uint32 y) const { return m_hSpan; }
 
-	static BlendSource From2a(uint8 value)
-	{
-		switch (value)
-		{
-		case 0: return BlendSource::PixelAlpha;
-		case 1: return BlendSource::MemoryColor;
-		case 2: return BlendSource::BlendColor;
-		case 3: return BlendSource::FogColor;
-		default: return {};
-		}
-	}
-
-	static BlendSource From2b(uint8 value)
-	{
-		switch (value)
-		{
-		case 0: return BlendSource::OneMinusAlpha;
-		case 1: return BlendSource::MemoryAlpha;
-		case 2: return BlendSource::One;
-		case 3: return BlendSource::Zero;
-		default: return {};
-		}
-	}
-
-	struct HSpan
-	{
-		int32 startX;
-		int32 endX;
+	private:
+		uint32 m_startY{};
+		uint32 m_endY{};
+		HSpan m_hSpan{};
 	};
-
-	inline uint8 GetBytesPerPixel(const CommanderState& state)
-	{
-		switch (state.colorImage.size)
-		{
-		// case 1: return 1;
-		case 2: return 2;
-		case 3: return 4;
-		default: throw std::range_error("size of pixel color element is invalid");
-		}
-	}
 
 	class TriangleEdgeWalker
 	{
 	public:
 		uint32 GetStartY() const { return m_startY; }
-		std::span<HSpan> GetSpan() { return {m_buffer.data(), m_bufferCount}; }
+		uint32 GetEndY() const { return m_startY + m_bufferCount - 1; }
+		const HSpan& GetHSpan(uint32 y) const { return m_buffer[y - m_startY]; }
 
 		// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L302
 		template <uint8 offset>

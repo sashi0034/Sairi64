@@ -1,6 +1,8 @@
 #pragma once
 
-#include "SoftForward.h"
+#include "SoftCommon.h"
+#include "SoftEdgeWalker.h"
+#include "SoftRasterizer.h"
 
 // https://ultra64.ca/files/documentation/silicon-graphics/SGI_RDP_Command_Summary.pdf
 
@@ -18,35 +20,28 @@ namespace N64::Rdp_detail::Soft
 			const uint8 bpp = GetBytesPerPixel(state);
 
 			edgeWalker.EdgeWalk(ec, bpp);
+			Rasterize(ctx, edgeWalker, bpp);
 
-			auto&& spans = edgeWalker.GetSpan();
-			const uint32 startY = edgeWalker.GetStartY();
-			for (uint32 y = startY; y < startY + spans.size(); ++y)
-			{
-				const uint32 offset = state.colorImage.dramAddr + y * state.colorImage.width * bpp;
-				uint32 startX = spans[y - startY].startX;
-				uint32 endX = spans[y - startY].endX;
-				if (startX > endX) std::swap(startX, endX);
+			return {};
+		}
 
-				for (uint32 x = startX * bpp; x < endX * bpp; x += bpp)
-				{
-					// TODO: サイクル0/1を考慮 (state.otherModes.cycleType)
-					// TODO: color blend
-					switch (bpp)
-					{
-					case 2: {
-						const Color16Bpp color = 0xFFFF'FFFF;
-						WriteBytes16(ctx.rdram, EndianAddress<uint16>(offset + x), color);
-					}
-					case 4: {
-						const Color32Bpp color = 0xFFFF'FFFF'FFFF'FFFF;
-						WriteBytes32(ctx.rdram, EndianAddress<uint32>(offset + x), color);
-					}
-					default: ;
-					}
-				}
-			}
+		// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L1031
+		[[nodiscard]]
+		static SoftUnit FillRectangle(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			auto&& state = *ctx.state;
+			const int xl = GetBits<44, 55>(cmd.Data<0>()) >> 2;
+			const int yl = GetBits<32, 43>(cmd.Data<0>()) >> 2;
+			const int xh = GetBits<12, 23>(cmd.Data<0>()) >> 2;
+			const int yh = GetBits<0, 11>(cmd.Data<0>()) >> 2;
 
+			const int bytesPerPixel = GetBytesPerPixel(state);
+
+			const int startX = xh;
+			const int endX = (xl + 1);
+
+			const auto edgeWalker = RectangleEdgeWalker(yh, yl, HSpan{startX, endX});
+			Rasterize(ctx, edgeWalker, bytesPerPixel);
 
 			return {};
 		}

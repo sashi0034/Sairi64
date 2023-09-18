@@ -371,12 +371,14 @@ public:
 	{
 		JIT_SP;
 		const uint8 rt = instr.Rt();
-		if (rt == 0) return DecodedToken::Continue;
+		const uint8 rd = instr.Rd();
+		if (rt == 0 && rd != SpCop0::Semaphore_7) return DecodedToken::Continue;
 		auto&& x86Asm = *ctx.x86Asm;
 		x86Asm.mov(x86::rcx, (uint64)ctx.n64);
 		x86Asm.mov(x86::rdx, (uint64)ctx.rsp);
-		x86Asm.mov(x86::r8b, instr.Rd());
+		x86Asm.mov(x86::r8b, rd);
 		x86Asm.call((uint64)&Rsp::Interface::ReadSpCop0);
+		if (rt == 0) return DecodedToken::Continue;
 		x86Asm.mov(x86::dword_ptr(reinterpret_cast<uint64>(&Process::AccessGpr(*ctx.rsp)[rt])), x86::eax);
 		return DecodedToken::Continue;
 	}

@@ -3,6 +3,11 @@
 
 namespace N64::Rsp_detail
 {
+	namespace SpCop0
+	{
+		constexpr uint8 Semaphore_7 = 7;
+	}
+
 	class N64::Rsp::Interface
 	{
 	public:

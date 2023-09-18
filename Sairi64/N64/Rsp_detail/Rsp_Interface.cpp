@@ -232,7 +232,7 @@ namespace N64::Rsp_detail
 		case 4:
 			Impl::WriteStatus(n64, rsp, {value});
 			return;
-		case 7:
+		case SpCop0::Semaphore_7:
 			if (value == 0)
 				Impl::ReleaseSemaphore(rsp);
 			else
@@ -269,7 +269,7 @@ namespace N64::Rsp_detail
 			return rsp.m_status.DmaFull();
 		case 6:
 			return rsp.m_status.DmaBusy();
-		case 7:
+		case SpCop0::Semaphore_7:
 			return Impl::AcquireSemaphore(rsp);
 		case 8:
 			return n64.GetRdp().GetDpc().start;

@@ -100,7 +100,7 @@ namespace N64::Rdp_detail
 		case CommandId::SetEnvColor:
 			break;
 		case CommandId::SetCombine:
-			break;
+			return Soft::SetCombine(ctx, cmd);
 		case CommandId::SetTextureImage:
 			break;
 		case CommandId::SetMaskImage:

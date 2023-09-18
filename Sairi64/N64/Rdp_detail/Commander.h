@@ -121,6 +121,26 @@ namespace N64::Rdp_detail
 			bool ditherAlphaEn;
 			bool alphaCompareEn;
 		} otherModes;
+
+		struct
+		{
+			uint8 subA_Rgb0;
+			uint8 mulRgb0;
+			uint8 subA_Alpha0;
+			uint8 mulAlpha0;
+			uint8 subA_Rgb1;
+			uint8 mulRgb1;
+			uint8 subB_Rgb0;
+			uint8 subB_Rgb1;
+			uint8 subA_Alpha1;
+			uint8 mulAlpha1;
+			uint8 addRgb0;
+			uint8 subB_Alpha0;
+			uint8 addAlpha0;
+			uint8 addRgb1;
+			uint8 subB_Alpha1;
+			uint8 addAlpha1;
+		} combine;
 	};
 
 	struct CommanderContext

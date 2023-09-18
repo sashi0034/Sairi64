@@ -122,6 +122,29 @@ namespace N64::Rdp_detail::Soft
 		}
 
 		[[nodiscard]]
+		static SoftUnit SetCombine(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			auto&& combine = ctx.state->combine;
+			combine.subA_Rgb0 = GetBits<52, 55>(cmd.Data<0>());
+			combine.mulRgb0 = GetBits<47, 51>(cmd.Data<0>());
+			combine.subA_Alpha0 = GetBits<44, 46>(cmd.Data<0>());
+			combine.mulAlpha0 = GetBits<41, 43>(cmd.Data<0>());
+			combine.subA_Rgb1 = GetBits<37, 40>(cmd.Data<0>());
+			combine.mulRgb1 = GetBits<32, 36>(cmd.Data<0>());
+			combine.subB_Rgb0 = GetBits<28, 31>(cmd.Data<0>());
+			combine.subB_Rgb1 = GetBits<24, 27>(cmd.Data<0>());
+			combine.subA_Alpha1 = GetBits<21, 23>(cmd.Data<0>());
+			combine.mulAlpha1 = GetBits<18, 20>(cmd.Data<0>());
+			combine.addRgb0 = GetBits<15, 17>(cmd.Data<0>());
+			combine.subB_Alpha0 = GetBits<12, 14>(cmd.Data<0>());
+			combine.addAlpha0 = GetBits<9, 11>(cmd.Data<0>());
+			combine.addRgb1 = GetBits<6, 8>(cmd.Data<0>());
+			combine.subB_Alpha1 = GetBits<3, 5>(cmd.Data<0>());
+			combine.addAlpha1 = GetBits<0, 2>(cmd.Data<0>());
+			return {};
+		}
+
+		[[nodiscard]]
 		static SoftUnit SetColorImage(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			auto&& colorImage = ctx.state->colorImage;

@@ -158,6 +158,17 @@ namespace N64::Rdp_detail::Soft
 		}
 
 		[[nodiscard]]
+		static SoftUnit SetTextureImage(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			auto&& textureImage = ctx.state->textureImage;
+			textureImage.format = GetBits<53, 55>(cmd.Data<0>());
+			textureImage.size = GetBits<51, 52>(cmd.Data<0>());
+			textureImage.width = GetBits<32, 41>(cmd.Data<0>()) + 1;
+			textureImage.dramAddr = GetBits<0, 25>(cmd.Data<0>());
+			return {};
+		}
+
+		[[nodiscard]]
 		static SoftUnit SetMaskImage(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			ctx.state->zImage = GetBits<0, 25>(cmd.Data<0>());

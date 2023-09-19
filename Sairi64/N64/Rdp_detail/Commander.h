@@ -94,6 +94,14 @@ namespace N64::Rdp_detail
 
 		struct
 		{
+			uint8 format;
+			uint8 size;
+			uint16 width;
+			uint32 dramAddr;
+		} textureImage;
+
+		struct
+		{
 			bool atomicPrim;
 			uint8 cycleType;
 			bool perspTexEn;

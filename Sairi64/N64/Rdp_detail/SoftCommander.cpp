@@ -82,7 +82,7 @@ namespace N64::Rdp_detail
 		case CommandId::SetTileSize:
 			return Soft::SetTileSize(ctx, cmd);
 		case CommandId::LoadBlock:
-			break;
+			return Soft::LoadBlock(ctx, cmd);
 		case CommandId::LoadTile:
 			break;
 		case CommandId::SetTile:

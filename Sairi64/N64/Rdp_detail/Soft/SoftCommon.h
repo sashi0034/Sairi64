@@ -4,6 +4,34 @@
 
 namespace N64::Rdp_detail::Soft
 {
+	template <typename Wire>
+	Wire ReadRdram(const CommanderContext& ctx, uint32 address)
+	{
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		return ReadBytes<Wire>(ctx.rdram, EndianAddress<Wire>(address));
+	}
+
+	template <typename Wire>
+	void WriteRdram(const CommanderContext& ctx, uint32 address, Wire value)
+	{
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		WriteBytes<Wire>(ctx.rdram, EndianAddress<Wire>(address), value);
+	}
+
+	template <typename Wire>
+	Wire ReadTmem(const CommanderState& state, uint16 address)
+	{
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		return ReadBytes<Wire>(state.tmem, EndianAddress<Wire>(address));
+	}
+
+	template <typename Wire>
+	void WriteTmem(CommanderState& state, uint16 address, Wire value)
+	{
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		WriteBytes<Wire>(state.tmem, EndianAddress<Wire>(address), value);
+	}
+
 	static BlendSource From1a(uint8 value)
 	{
 		switch (value)

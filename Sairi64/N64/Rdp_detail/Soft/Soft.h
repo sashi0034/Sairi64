@@ -47,6 +47,42 @@ namespace N64::Rdp_detail::Soft
 		}
 
 		[[nodiscard]]
+		static SoftUnit LoadBlock(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			auto&& state = *ctx.state;
+			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
+			auto&& tile = state.tiles[tileIndex];
+			const uint16 sl = GetBits<44, 55>(cmd.Data<0>());
+			const uint16 tl = GetBits<32, 43>(cmd.Data<0>());
+			const uint16 sh = GetBits<12, 23>(cmd.Data<0>());
+			const uint16 dxt = GetBits<0, 11>(cmd.Data<0>());
+			tile.sl = sl;
+			tile.tl = tl;
+
+			const uint32 tmemBase = tile.tmemAddr * sizeof(uint64);
+			const uint32 dramBase = state.textureImage.dramAddr;
+			switch (state.textureImage.size)
+			{
+			case TexelSize::Px16: {
+				constexpr uint8 bytesPerTexel = 2;
+				for (uint32 s = sl; s <= sh; s++)
+				{
+					// TODO: DxTをもとに奇数行のスワッピング
+					const uint32 dramTexelAddress = dramBase + s * bytesPerTexel;
+					const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
+
+					const uint16 tmemTexelAddress = (tmemBase + (s * bytesPerTexel)) & TmemSizeMask_0xFFF;
+					WriteTmem<uint16>(state, tmemTexelAddress, texel);
+				}
+				break;
+			}
+			default:
+				N64Logger::Abort();
+			}
+			return {};
+		}
+
+		[[nodiscard]]
 		static SoftUnit SetScissor(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			auto&& scissor = ctx.state->scissorRect;
@@ -195,7 +231,7 @@ namespace N64::Rdp_detail::Soft
 		{
 			auto&& textureImage = ctx.state->textureImage;
 			textureImage.format = GetBits<53, 55>(cmd.Data<0>());
-			textureImage.size = GetBits<51, 52>(cmd.Data<0>());
+			textureImage.size = static_cast<TexelSize>(GetBits<51, 52>(cmd.Data<0>()));
 			textureImage.width = GetBits<32, 41>(cmd.Data<0>()) + 1;
 			textureImage.dramAddr = GetBits<0, 25>(cmd.Data<0>());
 			return {};

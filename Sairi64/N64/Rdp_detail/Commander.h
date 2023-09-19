@@ -23,6 +23,14 @@ namespace N64::Rdp_detail
 		Zero,
 	};
 
+	struct BlendConfig
+	{
+		BlendSource source1a;
+		BlendSource source1b;
+		BlendSource source2a;
+		BlendSource source2b;
+	};
+
 	struct TileProps
 	{
 		uint8 format;
@@ -45,12 +53,12 @@ namespace N64::Rdp_detail
 		uint16 th;
 	};
 
-	struct BlendConfig
+	enum class TexelSize
 	{
-		BlendSource source1a;
-		BlendSource source1b;
-		BlendSource source2a;
-		BlendSource source2b;
+		Px4 = 0,
+		Px8 = 1,
+		Px16 = 2,
+		Px32 = 3,
 	};
 
 	class Color16Bpp
@@ -117,7 +125,7 @@ namespace N64::Rdp_detail
 		struct
 		{
 			uint8 format;
-			uint8 size;
+			TexelSize size;
 			uint16 width;
 			uint32 dramAddr;
 		} textureImage;
@@ -188,6 +196,8 @@ namespace N64::Rdp_detail
 		Color32Bpp blendColor;
 		uint32 zImage;
 	};
+
+	constexpr uint16 TmemSizeMask_0xFFF = 0xFFF;
 
 	struct CommanderContext
 	{

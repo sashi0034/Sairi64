@@ -47,6 +47,65 @@ namespace N64::Rdp_detail::Soft
 		}
 
 		[[nodiscard]]
+		static SoftUnit TextureRectangle(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			auto&& state = *ctx.state;
+
+			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
+
+			const FixedPoint16<14, 2> xl = GetBits<44, 55>(cmd.Data<0>());
+			const FixedPoint16<14, 2> yl = GetBits<32, 43>(cmd.Data<0>());
+			const FixedPoint16<14, 2> xh = GetBits<12, 23>(cmd.Data<0>());
+			const FixedPoint16<14, 2> yh = GetBits<0, 11>(cmd.Data<0>());
+
+			const FixedPoint16<11, 5> startS = GetBits<48, 63>(cmd.Data<1>());
+			const FixedPoint16<11, 5> startT = GetBits<32, 47>(cmd.Data<1>());
+			const FixedPoint16<11, 5> dsDx = GetBits<16, 31>(cmd.Data<1>());
+			const FixedPoint16<11, 5> dtDy = GetBits<0, 7>(cmd.Data<1>());
+
+			const auto& descriptor = state.tiles[tileIndex];
+			uint16 tmemBase = descriptor.tmemAddr * sizeof(uint64);
+
+			const uint8 bytesPerPixel = GetBytesPerPixel(state);
+
+			const uint32 bytesPerScreenLine = state.colorImage.width * bytesPerPixel;
+			const uint32 bytesPerTileLine = descriptor.line * sizeof(uint64);
+
+			auto s = startS;
+			auto t = startT;
+			bool flip = false; // TODO
+			switch (descriptor.size)
+			{
+			case TexelSize::Px16:
+				for (uint32 y = yh.Int(); y < yl.Int(); y++)
+				{
+					const uint32 screenLine = state.colorImage.dramAddr + y * bytesPerScreenLine;
+					for (int x = xh.Int(); x < xl.Int(); x++)
+					{
+						// TODO!
+						const auto processedT = t;
+
+						const uint16 tmemLine = tmemBase + processedT.Int() * bytesPerTileLine;
+
+						const auto processedS = s;
+
+						const uint16 tmemAddr = ((tmemLine + processedS.Int() * 2) & 0X7FF); // ^ tmemXor;
+						const uint16 pixel = ReadTmem<uint16>(state, tmemAddr);
+						WriteRdram<uint16>(ctx, screenLine + x * bytesPerPixel, pixel);
+
+						s += dsDx;
+					}
+					t += dtDy;
+					s = startS;
+				}
+				break;
+			default: break;
+			}
+
+			return {};
+		}
+
+		[[nodiscard]]
 		static SoftUnit LoadBlock(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			auto&& state = *ctx.state;
@@ -150,7 +209,7 @@ namespace N64::Rdp_detail::Soft
 			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
 			auto&& tile = ctx.state->tiles[tileIndex];
 			tile.format = GetBits<53, 55>(cmd.Data<0>());
-			tile.size = GetBits<51, 52>(cmd.Data<0>());
+			tile.size = static_cast<TexelSize>(GetBits<51, 52>(cmd.Data<0>()));
 			tile.line = GetBits<41, 49>(cmd.Data<0>());
 			tile.tmemAddr = GetBits<32, 40>(cmd.Data<0>());
 			tile.palette = GetBits<20, 23>(cmd.Data<0>());

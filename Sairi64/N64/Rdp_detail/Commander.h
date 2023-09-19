@@ -4,6 +4,20 @@
 
 namespace N64::Rdp_detail
 {
+	enum class TexelSize
+	{
+		Px4 = 0,
+		Px8 = 1,
+		Px16 = 2,
+		Px32 = 3,
+	};
+
+	inline uint8 BytesParTexel(TexelSize texel)
+	{
+		static constexpr std::array bytes = {0, 1, 2, 4};
+		return bytes[static_cast<uint8>(texel)];
+	}
+
 	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.h#L26
 	enum class BlendSource
 	{
@@ -34,7 +48,7 @@ namespace N64::Rdp_detail
 	struct TileProps
 	{
 		uint8 format;
-		uint8 size;
+		TexelSize size;
 		uint8 line;
 		uint8 tmemAddr;
 		uint8 palette;
@@ -52,20 +66,6 @@ namespace N64::Rdp_detail
 		uint16 sh;
 		uint16 th;
 	};
-
-	enum class TexelSize
-	{
-		Px4 = 0,
-		Px8 = 1,
-		Px16 = 2,
-		Px32 = 3,
-	};
-
-	inline uint8 BytesParTexel(TexelSize texel)
-	{
-		static constexpr std::array bytes = {0, 1, 2, 4};
-		return bytes[static_cast<uint8>(texel)];
-	}
 
 	class Color16Bpp
 	{

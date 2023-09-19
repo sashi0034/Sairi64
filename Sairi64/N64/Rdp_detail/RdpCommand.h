@@ -78,9 +78,9 @@ namespace N64::Rdp_detail
 		bool RightMajor() const { return GetBits<55>(Data<offset + 0>()); }
 		uint8 Level() const { return GetBits<51, 53>(Data<offset + 0>()); }
 		uint8 Tile() const { return GetBits<48, 50>(Data<offset + 0>()); }
-		uint16 Yl() const { return GetBits<32, 45>(Data<offset + 0>()); }
-		uint16 Ym() const { return GetBits<16, 29>(Data<offset + 0>()); }
-		uint16 Yh() const { return GetBits<0, 13>(Data<offset + 0>()); }
+		FixedPoint16<14, 2> Yl() const { return GetBits<32, 45>(Data<offset + 0>()); }
+		FixedPoint16<14, 2> Ym() const { return GetBits<16, 29>(Data<offset + 0>()); }
+		FixedPoint16<14, 2> Yh() const { return GetBits<0, 13>(Data<offset + 0>()); }
 
 		uint16 Xl() const { return GetBits<48, 63>(Data<offset + 1>()); }
 		uint16 XlFrac() const { return GetBits<32, 47>(Data<offset + 1>()); }

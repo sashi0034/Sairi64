@@ -61,10 +61,10 @@ namespace N64::Rdp_detail::Soft
 
 			const uint32 tmemBase = tile.tmemAddr * sizeof(uint64);
 			const uint32 dramBase = state.textureImage.dramAddr;
+			const uint8 bytesPerTexel = BytesParTexel(state.textureImage.size);
 			switch (state.textureImage.size)
 			{
-			case TexelSize::Px16: {
-				constexpr uint8 bytesPerTexel = 2;
+			case TexelSize::Px16:
 				for (uint32 s = sl; s <= sh; s++)
 				{
 					// TODO: DxTをもとに奇数行のスワッピング
@@ -75,7 +75,6 @@ namespace N64::Rdp_detail::Soft
 					WriteTmem<uint16>(state, tmemTexelAddress, texel);
 				}
 				break;
-			}
 			default:
 				N64Logger::Abort();
 			}

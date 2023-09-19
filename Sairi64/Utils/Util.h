@@ -193,8 +193,8 @@ namespace Utils
 	public:
 		static_assert(intPart + fracPart == 16);
 		FixedPoint16(uint16 raw = 0): m_raw(raw) { return; }
-		operator uint16() const { return m_raw; }
 
+		// operator uint16() const { return m_raw; }
 		uint16 Raw() const { return m_raw; }
 		auto Frac() { return BitAccess<0, fracPart - 1>(m_raw); }
 		uint16 Frac() const { return GetBits<0, fracPart - 1>(m_raw); }

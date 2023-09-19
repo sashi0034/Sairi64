@@ -61,6 +61,12 @@ namespace N64::Rdp_detail
 		Px32 = 3,
 	};
 
+	inline uint8 BytesParTexel(TexelSize texel)
+	{
+		static constexpr std::array bytes = {0, 1, 2, 4};
+		return bytes[static_cast<uint8>(texel)];
+	}
+
 	class Color16Bpp
 	{
 	public:

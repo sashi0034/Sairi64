@@ -53,9 +53,9 @@ namespace N64::Rdp_detail::Soft
 				startDx = (ec.DxHDy() << 16) | ec.DxHDyFrac();
 				endDx = (ec.DxMDy() << 16) | ec.DxMDyFrac();
 			}
-			const uint32 yh = ec.Yh() / bytesPerPixel;
-			const uint32 ym = ec.Ym() / bytesPerPixel;
-			const uint32 yl = ec.Yl() / bytesPerPixel;
+			const uint32 yh = ec.Yh().Int();
+			const uint32 ym = ec.Ym().Int();
+			const uint32 yl = ec.Yl().Int();
 
 			m_startY = yh;
 			m_bufferCount = 0;

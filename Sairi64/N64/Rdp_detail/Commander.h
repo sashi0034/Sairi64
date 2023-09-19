@@ -23,6 +23,23 @@ namespace N64::Rdp_detail
 		Zero,
 	};
 
+	struct TileProps
+	{
+		uint8 format;
+		uint8 size;
+		uint8 line;
+		uint8 tmemAddr;
+		uint8 palette;
+		bool ct;
+		bool mt;
+		uint8 maskT;
+		uint8 shiftT;
+		bool cs;
+		bool ms;
+		uint8 maskS;
+		uint8 shiftS;
+	};
+
 	struct BlendConfig
 	{
 		BlendSource source1a;
@@ -119,7 +136,8 @@ namespace N64::Rdp_detail
 			uint8 rgbDitherSel;
 			uint8 alphaDitherSel;
 
-			BlendConfig blenderConfig[2]; // one config for each cycle
+			BlendConfig blenderConfig0;
+			BlendConfig blenderConfig1;
 
 			bool forceBlend;
 			bool alphaCvgSelect;
@@ -157,6 +175,9 @@ namespace N64::Rdp_detail
 			uint8 subB_Alpha1;
 			uint8 addAlpha1;
 		} combine;
+
+		std::array<TileProps, 8> tiles;
+		std::array<uint8, 0x1000> tmem;
 
 		uint32 fillColor;
 		Color32Bpp blendColor;

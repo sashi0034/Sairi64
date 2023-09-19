@@ -81,17 +81,17 @@ namespace N64::Rdp_detail::Soft
 			otherModes.rgbDitherSel = GetBits<38, 39>(cmd.Data<0>());
 			otherModes.alphaDitherSel = GetBits<36, 37>(cmd.Data<0>());
 
-			otherModes.blenderConfig[0].source1a = From1a(GetBits<30, 31>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source1a = From1a(GetBits<28, 29>(cmd.Data<0>()));
+			otherModes.blenderConfig0.source1a = From1a(GetBits<30, 31>(cmd.Data<0>()));
+			otherModes.blenderConfig1.source1a = From1a(GetBits<28, 29>(cmd.Data<0>()));
 
-			otherModes.blenderConfig[0].source1b = From1a(GetBits<26, 27>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source1b = From1a(GetBits<24, 25>(cmd.Data<0>()));
+			otherModes.blenderConfig0.source1b = From1a(GetBits<26, 27>(cmd.Data<0>()));
+			otherModes.blenderConfig1.source1b = From1a(GetBits<24, 25>(cmd.Data<0>()));
 
-			otherModes.blenderConfig[0].source2a = From1a(GetBits<22, 23>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source2a = From1a(GetBits<20, 21>(cmd.Data<0>()));
+			otherModes.blenderConfig0.source2a = From1a(GetBits<22, 23>(cmd.Data<0>()));
+			otherModes.blenderConfig1.source2a = From1a(GetBits<20, 21>(cmd.Data<0>()));
 
-			otherModes.blenderConfig[0].source2b = From1a(GetBits<18, 19>(cmd.Data<0>()));
-			otherModes.blenderConfig[1].source2b = From1a(GetBits<24, 25>(cmd.Data<0>()));
+			otherModes.blenderConfig0.source2b = From1a(GetBits<18, 19>(cmd.Data<0>()));
+			otherModes.blenderConfig1.source2b = From1a(GetBits<24, 25>(cmd.Data<0>()));
 
 			otherModes.forceBlend = GetBits<14>(cmd.Data<0>());
 			otherModes.alphaCvgSelect = GetBits<13>(cmd.Data<0>());
@@ -106,6 +106,27 @@ namespace N64::Rdp_detail::Soft
 			otherModes.zSourceSel = GetBits<2>(cmd.Data<0>());
 			otherModes.ditherAlphaEn = GetBits<1>(cmd.Data<0>());
 			otherModes.alphaCompareEn = GetBits<0>(cmd.Data<0>());
+			return {};
+		}
+
+		[[nodiscard]]
+		static SoftUnit SetTile(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
+			auto&& tiles = ctx.state->tiles;
+			tiles[tileIndex].format = GetBits<53, 55>(cmd.Data<0>());
+			tiles[tileIndex].size = GetBits<51, 52>(cmd.Data<0>());
+			tiles[tileIndex].line = GetBits<41, 49>(cmd.Data<0>());
+			tiles[tileIndex].tmemAddr = GetBits<32, 40>(cmd.Data<0>());
+			tiles[tileIndex].palette = GetBits<20, 23>(cmd.Data<0>());
+			tiles[tileIndex].ct = GetBits<19>(cmd.Data<0>());
+			tiles[tileIndex].mt = GetBits<18>(cmd.Data<0>());
+			tiles[tileIndex].maskT = GetBits<14, 17>(cmd.Data<0>());
+			tiles[tileIndex].shiftT = GetBits<10, 13>(cmd.Data<0>());
+			tiles[tileIndex].cs = GetBits<9>(cmd.Data<0>());
+			tiles[tileIndex].ms = GetBits<8>(cmd.Data<0>());
+			tiles[tileIndex].maskS = GetBits<4, 7>(cmd.Data<0>());
+			tiles[tileIndex].shiftS = GetBits<0, 3>(cmd.Data<0>());
 			return {};
 		}
 

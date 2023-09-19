@@ -64,7 +64,7 @@ namespace N64::Rdp_detail::Soft
 			const FixedPoint16<11, 5> dtDy = GetBits<0, 7>(cmd.Data<1>());
 
 			const auto& descriptor = state.tiles[tileIndex];
-			uint16 tmemBase = descriptor.tmemAddr * sizeof(uint64);
+			const uint16 tmemBase = descriptor.tmemAddr * sizeof(uint64);
 
 			const uint8 bytesPerPixel = GetBytesPerPixel(state);
 
@@ -82,14 +82,14 @@ namespace N64::Rdp_detail::Soft
 					const uint32 screenLine = state.colorImage.dramAddr + y * bytesPerScreenLine;
 					for (int x = xh.Int(); x < xl.Int(); x++)
 					{
-						// TODO!
-						const auto processedT = t;
-
+						const auto processedT =
+							ProcessST(flip ? s : t, descriptor.ct, descriptor.mt, descriptor.maskT, descriptor.shiftT);
+						const uint32 tmemXor = (processedT.Int() & 1) << 2;
 						const uint16 tmemLine = tmemBase + processedT.Int() * bytesPerTileLine;
 
-						const auto processedS = s;
-
-						const uint16 tmemAddr = ((tmemLine + processedS.Int() * 2) & 0X7FF); // ^ tmemXor;
+						const auto processedS =
+							ProcessST(flip ? t : s, descriptor.cs, descriptor.ms, descriptor.maskS, descriptor.shiftS);
+						const uint16 tmemAddr = ((tmemLine + processedS.Int() * 2) & 0x7FF) ^ tmemXor;
 						const uint16 pixel = ReadTmem<uint16>(state, tmemAddr);
 						WriteRdram<uint16>(ctx, screenLine + x * bytesPerPixel, pixel);
 
@@ -105,6 +105,7 @@ namespace N64::Rdp_detail::Soft
 			return {};
 		}
 
+		// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L861
 		[[nodiscard]]
 		static SoftUnit LoadBlock(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
@@ -114,23 +115,34 @@ namespace N64::Rdp_detail::Soft
 			const uint16 sl = GetBits<44, 55>(cmd.Data<0>());
 			const uint16 tl = GetBits<32, 43>(cmd.Data<0>());
 			const uint16 sh = GetBits<12, 23>(cmd.Data<0>());
-			const uint16 dxt = GetBits<0, 11>(cmd.Data<0>());
+			const FixedPoint16<5, 11> dxt = GetBits<0, 11>(cmd.Data<0>());
 			tile.sl = sl;
 			tile.tl = tl;
 
 			const uint32 tmemBase = tile.tmemAddr * sizeof(uint64);
 			const uint32 dramBase = state.textureImage.dramAddr;
 			const uint8 bytesPerTexel = BytesParTexel(state.textureImage.size);
+
+			FixedPoint16<5, 11> t{};
+			t.Int().Set(tl);
+			int tmemXor{};
 			switch (state.textureImage.size)
 			{
 			case TexelSize::Px16:
-				for (uint32 s = sl; s <= sh; s++)
+				for (uint32 i = 0; i <= sh - sl; i++)
 				{
-					// TODO: DxTをもとに奇数行のスワッピング
+					const uint32 s = i + sl;
+					if ((i * bytesPerTexel) % 8 == 0)
+					{
+						t += dxt;
+						tmemXor = t.Int() & 1 ? 4 : 0;
+					}
 					const uint32 dramTexelAddress = dramBase + s * bytesPerTexel;
 					const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
 
-					const uint16 tmemTexelAddress = (tmemBase + (s * bytesPerTexel)) & TmemSizeMask_0xFFF;
+					uint16 tmemTexelAddress = (tmemBase + (s * bytesPerTexel));
+					tmemTexelAddress ^= tmemXor;
+					tmemTexelAddress &= TmemSizeMask_0xFFF;
 					WriteTmem<uint16>(state, tmemTexelAddress, texel);
 				}
 				break;

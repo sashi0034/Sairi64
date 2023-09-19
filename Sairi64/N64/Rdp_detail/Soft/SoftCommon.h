@@ -104,4 +104,42 @@ namespace N64::Rdp_detail::Soft
 		{ t.GetEndY() } -> std::same_as<uint32>;
 		{ t.GetHSpan(std::declval<uint32>()) } -> std::same_as<const HSpan&>;
 	};
+
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L630
+	inline FixedPoint16<11, 5> ProcessST(
+		FixedPoint16<11, 5> value, bool clampEnable, bool mirrorEnable, uint16 mask, uint16 shift)
+	{
+		const uint16 maskValue = (1 << mask) - 1;
+
+		// shift, clamp, wrap, mirror
+
+		// Shift
+		if (shift <= 10)
+		{
+			value = value.Raw() >> shift;
+		}
+		else
+		{
+			value = value.Raw() << (16 - shift);
+		}
+
+		// TODO
+
+		const int mirrorBit = mask;
+		const bool mirrorBitSet = (value.Int() >> mirrorBit) & 1;
+
+		// Wrap
+		if (mask > 0)
+		{
+			value.Int().Set(value.Int() & maskValue);
+		}
+
+		// Mirror
+		if (mirrorEnable && mirrorBitSet)
+		{
+			value.Int().Set(maskValue - value.Int());
+		}
+
+		return value;
+	}
 }

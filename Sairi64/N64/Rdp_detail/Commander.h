@@ -31,6 +31,21 @@ namespace N64::Rdp_detail
 		BlendSource source2b;
 	};
 
+	class Color16Bpp
+	{
+	public:
+		Color16Bpp(uint32 raw = 0): m_raw(raw) { return; }
+		operator uint32() const { return m_raw; }
+
+		auto A() { return BitAccess<0>(m_raw); }
+		auto B() { return BitAccess<1, 5>(m_raw); }
+		auto G() { return BitAccess<6, 10>(m_raw); }
+		auto R() { return BitAccess<11, 15>(m_raw); }
+
+	private:
+		uint32 m_raw{};
+	};
+
 	class Color32Bpp
 	{
 	public:
@@ -42,20 +57,15 @@ namespace N64::Rdp_detail
 		auto G() { return BitAccess<16, 23>(m_raw); }
 		auto R() { return BitAccess<24, 31>(m_raw); }
 
-	private:
-		uint32 m_raw{};
-	};
-
-	class Color16Bpp
-	{
-	public:
-		Color16Bpp(uint32 raw = 0): m_raw(raw) { return; }
-		operator uint32() const { return m_raw; }
-
-		auto A() { return BitAccess<0>(m_raw); }
-		auto B() { return BitAccess<1, 5>(m_raw); }
-		auto G() { return BitAccess<6, 10>(m_raw); }
-		auto R() { return BitAccess<11, 15>(m_raw); }
+		Color16Bpp To16Bpp() const
+		{
+			Color16Bpp c{};
+			c.A().Set(1);
+			c.R().Set(GetBits<8, 15>(m_raw) >> 3);
+			c.G().Set(GetBits<16, 23>(m_raw) >> 3);
+			c.B().Set(GetBits<24, 31>(m_raw) >> 3);
+			return c;
+		}
 
 	private:
 		uint32 m_raw{};

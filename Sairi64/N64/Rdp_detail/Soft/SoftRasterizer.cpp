@@ -21,16 +21,15 @@ namespace N64::Rdp_detail::Soft
 			{
 				// TODO: サイクル0/1を考慮 (state.otherModes.cycleType)
 				// TODO: color blend
+				const Color32Bpp color = state.blendColor;
 				switch (bpp)
 				{
-				case 2: {
-					const Color16Bpp color = 0xFFFF'FFFF;
-					WriteBytes16(ctx.rdram, EndianAddress<uint16>(offset + x), color);
-				}
-				case 4: {
-					const Color32Bpp color = 0xFFFF'FFFF'FFFF'FFFF;
+				case 2:
+					WriteBytes16(ctx.rdram, EndianAddress<uint16>(offset + x), color.To16Bpp());
+					break;
+				case 4:
 					WriteBytes32(ctx.rdram, EndianAddress<uint32>(offset + x), color);
-				}
+					break;
 				default: ;
 				}
 			}

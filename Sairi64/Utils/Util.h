@@ -186,6 +186,56 @@ namespace Utils
 		bool IsBetween(T addr) const { return base <= addr && addr <= end; }
 	};
 
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L156
+	template <uint8 intPart, uint8 fracPart>
+	class FixedPoint16
+	{
+	public:
+		static_assert(intPart + fracPart == 16);
+		FixedPoint16(uint16 raw = 0): m_raw(raw) { return; }
+		operator uint16() const { return m_raw; }
+
+		uint16 Raw() const { return m_raw; }
+		auto Frac() { return BitAccess<0, fracPart - 1>(m_raw); }
+		uint16 Frac() const { return GetBits<0, fracPart - 1>(m_raw); }
+		auto Int() { return BitAccess<fracPart, 15>(m_raw); }
+		uint16 Int() const { return GetBits<fracPart, 15>(m_raw); }
+
+		template <uint8 otherIntPart, uint8 otherFracPart>
+		FixedPoint16<intPart, fracPart> operator+(FixedPoint16<otherIntPart, otherFracPart> other)
+		{
+			FixedPoint16<intPart, fracPart> result{};
+			uint8 thisShift{};
+			uint8 otherShift{};
+			uint8 afterShift{};
+			if constexpr (fracPart < otherFracPart)
+			{
+				thisShift = otherFracPart - fracPart;
+				otherShift = 0;
+				afterShift = thisShift;
+			}
+			else if constexpr (fracPart > otherFracPart)
+			{
+				thisShift = 0;
+				otherShift = fracPart - otherFracPart;
+				afterShift = 0;
+			}
+			const int32 a = static_cast<int32>(static_cast<int16>(m_raw)) << thisShift;
+			const int32 b = static_cast<int32>(static_cast<int16>(other.Raw())) << otherShift;
+			result.m_raw = (a + b) >> afterShift;
+			return result;
+		}
+
+		template <uint8 otherIntPart, uint8 otherFracPart>
+		void operator+=(FixedPoint16<otherIntPart, otherFracPart> other)
+		{
+			*this = *this + other;
+		}
+
+	private:
+		uint16 m_raw{};
+	};
+
 	inline void WaitAnyKeyOnConsole()
 	{
 		(void)(std::getchar());

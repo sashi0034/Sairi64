@@ -93,4 +93,20 @@ namespace Tests
 		constexpr uint32 v32 = 0x12345678;
 		REQUIRE(ByteSwap32(v32) == 0x78563412);
 	}
+
+	TEST_CASE("UtilTest_FixedPoint16")
+	{
+		FixedPoint16<14, 2> a{};
+		FixedPoint16<12, 4> b{};
+		a.Int().Set(12);
+		a.Frac().Set(0b11);
+		b.Int().Set(1);
+		b.Frac().Set(0b1010);
+		a += b;
+		REQUIRE(a.Int() == 14);
+		REQUIRE(a.Frac() == 0b01);
+		b += a;
+		REQUIRE(b.Int() == 15);
+		REQUIRE(b.Frac() == 0b1110);
+	}
 }

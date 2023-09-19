@@ -113,20 +113,32 @@ namespace N64::Rdp_detail::Soft
 		static SoftUnit SetTile(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
 			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
-			auto&& tiles = ctx.state->tiles;
-			tiles[tileIndex].format = GetBits<53, 55>(cmd.Data<0>());
-			tiles[tileIndex].size = GetBits<51, 52>(cmd.Data<0>());
-			tiles[tileIndex].line = GetBits<41, 49>(cmd.Data<0>());
-			tiles[tileIndex].tmemAddr = GetBits<32, 40>(cmd.Data<0>());
-			tiles[tileIndex].palette = GetBits<20, 23>(cmd.Data<0>());
-			tiles[tileIndex].ct = GetBits<19>(cmd.Data<0>());
-			tiles[tileIndex].mt = GetBits<18>(cmd.Data<0>());
-			tiles[tileIndex].maskT = GetBits<14, 17>(cmd.Data<0>());
-			tiles[tileIndex].shiftT = GetBits<10, 13>(cmd.Data<0>());
-			tiles[tileIndex].cs = GetBits<9>(cmd.Data<0>());
-			tiles[tileIndex].ms = GetBits<8>(cmd.Data<0>());
-			tiles[tileIndex].maskS = GetBits<4, 7>(cmd.Data<0>());
-			tiles[tileIndex].shiftS = GetBits<0, 3>(cmd.Data<0>());
+			auto&& tile = ctx.state->tiles[tileIndex];
+			tile.format = GetBits<53, 55>(cmd.Data<0>());
+			tile.size = GetBits<51, 52>(cmd.Data<0>());
+			tile.line = GetBits<41, 49>(cmd.Data<0>());
+			tile.tmemAddr = GetBits<32, 40>(cmd.Data<0>());
+			tile.palette = GetBits<20, 23>(cmd.Data<0>());
+			tile.ct = GetBits<19>(cmd.Data<0>());
+			tile.mt = GetBits<18>(cmd.Data<0>());
+			tile.maskT = GetBits<14, 17>(cmd.Data<0>());
+			tile.shiftT = GetBits<10, 13>(cmd.Data<0>());
+			tile.cs = GetBits<9>(cmd.Data<0>());
+			tile.ms = GetBits<8>(cmd.Data<0>());
+			tile.maskS = GetBits<4, 7>(cmd.Data<0>());
+			tile.shiftS = GetBits<0, 3>(cmd.Data<0>());
+			return {};
+		}
+
+		[[nodiscard]]
+		static SoftUnit SetTileSize(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
+			auto&& tile = ctx.state->tiles[tileIndex];
+			tile.sl = GetBits<44, 55>(cmd.Data<0>());
+			tile.tl = GetBits<32, 43>(cmd.Data<0>());
+			tile.sh = GetBits<12, 23>(cmd.Data<0>());
+			tile.th = GetBits<0, 11>(cmd.Data<0>());
 			return {};
 		}
 

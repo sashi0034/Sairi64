@@ -38,6 +38,11 @@ namespace N64::Rdp_detail
 		bool ms;
 		uint8 maskS;
 		uint8 shiftS;
+
+		uint16 sl;
+		uint16 tl;
+		uint16 sh;
+		uint16 th;
 	};
 
 	struct BlendConfig

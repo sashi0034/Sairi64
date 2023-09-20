@@ -79,19 +79,20 @@ namespace N64::Rdp_detail::Soft
 			switch (descriptor.size)
 			{
 			case TexelSize::Px16:
-				for (uint32 y = yh.Int(); y < yl.Int(); y++)
+				for (int y = yh.Int(); y <= yl.Int(); y++)
 				{
 					const uint32 screenLine = state.colorImage.dramAddr + y * bytesPerScreenLine;
-					for (int x = xh.Int(); x < xl.Int(); x++)
+					for (int x = xh.Int(); x <= xl.Int(); x++)
 					{
 						const auto processedT =
 							ProcessST(t, descriptor.ct, descriptor.mt, descriptor.maskT, descriptor.shiftT);
-						const uint32 tmemXor = (processedT.Int() & 1) << 2;
+						// const uint32 tmemXor = (processedT.Int() & 1) << 2;
 						const uint16 tmemLine = tmemBase + processedT.Int() * bytesPerTileLine;
 
-						const auto processedS =
-							ProcessST(s, descriptor.cs, descriptor.ms, descriptor.maskS, descriptor.shiftS);
-						const uint16 tmemAddr = ((tmemLine + processedS.Int() * bytesPerTexel) & 0x7FF) ^ tmemXor;
+						const auto processedS = s;
+						// TODO: 直す
+						// ProcessST(s, descriptor.cs, descriptor.ms, descriptor.maskS, descriptor.shiftS);
+						const uint16 tmemAddr = ((tmemLine + processedS.Int() * bytesPerTexel) & 0x7FF); // ^ tmemXor;
 						const uint16 pixel = ReadTmem<uint16>(state, tmemAddr);
 						WriteRdram<uint16>(ctx, screenLine + x * bytesPerPixel, pixel);
 
@@ -143,7 +144,7 @@ namespace N64::Rdp_detail::Soft
 					const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
 
 					uint16 tmemTexelAddress = (tmemBase + (s * bytesPerTexel));
-					tmemTexelAddress ^= tmemXor;
+					// tmemTexelAddress ^= tmemXor;
 					tmemTexelAddress &= TmemSizeMask_0xFFF;
 					WriteTmem<uint16>(state, tmemTexelAddress, texel);
 				}
@@ -184,16 +185,16 @@ namespace N64::Rdp_detail::Soft
 			case TexelSize::Px16:
 				for (uint32 t = 0; t <= (th.Int() - tl.Int()); t++)
 				{
-					const uint32 tileLine = tmemBase + bytesPerTileLine * t;
-					const uint32 dramLine = dramBase + bytesPerTextureLine * (t + tl.Int()) + sl.Int() * bytesPerTexel;
-					const uint32 tmemXor = t & 1 ? 4 : 0;
+					const uint32 tileLine = tmemBase + (t + tl.Int()) * bytesPerTileLine + sl.Int() * bytesPerTexel;
+					const uint32 dramLine = dramBase + (t + tl.Int()) * bytesPerTextureLine + sl.Int() * bytesPerTexel;
+					// const uint32 tmemXor = t & 1 ? 4 : 0;
 					for (uint32 s = 0; s <= (sh.Int() - sl.Int()); s++)
 					{
 						const uint32 dramTexelAddress = dramLine + s * bytesPerTexel;
 						const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
 
-						uint16 tmemTexelAddress = tileLine + (s * bytesPerTexel);
-						tmemTexelAddress ^= tmemXor;
+						uint16 tmemTexelAddress = tileLine + s * bytesPerTexel;
+						// tmemTexelAddress ^= tmemXor;
 						tmemTexelAddress &= 0x7FF;
 
 						WriteTmem<uint16>(state, tmemTexelAddress, texel);

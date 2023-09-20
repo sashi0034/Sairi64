@@ -116,8 +116,8 @@ namespace N64::Rdp_detail::Soft
 		{
 		case TexelSize::Px4: return width >> 1;
 		case TexelSize::Px8: return width;
-		case TexelSize::Px16: return width << 1;
-		case TexelSize::Px32: return width << 2;
+		case TexelSize::Px16: return width << 1; // multiply 2
+		case TexelSize::Px32: return width << 2; // multiply 4
 		default: ;
 		}
 		throw OutOfRangeError();

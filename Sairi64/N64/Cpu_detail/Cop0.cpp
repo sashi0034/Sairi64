@@ -57,7 +57,7 @@ namespace N64::Cpu_detail
 		case Cop0RegKind::BadVAddr:
 			return m_reg.badVAddr;
 		case Cop0RegKind::Count:
-			if constexpr (wire32) return m_reg.count;
+			if constexpr (wire32) return m_reg.count >> 1;
 			else break;
 		case Cop0RegKind::EntryHi:
 			return m_reg.entryHi;

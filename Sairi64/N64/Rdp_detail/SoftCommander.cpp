@@ -84,7 +84,7 @@ namespace N64::Rdp_detail
 		case CommandId::LoadBlock:
 			return Soft::LoadBlock(ctx, cmd);
 		case CommandId::LoadTile:
-			break;
+			return Soft::LoadTile(ctx, cmd);
 		case CommandId::SetTile:
 			return Soft::SetTile(ctx, cmd);
 		case CommandId::FillRectangle:

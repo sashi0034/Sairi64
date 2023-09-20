@@ -1,9 +1,28 @@
 #pragma once
 
+#include "source_location"
 #include "../SoftCommander.h"
 
 namespace N64::Rdp_detail::Soft
 {
+	class OutOfRangeError : public std::range_error
+	{
+	public:
+		OutOfRangeError(const std::source_location& location = std::source_location::current()) :
+			std::range_error(fmt::format("Out of range at {} ({})", location.file_name(), location.line()))
+		{
+		}
+	};
+
+	class NotImplementedError : public std::logic_error
+	{
+	public:
+		NotImplementedError(const std::source_location& location = std::source_location::current()) :
+			std::logic_error(fmt::format("Not implemented at {} ({})", location.file_name(), location.line()))
+		{
+		}
+	};
+
 	template <typename Wire>
 	Wire ReadRdram(const CommanderContext& ctx, uint32 address)
 	{
@@ -87,8 +106,21 @@ namespace N64::Rdp_detail::Soft
 		// case 1: return 1;
 		case 2: return 2;
 		case 3: return 4;
-		default: throw std::range_error("size of pixel color element is invalid");
+		default: throw OutOfRangeError();
 		}
+	}
+
+	inline uint32 GetBytesPerTextureLine(TexelSize size, uint32 width)
+	{
+		switch (size)
+		{
+		case TexelSize::Px4: return width >> 1;
+		case TexelSize::Px8: return width;
+		case TexelSize::Px16: return width << 1;
+		case TexelSize::Px32: return width << 4;
+		default: ;
+		}
+		throw OutOfRangeError();
 	}
 
 	struct HSpan

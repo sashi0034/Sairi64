@@ -182,6 +182,14 @@ namespace N64
 		{
 			m_info.emulateError = std::move(e);
 		}
+		catch (const std::exception& e)
+		{
+			m_info.emulateError = Error(Unicode::Widen(e.what()));
+		}
+		catch (...)
+		{
+			m_info.emulateError = Error(U"Unknown error");
+		}
 	}
 
 	void N64Frame::StepSingleFrame(N64System& n64, const N64Config& config)

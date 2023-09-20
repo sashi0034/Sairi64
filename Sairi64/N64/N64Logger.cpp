@@ -16,7 +16,7 @@ namespace N64
 		{
 			std::array<uint8, static_cast<int>(LogTag::Max)> flag{};
 
-			flag[en(LogTag::True)] = true;
+			flag[en(LogTag::Always)] = true;
 			flag[en(LogTag::General)] = false;
 			flag[en(LogTag::Cpu)] = false;
 			flag[en(LogTag::Mmio)] = false;

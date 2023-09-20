@@ -6,7 +6,7 @@ namespace N64
 {
 	enum class LogTag
 	{
-		True,
+		Always,
 		General,
 		Cpu,
 		Mmio,

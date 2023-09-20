@@ -60,8 +60,10 @@ namespace N64::Rdp_detail::Soft
 
 			const FixedPoint16<11, 5> startS = GetBits<48, 63>(cmd.Data<1>());
 			const FixedPoint16<11, 5> startT = GetBits<32, 47>(cmd.Data<1>());
-			const FixedPoint16<11, 5> dsDx = GetBits<16, 31>(cmd.Data<1>());
-			const FixedPoint16<11, 5> dtDy = GetBits<0, 7>(cmd.Data<1>());
+			const FixedPoint16<6, 10> dsDx = state.otherModes.cycleType == CycleType::Copy
+			                                 ? GetBits<16, 31>(cmd.Data<1>()) >> 2
+			                                 : GetBits<16, 31>(cmd.Data<1>()); // ?
+			const FixedPoint16<6, 10> dtDy = GetBits<0, 15>(cmd.Data<1>());
 
 			const auto& descriptor = state.tiles[tileIndex];
 			const uint16 tmemBase = descriptor.tmemAddr * sizeof(uint64);
@@ -70,10 +72,10 @@ namespace N64::Rdp_detail::Soft
 
 			const uint32 bytesPerScreenLine = state.colorImage.width * bytesPerPixel;
 			const uint32 bytesPerTileLine = descriptor.line * sizeof(uint64);
+			const uint8 bytesPerTexel = GetBytesParTexel(descriptor.size);
 
 			auto s = startS;
 			auto t = startT;
-			bool flip = false; // TODO
 			switch (descriptor.size)
 			{
 			case TexelSize::Px16:
@@ -83,13 +85,13 @@ namespace N64::Rdp_detail::Soft
 					for (int x = xh.Int(); x < xl.Int(); x++)
 					{
 						const auto processedT =
-							ProcessST(flip ? s : t, descriptor.ct, descriptor.mt, descriptor.maskT, descriptor.shiftT);
+							ProcessST(t, descriptor.ct, descriptor.mt, descriptor.maskT, descriptor.shiftT);
 						const uint32 tmemXor = (processedT.Int() & 1) << 2;
 						const uint16 tmemLine = tmemBase + processedT.Int() * bytesPerTileLine;
 
 						const auto processedS =
-							ProcessST(flip ? t : s, descriptor.cs, descriptor.ms, descriptor.maskS, descriptor.shiftS);
-						const uint16 tmemAddr = ((tmemLine + processedS.Int() * 2) & 0x7FF) ^ tmemXor;
+							ProcessST(s, descriptor.cs, descriptor.ms, descriptor.maskS, descriptor.shiftS);
+						const uint16 tmemAddr = ((tmemLine + processedS.Int() * bytesPerTexel) & 0x7FF) ^ tmemXor;
 						const uint16 pixel = ReadTmem<uint16>(state, tmemAddr);
 						WriteRdram<uint16>(ctx, screenLine + x * bytesPerPixel, pixel);
 
@@ -121,7 +123,7 @@ namespace N64::Rdp_detail::Soft
 
 			const uint32 tmemBase = tile.tmemAddr * sizeof(uint64);
 			const uint32 dramBase = state.textureImage.dramAddr;
-			const uint8 bytesPerTexel = BytesParTexel(state.textureImage.size);
+			const uint8 bytesPerTexel = GetBytesParTexel(state.textureImage.size);
 
 			FixedPoint16<5, 11> t{};
 			t.Int().Set(tl);
@@ -171,7 +173,7 @@ namespace N64::Rdp_detail::Soft
 
 			const uint32 tmemBase = descriptor.tmemAddr * sizeof(uint64);
 			const uint32 dramBase = state.textureImage.dramAddr;
-			const uint8 bytesPerTexel = BytesParTexel(state.textureImage.size);
+			const uint8 bytesPerTexel = GetBytesParTexel(state.textureImage.size);
 
 			switch (state.textureImage.size)
 			{
@@ -190,20 +192,20 @@ namespace N64::Rdp_detail::Soft
 						const uint32 dramTexelAddress = dramLine + s * bytesPerTexel;
 						const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
 
-						uint16 tmemTexelAddress = tileLine + (s * 2);
+						uint16 tmemTexelAddress = tileLine + (s * bytesPerTexel);
 						tmemTexelAddress ^= tmemXor;
 						tmemTexelAddress &= 0x7FF;
 
 						WriteTmem<uint16>(state, tmemTexelAddress, texel);
 					}
 				}
-				break;
+				return {};
 			case TexelSize::Px32:
 				break;
 			default: ;
 				throw NotImplementedError();
 			}
-			return {};
+			throw NotImplementedError();
 		}
 
 		[[nodiscard]]
@@ -225,7 +227,7 @@ namespace N64::Rdp_detail::Soft
 		{
 			auto&& otherModes = ctx.state->otherModes;
 			otherModes.atomicPrim = GetBits<55>(cmd.Data<0>());
-			otherModes.cycleType = GetBits<52, 53>(cmd.Data<0>());
+			otherModes.cycleType = static_cast<CycleType>(GetBits<52, 53>(cmd.Data<0>()));
 			otherModes.perspTexEn = GetBits<51>(cmd.Data<0>());
 			otherModes.detailTexEn = GetBits<50>(cmd.Data<0>());
 			otherModes.sharpenTexEn = GetBits<49>(cmd.Data<0>());

@@ -12,11 +12,19 @@ namespace N64::Rdp_detail
 		Px32 = 3,
 	};
 
-	inline uint8 BytesParTexel(TexelSize texel)
+	inline uint8 GetBytesParTexel(TexelSize texel)
 	{
 		static constexpr std::array bytes = {0, 1, 2, 4};
 		return bytes[static_cast<uint8>(texel)];
 	}
+
+	enum class CycleType
+	{
+		OneCycle = 0,
+		TwoCycle = 1,
+		Copy = 2,
+		Fill = 3,
+	};
 
 	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.h#L26
 	enum class BlendSource
@@ -139,7 +147,7 @@ namespace N64::Rdp_detail
 		struct
 		{
 			bool atomicPrim;
-			uint8 cycleType;
+			CycleType cycleType;
 			bool perspTexEn;
 			bool detailTexEn;
 			bool sharpenTexEn;

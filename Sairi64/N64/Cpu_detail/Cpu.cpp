@@ -25,7 +25,7 @@ public:
 			{
 				// 割り込み発生
 				cop0Reg.cause.Ip7().Set(true);
-				UpdateInterrupt(n64);
+				RefreshInterrupt(n64);
 			}
 		}
 		else if constexpr (processor == ProcessorType::Dynarec)
@@ -33,13 +33,13 @@ public:
 			const uint64 before = cop0Reg.count;
 			const uint64 after = cop0Reg.count + cycles;
 			const uint64 compare = static_cast<uint64>(cop0Reg.compare) << 1;
+			cop0Reg.count = after & 0x1FFFFFFFF;
 			if (before < compare && compare <= after)
 			{
 				// 割り込み発生
 				cop0Reg.cause.Ip7().Set(true);
-				UpdateInterrupt(n64);
+				RefreshInterrupt(n64);
 			}
-			cop0Reg.count = after & 0x1FFFFFFFF;
 		}
 	}
 

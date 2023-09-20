@@ -19,7 +19,7 @@ namespace N64
 	template <Interruption interrupt> void InterruptRaise(N64System& n64);
 	template <Interruption interrupt> void InterruptLower(N64System& n64);
 
-	void UpdateInterrupt(N64System& n64);
+	void RefreshInterrupt(N64System& n64);
 
 	// instantiate
 	template void InterruptRaise<Interruption::VI>(N64System& n64);

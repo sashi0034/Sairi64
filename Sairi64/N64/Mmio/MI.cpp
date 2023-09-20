@@ -80,6 +80,6 @@ namespace N64::Mmio
 		if (write & (1 << 10)) m_interruptMask.Dp().Set(false);
 		if (write & (1 << 11)) m_interruptMask.Dp().Set(true);
 
-		UpdateInterrupt(n64);
+		RefreshInterrupt(n64);
 	}
 }

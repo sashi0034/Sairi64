@@ -14,7 +14,7 @@ namespace N64::Rdp_detail
 
 	void SoftCommander::EnqueueCommand(N64System& n64, const RdpCommand& cmd)
 	{
-		N64_TRACE(Rdp, U"enqueued rdp command: {:02X}"_fmt(StringifyEnum(cmd.Id())));
+		N64_TRACE(Rdp, U"enqueued rdp command: {}"_fmt(StringifyEnum(cmd.Id())));
 
 		const CommanderContext ctx{
 			.state = &m_state,

@@ -86,7 +86,7 @@ namespace N64::Mmio
 		const sint16 l = static_cast<sint16>(data >> 16);
 		const sint16 r = static_cast<sint16>(data);
 
-		m_stream->PushSample(l / static_cast<float>(INT32_MAX), r / static_cast<float>(INT32_MAX));
+		m_stream->PushSample(l / static_cast<float>(INT16_MAX), r / static_cast<float>(INT16_MAX));
 
 		const uint32 addrLo = (m_dmaAddr[0] + 4) & 0x1FFF;
 		m_dmaAddr[0] = (m_dmaAddr[0] & ~0x1FFF) | addrLo;

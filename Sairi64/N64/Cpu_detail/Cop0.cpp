@@ -185,7 +185,7 @@ namespace N64::Cpu_detail
 			else break;
 		case Cop0RegKind::EntryHi:
 			if constexpr (wire32)
-				m_reg.entryHi = ((sint64)static_cast<sint32>(value)) & entryHiMask_0xC00000FFFFFFE0FF;
+				m_reg.entryHi = Sign32To64(value) & entryHiMask_0xC00000FFFFFFE0FF;
 			if constexpr (wire64)
 				m_reg.entryHi = value & entryHiMask_0xC00000FFFFFFE0FF;
 			return;
@@ -214,7 +214,7 @@ namespace N64::Cpu_detail
 			return;
 		case Cop0RegKind::EPC:
 			if constexpr (wire32)
-				m_reg.epc = (sint64)static_cast<sint32>(value);
+				m_reg.epc = Sign32To64(value);
 			if constexpr (wire64)
 				m_reg.epc = static_cast<sint64>(value);
 			return;
@@ -248,7 +248,7 @@ namespace N64::Cpu_detail
 		case Cop0RegKind::XContext:
 			if constexpr (wire32)
 				m_reg.xContext =
-					(sint64)static_cast<sint32>(value & 0xFFFFFFFE00000000) | (m_reg.xContext & 0x1FFFFFFFF);
+					(Sign32To64(value) & 0xFFFFFFFE00000000) | (m_reg.xContext & 0x1FFFFFFFF);
 			if constexpr (wire64)
 				m_reg.xContext = (value & 0xFFFFFFFE00000000) | (m_reg.xContext & 0x1FFFFFFFF);
 			return;

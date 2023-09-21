@@ -293,7 +293,7 @@ private:
 		constexpr uint8 shiftAmount = lwc2 != OpLwc2Funct::Invalid_0xFF
 		                              ? Lwc2FunctShiftAmount<lwc2>()
 		                              : Swc2FunctShiftAmount<swc2>();
-		const sint32 offset = SignExtend7bitOffset(instr.Offset(), shiftAmount);
+		const sint32 offset = SignExtend7Bit(instr.Offset(), shiftAmount);
 
 		if constexpr (lwc2 == OpLwc2Funct::LTV || swc2 == OpSwc2Funct::STV)
 		{

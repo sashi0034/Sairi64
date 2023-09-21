@@ -5,7 +5,7 @@
 namespace N64::Rsp_detail
 {
 	// https://github.com/Dillonb/n64/blob/cccc33fd1b7cbc08588206dccbe077e17b642f88/src/cpu/rsp_vector_instructions.c#L141
-	inline sint32 SignExtend7bitOffset(uint8 offset, uint8 shiftAmount)
+	inline sint32 SignExtend7Bit(uint8 offset, uint8 shiftAmount)
 	{
 		const sint8 signedOffset = ((offset << 1) & 0x80) | offset;
 		const sint32 offset1 = (sint32)signedOffset;

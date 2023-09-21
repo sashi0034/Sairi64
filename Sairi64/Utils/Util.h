@@ -236,6 +236,36 @@ namespace Utils
 		uint16 m_raw{};
 	};
 
+	inline int16 Sign8To16(int8 value)
+	{
+		return static_cast<int16>(value);
+	}
+
+	inline int32 Sign8To32(int8 value)
+	{
+		return static_cast<int32>(value);
+	}
+
+	inline int64 Sign8To64(int8 value)
+	{
+		return static_cast<int64>(value);
+	}
+
+	inline int32 Sign16To32(int16 value)
+	{
+		return static_cast<int32>(value);
+	}
+
+	inline int64 Sign16To64(int16 value)
+	{
+		return static_cast<int64>(value);
+	}
+
+	inline int64 Sign32To64(int32 value)
+	{
+		return static_cast<int64>(value);
+	}
+
 	inline void WaitAnyKeyOnConsole()
 	{
 		(void)(std::getchar());
@@ -280,14 +310,9 @@ namespace Utils
 	{
 		std::cout << "";
 	}
-
-	using sint8 = std::int8_t;
-	using sint16 = std::int16_t;
-	using sint32 = std::int32_t;
-	using sint64 = std::int64_t;
 }
 
-using Utils::sint8;
-using Utils::sint16;
-using Utils::sint32;
-using Utils::sint64;
+using sint8 = std::int8_t;
+using sint16 = std::int16_t;
+using sint32 = std::int32_t;
+using sint64 = std::int64_t;

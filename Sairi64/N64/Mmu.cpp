@@ -275,10 +275,21 @@ namespace N64::Mmu
 			// 0x10000000, 0x1FBFFFFF
 			map12[addr >> lo_20] = [](N64System& n64, PAddr32 paddr)
 			{
-				if constexpr (wire32)
+				if constexpr (wire8)
+				{
+					// TODO: 検証
+					const uint64 offset = (paddr - PMap::CartridgeRom.base + 2) & ~0b11; // ?
+					return ReadBytes8(n64.GetMemory().GetRom().Data(), EndianAddress<uint8>(offset));
+				}
+				else if constexpr (wire16)
+				{
+					const uint64 offset = (paddr - PMap::CartridgeRom.base + 2) & ~0b10; // ?
+					return ReadBytes16(n64.GetMemory().GetRom().Data(), EndianAddress<uint16>(offset));
+				}
+				else if constexpr (wire32)
 				{
 					const uint64 offset = paddr - PMap::CartridgeRom.base;
-					return ReadBytes32(n64.GetMemory().GetRom().Data(), offset);
+					return ReadBytes32(n64.GetMemory().GetRom().Data(), EndianAddress<uint32>(offset));
 				}
 				return unsupportedReadPMap<Wire>(paddr);
 			};

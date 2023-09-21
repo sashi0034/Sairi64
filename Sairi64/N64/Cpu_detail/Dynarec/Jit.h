@@ -363,6 +363,70 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken SPECIAL_shiftVariable(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_ENTRY;
+		const uint8 rd = instr.Rd();
+		if (rd == 0) return DecodedToken::Continue;
+
+		constexpr bool dword = []() consteval
+		{
+			return
+				funct == OpSpecialFunct::DSLLV ||
+				funct == OpSpecialFunct::DSRLV ||
+				funct == OpSpecialFunct::DSRAV;
+		}();
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = ctx.cpu->GetGpr().Raw();
+		const uint8 rt = instr.Rt();
+		const uint8 rs = instr.Rs();
+
+		if (rt != 0)
+			x86Asm.mov(x86::rax, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rt]))); // rax <- rt
+		else
+			x86Asm.xor_(x86::rax, x86::rax);
+		if (rs != 0)
+		{
+			x86Asm.mov(x86::rcx, x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rs]))); // rcx <- rs
+			x86Asm.and_(x86::rcx, dword ? 0b111111 : 0b11111);
+		}
+		else
+			x86Asm.xor_(x86::rcx, x86::rcx);
+
+		if constexpr (funct == OpSpecialFunct::SLLV)
+		{
+			x86Asm.shl(x86::eax, x86::cl);
+			x86Asm.movsxd(x86::rax, x86::eax);
+		}
+		else if constexpr (funct == OpSpecialFunct::SRLV)
+		{
+			x86Asm.shr(x86::eax, x86::cl);
+			x86Asm.movsxd(x86::rax, x86::eax);
+		}
+		else if constexpr (funct == OpSpecialFunct::SRAV)
+		{
+			x86Asm.sar(x86::rax, x86::cl);
+			x86Asm.movsxd(x86::rax, x86::eax);
+		}
+		else if constexpr (funct == OpSpecialFunct::DSLLV)
+		{
+			x86Asm.shl(x86::rax, x86::cl);
+		}
+		else if constexpr (funct == OpSpecialFunct::DSRLV)
+		{
+			x86Asm.shr(x86::rax, x86::cl);
+		}
+		else if constexpr (funct == OpSpecialFunct::DSRAV)
+		{
+			x86Asm.sar(x86::rax, x86::cl);
+		}
+		else static_assert(Utils::AlwaysFalseValue<OpSpecialFunct, funct>);
+
+		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&gpr[rd])), x86::rax); // gpr[rd] <- rax
+		return DecodedToken::Continue;
+	}
+
 	[[nodiscard]]
 	static DecodedToken CACHE(InstructionR instr)
 	{

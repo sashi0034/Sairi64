@@ -144,11 +144,11 @@ private:
 		case OpSpecialFunct::SRA:
 			return Jit::SPECIAL_shift<OpSpecialFunct::SRA>(ctx, instr);
 		case OpSpecialFunct::SLLV:
-			return UseInterpreter(ctx, instr, &interpret::SLLV);
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::SLLV>(ctx, instr);
 		case OpSpecialFunct::SRLV:
-			return UseInterpreter(ctx, instr, &interpret::SRLV);
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::SRLV>(ctx, instr);
 		case OpSpecialFunct::SRAV:
-			return UseInterpreter(ctx, instr, &interpret::SRAV);
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::SRAV>(ctx, instr);
 		case OpSpecialFunct::JR:
 			return Jit::JR_template<OpSpecialFunct::JR>(ctx, instr);
 		case OpSpecialFunct::JALR:
@@ -166,11 +166,11 @@ private:
 		case OpSpecialFunct::MTLO:
 			return Jit::MT_template<OpSpecialFunct::MTLO>(ctx, instr);
 		case OpSpecialFunct::DSLLV:
-			break;
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::DSLLV>(ctx, instr);
 		case OpSpecialFunct::DSRLV:
-			break;
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::DSRLV>(ctx, instr);
 		case OpSpecialFunct::DSRAV:
-			break;
+			return Jit::SPECIAL_shiftVariable<OpSpecialFunct::DSRAV>(ctx, instr);
 		case OpSpecialFunct::MULT:
 			return Jit::MULT_template<OpSpecialFunct::MULT>(ctx, instr);
 		case OpSpecialFunct::MULTU:

@@ -197,9 +197,9 @@ private:
 		case OpSpecialFunct::NOR:
 			return Jit::SPECIAL_arithmetic<OpSpecialFunct::NOR>(ctx, instr);
 		case OpSpecialFunct::SLT:
-			break;
+			return Jit::SLT_template<OpSpecialFunct::SLT>(ctx, instr);
 		case OpSpecialFunct::SLTU:
-			break;
+			return Jit::SLT_template<OpSpecialFunct::SLTU>(ctx, instr);
 		case OpSpecialFunct::TGE:
 			break;
 		case OpSpecialFunct::TGEU:

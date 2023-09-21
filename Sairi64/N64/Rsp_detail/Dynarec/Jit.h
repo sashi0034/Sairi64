@@ -36,6 +36,34 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	template <OpSpecialFunct funct> [[nodiscard]]
+	static DecodedToken SLT_template(const AssembleContext& ctx, InstructionR instr)
+	{
+		JIT_SP;
+		const uint8 rd = instr.Rd();
+		if (rd == 0) return DecodedToken::Continue;
+
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
+		const uint8 rs = instr.Rs();
+		const uint8 rt = instr.Rt();
+
+		x86Asm.mov(x86::rax, (uint64)&gpr[0]);
+		loadGpr32(x86Asm, x86::ecx, x86::rax, rs); // rcx <- rs
+		loadGpr32(x86Asm, x86::edx, x86::rax, rt); // rdx <- rt
+
+		x86Asm.xor_(x86::r8, x86::r8);
+		x86Asm.cmp(x86::ecx, x86::edx);
+		if constexpr (funct == OpSpecialFunct::SLT)
+			x86Asm.setl(x86::r8b);
+		else if constexpr (funct == OpSpecialFunct::SLTU)
+			x86Asm.setb(x86::r8b);
+		else
+			static_assert(AlwaysFalseValue<Opcode, funct>);
+		x86Asm.mov(x86::dword_ptr(x86::rax, rd * 4), x86::r8); // gpr[rd] <- rcx
+		return DecodedToken::Continue;
+	}
+
 	template <Opcode op> [[nodiscard]]
 	static DecodedToken SLTI_template(const AssembleContext& ctx, InstructionI instr)
 	{

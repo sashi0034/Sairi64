@@ -226,31 +226,33 @@ static void CreateFontsTexture()
 	Texture texture(image);
 	Context->fontTexture = texture;
 
-	ImTextureID id = ImGui_Impls3d_RegisterTexture(texture);
+	ImTextureID id = ImGui_Impl_s3d_RegisterTexture(texture);
 	io.Fonts->SetTexID(id);
+
+	// io.FontGlobalScale = io.FontGlobalScale / Window::GetState().scaling;
 }
 
-///// API /////
+// API
 
-ImTextureID ImGui_Impls3d_RegisterTexture(Texture& tex)
+ImTextureID ImGui_Impl_s3d_RegisterTexture(Texture& tex)
 {
 	ImTextureID id = reinterpret_cast<void*>(tex.id().value());
 	Context->textureDic.try_emplace(id, tex);
 	return id;
 }
 
-void ImGui_Impls3d_UnregisterTexture(Texture& tex)
+void ImGui_Impl_s3d_UnregisterTexture(Texture& tex)
 {
 	ImTextureID id = reinterpret_cast<void*>(tex.id().value());
 	Context->textureDic.erase(id);
 }
 
-Texture ImGui_Impls3d_GetTexture(ImTextureID id)
+Texture ImGui_Impl_s3d_GetTexture(ImTextureID id)
 {
 	return Context->textureDic.at(id);
 }
 
-bool ImGui_Impls3d_Init()
+bool ImGui_Impl_s3d_Init()
 {
 	Context = std::make_unique<ImGuiImpls3dContext>();
 	Context->keyDownTimeList.fill(0);
@@ -273,12 +275,12 @@ bool ImGui_Impls3d_Init()
 	return true;
 }
 
-void ImGui_Impls3d_Shutdown()
+void ImGui_Impl_s3d_Shutdown()
 {
 	Context.reset();
 }
 
-void ImGui_Impls3d_NewFrame()
+void ImGui_Impl_s3d_NewFrame()
 {
 	if (not Context->fontTexture)
 	{
@@ -395,7 +397,7 @@ void ImGui_Impls3d_NewFrame()
 	}
 }
 
-void ImGui_Impls3d_RenderDrawData(ImDrawData* draw_data)
+void ImGui_Impl_s3d_RenderDrawData(ImDrawData* draw_data)
 {
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
@@ -446,7 +448,7 @@ void ImGui_Impls3d_RenderDrawData(ImDrawData* draw_data)
 			}
 			else
 			{
-				Texture texture = ImGui_Impls3d_GetTexture(pcmd.TextureId);
+				Texture texture = ImGui_Impl_s3d_GetTexture(pcmd.TextureId);
 				Graphics2D::SetScissorRect(Rect(pcmd.ClipRect.x - clipOffset.x, pcmd.ClipRect.y - clipOffset.y,
 				                                pcmd.ClipRect.z - pcmd.ClipRect.x, pcmd.ClipRect.w - pcmd.ClipRect.y));
 				sp.drawSubset(idxOffset, triangleCnt, texture);

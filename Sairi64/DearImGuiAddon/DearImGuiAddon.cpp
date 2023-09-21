@@ -10,7 +10,7 @@
 bool DearImGuiAddon::init()
 {
 	ImGui::CreateContext();
-	ImGui_Impls3d_Init();
+	ImGui_Impl_s3d_Init();
 
 	return true;
 }
@@ -21,7 +21,7 @@ bool DearImGuiAddon::init()
 
 bool DearImGuiAddon::update()
 {
-	ImGui_Impls3d_NewFrame();
+	ImGui_Impl_s3d_NewFrame();
 	ImGui::NewFrame();
 
 	m_firstFrame = false;
@@ -38,10 +38,10 @@ void DearImGuiAddon::draw() const
 	}
 
 	ImGui::Render();
-	ImGui_Impls3d_RenderDrawData(::ImGui::GetDrawData());
+	ImGui_Impl_s3d_RenderDrawData(::ImGui::GetDrawData());
 }
 
 DearImGuiAddon::~DearImGuiAddon()
 {
-	ImGui_Impls3d_Shutdown();
+	ImGui_Impl_s3d_Shutdown();
 }

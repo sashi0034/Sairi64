@@ -114,15 +114,13 @@ namespace N64::Rdp_detail::Soft
 		{
 			auto&& state = *ctx.state;
 			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
-			auto&& tile = state.tiles[tileIndex];
+			auto&& descriptor = state.tiles[tileIndex];
 			const uint16 sl = GetBits<44, 55>(cmd.Data<0>());
 			const uint16 tl = GetBits<32, 43>(cmd.Data<0>());
 			const uint16 sh = GetBits<12, 23>(cmd.Data<0>());
 			const FixedPoint16<5, 11> dxt = GetBits<0, 11>(cmd.Data<0>());
-			tile.sl = sl;
-			tile.tl = tl;
 
-			const uint32 tmemBase = tile.tmemAddr * sizeof(uint64);
+			const uint32 tmemBase = descriptor.tmemAddr * sizeof(uint64);
 			const uint32 dramBase = state.textureImage.dramAddr;
 			const uint8 bytesPerTexel = GetBytesParTexel(state.textureImage.size);
 
@@ -135,11 +133,11 @@ namespace N64::Rdp_detail::Soft
 				for (uint32 i = 0; i <= sh - sl; i++)
 				{
 					const uint32 s = i + sl;
-					if ((i * bytesPerTexel) % 8 == 0)
-					{
-						t += dxt;
-						tmemXor = t.Int() & 1 ? 4 : 0;
-					}
+					// if ((i * bytesPerTexel) % 8 == 0)
+					// {
+					// 	t += dxt;
+					// 	tmemXor = t.Int() & 1 ? 4 : 0;
+					// }
 					const uint32 dramTexelAddress = dramBase + s * bytesPerTexel;
 					const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
 

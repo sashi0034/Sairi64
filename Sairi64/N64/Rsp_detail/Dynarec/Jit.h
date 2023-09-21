@@ -37,6 +37,35 @@ public:
 	}
 
 	template <Opcode op> [[nodiscard]]
+	static DecodedToken SLTI_template(const AssembleContext& ctx, InstructionI instr)
+	{
+		JIT_SP;
+		const uint8 rt = instr.Rt();
+		if (rt == 0) return DecodedToken::Continue;
+
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& gpr = Process::AccessGpr(*ctx.rsp);
+		const uint8 rs = instr.Rs();
+		const uint16 imm = instr.Imm();
+
+		if (rs == 0)
+			x86Asm.xor_(x86::eax, x86::eax); // rax <- 0
+		else
+			x86Asm.mov(x86::eax, x86::dword_ptr(reinterpret_cast<uint64>(&gpr[rs]))); // rax <- rs
+		x86Asm.xor_(x86::edx, x86::edx);
+		x86Asm.cmp(x86::eax, (sint32)static_cast<sint16>(imm));
+		if constexpr (op == Opcode::SLTI)
+			x86Asm.setl(x86::dl);
+		else if constexpr (op == Opcode::SLTIU)
+			x86Asm.setb(x86::dl);
+		else
+			static_assert(AlwaysFalseValue<Opcode, op>);
+		x86Asm.mov(x86::rcx, (uint64)&gpr[rt]); // rcx <- *rt
+		x86Asm.mov(x86::dword_ptr(x86::rcx), x86::edx); // rcx <- rax
+		return DecodedToken::Continue;
+	}
+
+	template <Opcode op> [[nodiscard]]
 	static DecodedToken I_immediateArithmetic(const AssembleContext& ctx, InstructionI instr)
 	{
 		JIT_SP;

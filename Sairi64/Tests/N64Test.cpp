@@ -79,7 +79,7 @@ namespace Tests
 		REQUIRE(dillon64Test(U"daddiu_simpleboot.z64")); // OK
 		REQUIRE(dillon64Test(U"dsll32_simpleboot.z64")); // OK
 		REQUIRE(dillon64Test(U"dsll_simpleboot.z64")); // OK
-		// REQUIRE(Dillon64Test(U"dsllv_simpleboot.z64")); // TODO
+		REQUIRE(dillon64Test(U"dsllv_simpleboot.z64")); // OK
 		REQUIRE(dillon64Test(U"dsra32_simpleboot.z64")); // OK
 		REQUIRE(dillon64Test(U"nor_simpleboot.z64")); // OK
 		REQUIRE(dillon64Test(U"or_simpleboot.z64")); // OK

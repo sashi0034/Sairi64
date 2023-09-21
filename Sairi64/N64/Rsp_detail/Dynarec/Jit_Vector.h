@@ -95,6 +95,47 @@ public:
 		return DecodedToken::Continue;
 	}
 
+	[[nodiscard]]
+	static DecodedToken VMOV(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	{
+		JIT_SP;
+		auto&& x86Asm = *ctx.x86Asm;
+		auto&& rsp = *ctx.rsp;
+		auto&& vu = Process::AccessVU(rsp);
+		const uint8 e = instr.Element();
+		uint8 se;
+		switch (e)
+		{
+		case 0: [[fallthrough]];
+		case 1:
+			se = (e & 0b000) | (instr.Vs() & 0b111);
+			break;
+		case 2: [[fallthrough]];
+		case 3:
+			se = (e & 0b001) | (instr.Vs() & 0b110);
+			break;
+		case 4: [[fallthrough]];
+		case 5: [[fallthrough]];
+		case 6: [[fallthrough]];
+		case 7:
+			se = (e & 0b011) | (instr.Vs() & 0b100);
+			break;
+		default:
+			se = (e & 0b111) | (instr.Vs() & 0b000);
+			break;
+		}
+		const uint8 de = instr.Vs() & 7;
+
+		x86Asm.mov(x86::rcx, (uint64)&vu);
+		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vd()]);
+		x86Asm.mov(x86::r8, (uint64)&vu.regs[instr.Vt()]);
+		x86Asm.mov(x86::r9b, e);
+		x86Asm.mov(x86::byte_ptr(x86::rsp, 32), se);
+		x86Asm.mov(x86::byte_ptr(x86::rsp, 40), de);
+		x86Asm.call((uint64)helperVMOV);
+		return DecodedToken::Continue;
+	}
+
 	template <OpCop2VecFunct funct> [[nodiscard]]
 	static DecodedToken VRCP_template(const AssembleContext& ctx, InstructionCop2VecFunct instr)
 	{
@@ -129,8 +170,7 @@ public:
 		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vd()]);
 		x86Asm.mov(x86::r8, (uint64)&vu.regs[instr.Vs()]);
 		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vt()]);
-		x86Asm.mov(x86::al, instr.Element());
-		x86Asm.mov(x86::byte_ptr(x86::rsp, 32), x86::al);
+		x86Asm.mov(x86::byte_ptr(x86::rsp, 32), instr.Element());
 		if constexpr (funct == OpCop2VecFunct::VMUDH)
 			x86Asm.call((uint64)&helperVMUDH);
 		else if constexpr (funct == OpCop2VecFunct::VMUDL)
@@ -948,6 +988,14 @@ private:
 		{
 			vd.single = 0;
 		}
+	}
+
+	N64_ABI static void helperVMOV(VU& vu, Vpr_t& vd, const Vpr_t& vt, uint8 e, uint8 se, uint8 de)
+	{
+		const Vpr_t vte = GetVtE(vt, e);
+		const uint16 vteElement = vte.uE[VuElementIndex(se)];
+		vd.uE[VuElementIndex(de)] = vteElement;
+		vu.accum.l.single = vte.single;
 	}
 
 	N64_ABI static void helperVRCP(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)

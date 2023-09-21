@@ -16,7 +16,7 @@ namespace N64::Rsp_detail::Dynarec
 {
 	class Jit;
 
-	constexpr uint32 StackSizeRequirement = 56;
+	constexpr uint32 StackSizeRequirement = 56; // 関数の引数は6個まで
 
 	constexpr uint8 GprLR_31 = 31;
 }

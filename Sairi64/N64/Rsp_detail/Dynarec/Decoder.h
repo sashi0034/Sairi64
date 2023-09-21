@@ -342,7 +342,7 @@ private:
 		case OpCop2VecFunct::VRCPH:
 			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCPH>(ctx, instr);
 		case OpCop2VecFunct::VMOV:
-			break;
+			return Jit::Vector::VMOV(ctx, instr);
 		case OpCop2VecFunct::VRSQ:
 			break;
 		case OpCop2VecFunct::VRSQL:

@@ -163,8 +163,8 @@ TEST_CASE("RspTest")
 	// REQUIRE(rspTest(U"compelt")); // OK
 	// REQUIRE(rspTest(U"llv_slv")); // OK
 	// REQUIRE(rspTest(U"vsucb")); // OK
+	// REQUIRE(rspTest(U"lsv_ssv")); // OK
 
-	REQUIRE(rspTest(U"lsv_ssv"));
 	REQUIRE(rspTest(U"vrcpl"));
 	REQUIRE(rspTest(U"lpv_spv"));
 	REQUIRE(rspTest(U"luv_suv"));

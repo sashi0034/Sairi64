@@ -295,6 +295,20 @@ namespace N64::Mmu
 			};
 		}
 
+		// IS Viewer (override)
+		map12[0x13F] = [](N64System& n64, PAddr32 paddr)
+		{
+			if (paddr + sizeof(Wire) <= n64.GetMemory().GetRom().Data().size())
+			{
+				N64Logger::Abort(); // TODO?
+			}
+			else if (AddressRange<uint32>(0x13FF0020, 0x13FFFFFF).IsBetween(paddr))
+			{
+				return Wire(0); // TODO?
+			}
+			return unsupportedReadPMap<Wire>(paddr);
+		};
+
 		// PIF
 		map12[0x1FC] = [](N64System& n64, PAddr32 paddr)
 		{
@@ -498,6 +512,16 @@ namespace N64::Mmu
 				return unsupportedWritePMap<Wire>(paddr);
 			};
 		}
+
+		// IS Viewer (override)
+		map12[0x13F] = [](N64System& n64, PAddr32 paddr, Value value)
+		{
+			if (AddressRange<uint32>(0x13FF0020, 0x13FFFFFF).IsBetween(paddr))
+			{
+				return; // TODO?
+			}
+			return unsupportedWritePMap<Wire>(paddr);
+		};
 
 		// PIF
 		map12[0x1FC] = [](N64System& n64, PAddr32 paddr, Value value)

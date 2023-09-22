@@ -463,7 +463,7 @@ private:
 			else if constexpr (funct == OpCop2VecFunct::Undocumented_0xFE)
 			{
 				vu.accum.l.uE[i] = vte.uE[i] + vs.uE[i];
-				vd.single = 0;
+				vd.single = {};
 			}
 			else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
 		}
@@ -749,36 +749,16 @@ private:
 		}
 	}
 
+	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/cpu/rsp_vector_instructions.c#L649
 	N64_ABI static void helperVABS(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
 	{
 		const Vpr_t vte = GetVtE(vt, element);
-		for (int i = 0; i < 8; i++)
-		{
-			if (vs.sE[i] < 0)
-			{
-				if ((vte.uE[i] == 0x8000))
-				[[unlikely]]
-				{
-					vd.uE[i] = 0x7FFF;
-					vu.accum.l.uE[i] = 0x8000;
-				}
-				else
-				{
-					vd.uE[i] = -vte.sE[i];
-					vu.accum.l.uE[i] = -vte.sE[i];
-				}
-			}
-			else if (vs.uE[i] == 0)
-			{
-				vd.uE[i] = 0x0000;
-				vu.accum.l.uE[i] = 0x0000;
-			}
-			else
-			{
-				vd.uE[i] = vte.uE[i];
-				vu.accum.l.uE[i] = vte.uE[i];
-			}
-		}
+		const __m128i isZero = _mm_cmpeq_epi16(vs.single, __m128i{});
+		const __m128i isNegative = _mm_srai_epi16(vs.single, 15);
+		__m128i temp = _mm_andnot_si128(isZero, vte.single);
+		temp = _mm_xor_si128(temp, isNegative);
+		vu.accum.l.single = _mm_sub_epi16(temp, isNegative);
+		vd.single = _mm_subs_epi16(temp, isNegative);
 	}
 
 	N64_ABI static void helperVLT(VU& vu, Vpr_t& vd, const Vpr_t& vs, const Vpr_t& vt, uint8 element)
@@ -992,7 +972,7 @@ private:
 		}
 		else
 		{
-			vd.single = 0;
+			vd.single = {};
 		}
 	}
 

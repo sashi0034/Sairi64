@@ -14,7 +14,7 @@ namespace N64::Rsp_detail
 		std::array<sint16, 8> sE;
 		std::array<uint16, 8> uE;
 		std::array<uint8, 16> bytes;
-		uint128 single;
+		__m128i single;
 	};
 
 	static_assert(sizeof(Vpr_t) == 16);

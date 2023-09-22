@@ -137,7 +137,7 @@ public:
 	}
 
 	template <OpCop2VecFunct funct> [[nodiscard]]
-	static DecodedToken VRCP_template(const AssembleContext& ctx, InstructionCop2VecFunct instr)
+	static DecodedToken VR_reciprocal(const AssembleContext& ctx, InstructionCop2VecFunct instr)
 	{
 		JIT_SP;
 		auto&& x86Asm = *ctx.x86Asm;
@@ -145,7 +145,7 @@ public:
 		auto&& vu = Process::AccessVU(rsp);
 		x86Asm.mov(x86::rcx, (uint64)&rsp);
 		x86Asm.mov(x86::rdx, (uint64)&vu.regs[instr.Vt()]);
-		x86Asm.mov(x86::r8b, instr.Element());
+		x86Asm.mov(x86::r8b, instr.Element() & 7);
 		x86Asm.mov(x86::r9, (uint64)&vu.regs[instr.Vd()].uE[VuElementIndex(instr.De() & 7)]);
 		if constexpr (funct == OpCop2VecFunct::VRCP)
 			x86Asm.call((uint64)&helperVRCP);
@@ -153,6 +153,12 @@ public:
 			x86Asm.call((uint64)&helperVRCPL);
 		else if constexpr (funct == OpCop2VecFunct::VRCPH)
 			x86Asm.call((uint64)&helperVRCPH);
+		else if constexpr (funct == OpCop2VecFunct::VRSQ)
+			x86Asm.call((uint64)&helperVRSQ);
+		else if constexpr (funct == OpCop2VecFunct::VRSQL)
+			x86Asm.call((uint64)&helperVRSQL);
+		else if constexpr (funct == OpCop2VecFunct::VRSQH)
+			x86Asm.call((uint64)&helperVRSQH);
 		else static_assert(AlwaysFalseValue<OpCop2VecFunct, funct>);
 		return DecodedToken::Continue;
 	}
@@ -1048,6 +1054,45 @@ private:
 		auto&& vu = Process::AccessVU(rsp);
 		const Vpr_t vte = GetVtE(vt, e);
 		vu.accum.l.single = vte.single;
+	}
+
+	N64_ABI static void helperVRSQ(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)
+	{
+		auto&& div = Process::AccessDiv(rsp);
+		auto&& vu = Process::AccessVU(rsp);
+		const Vpr_t vte = GetVtE(vt, e);
+		const sint32 input = vt.sE[VuElementIndex(e)];
+		const uint32 result = Rsq(input);
+		*vdE = result & 0xFFFF;
+		div.divOut = (result >> 16) & 0xFFFF;
+		div.divInLoaded = false;
+		vu.accum.l.single = vte.single;
+	}
+
+	N64_ABI static void helperVRSQL(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)
+	{
+		auto&& div = Process::AccessDiv(rsp);
+		auto&& vu = Process::AccessVU(rsp);
+		const Vpr_t vte = GetVtE(vt, e);
+		const sint32 input = div.divInLoaded
+		                     ? (div.divIn << 16) | vt.uE[VuElementIndex(e)]
+		                     : vt.sE[VuElementIndex(e)];
+		const uint32 result = Rsq(input);
+		*vdE = result & 0xFFFF;
+		div.divOut = (result >> 16) & 0xFFFF;
+		div.divInLoaded = false;
+		vu.accum.l.single = vte.single;
+	}
+
+	N64_ABI static void helperVRSQH(Rsp& rsp, const Vpr_t& vt, uint8 e, uint16* vdE)
+	{
+		auto&& div = Process::AccessDiv(rsp);
+		auto&& vu = Process::AccessVU(rsp);
+		const Vpr_t vte = GetVtE(vt, e);
+		vu.accum.l.single = vte.single;
+		div.divIn = vt.uE[VuElementIndex(e)];
+		div.divInLoaded = true;
+		*vdE = div.divOut;
 	}
 
 	N64_ABI static void helperLQV(const SpDmem& dmem, uint32 address, Vpr_t& vt, uint8 e)

@@ -336,19 +336,19 @@ private:
 		case OpCop2VecFunct::VNXOR:
 			return Jit::Vector::CP2_arithmetic<OpCop2VecFunct::VNXOR>(ctx, instr);
 		case OpCop2VecFunct::VRCP:
-			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCP>(ctx, instr);
+			return Jit::Vector::VR_reciprocal<OpCop2VecFunct::VRCP>(ctx, instr);
 		case OpCop2VecFunct::VRCPL:
-			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCPL>(ctx, instr);
+			return Jit::Vector::VR_reciprocal<OpCop2VecFunct::VRCPL>(ctx, instr);
 		case OpCop2VecFunct::VRCPH:
-			return Jit::Vector::VRCP_template<OpCop2VecFunct::VRCPH>(ctx, instr);
+			return Jit::Vector::VR_reciprocal<OpCop2VecFunct::VRCPH>(ctx, instr);
 		case OpCop2VecFunct::VMOV:
 			return Jit::Vector::VMOV(ctx, instr);
 		case OpCop2VecFunct::VRSQ:
-			break;
+			return Jit::Vector::VR_reciprocal<OpCop2VecFunct::VRSQ>(ctx, instr);
 		case OpCop2VecFunct::VRSQL:
-			break;
+			return Jit::Vector::VR_reciprocal<OpCop2VecFunct::VRSQL>(ctx, instr);
 		case OpCop2VecFunct::VRSQH:
-			break;
+			return Jit::Vector::VR_reciprocal<OpCop2VecFunct::VRSQH>(ctx, instr);
 		case OpCop2VecFunct::VNOP:
 			break;
 

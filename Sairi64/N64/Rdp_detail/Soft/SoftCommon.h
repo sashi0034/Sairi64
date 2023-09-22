@@ -9,7 +9,8 @@ namespace N64::Rdp_detail::Soft
 	{
 	public:
 		OutOfRangeError(const std::source_location& location = std::source_location::current()) :
-			std::range_error(fmt::format("Out of range at {} ({})", location.file_name(), location.line()))
+			std::range_error(fmt::format("Out of range at {} ({}) {}",
+			                             location.file_name(), location.line(), location.function_name()))
 		{
 		}
 	};
@@ -18,7 +19,8 @@ namespace N64::Rdp_detail::Soft
 	{
 	public:
 		NotImplementedError(const std::source_location& location = std::source_location::current()) :
-			std::logic_error(fmt::format("Not implemented at {} ({})", location.file_name(), location.line()))
+			std::logic_error(fmt::format("Not implemented at {} ({}) {}",
+			                             location.file_name(), location.line(), location.function_name()))
 		{
 		}
 	};
@@ -26,28 +28,28 @@ namespace N64::Rdp_detail::Soft
 	template <typename Wire>
 	Wire ReadRdram(const CommanderContext& ctx, uint32 address)
 	{
-		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16> || std::same_as<Wire, uint32>);
 		return ReadBytes<Wire>(ctx.rdram, EndianAddress<Wire>(address));
 	}
 
 	template <typename Wire>
 	void WriteRdram(const CommanderContext& ctx, uint32 address, Wire value)
 	{
-		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16> || std::same_as<Wire, uint32>);
 		WriteBytes<Wire>(ctx.rdram, EndianAddress<Wire>(address), value);
 	}
 
 	template <typename Wire>
 	Wire ReadTmem(const CommanderState& state, uint16 address)
 	{
-		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16> || std::same_as<Wire, uint32>);
 		return ReadBytes<Wire>(state.tmem, EndianAddress<Wire>(address));
 	}
 
 	template <typename Wire>
 	void WriteTmem(CommanderState& state, uint16 address, Wire value)
 	{
-		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16>);
+		static_assert(std::same_as<Wire, uint8> || std::same_as<Wire, uint16> || std::same_as<Wire, uint32>);
 		WriteBytes<Wire>(state.tmem, EndianAddress<Wire>(address), value);
 	}
 

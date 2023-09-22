@@ -2,6 +2,7 @@
 
 #include "SoftCommon.h"
 #include "SoftEdgeWalker.h"
+#include "SoftLoader.h"
 #include "SoftRasterizer.h"
 
 // https://ultra64.ca/files/documentation/silicon-graphics/SGI_RDP_Command_Summary.pdf
@@ -157,52 +158,20 @@ namespace N64::Rdp_detail::Soft
 		[[nodiscard]]
 		static SoftUnit LoadTile(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
-			auto&& state = *ctx.state;
-			const uint8 tileIndex = GetBits<24, 26>(cmd.Data<0>());
-			auto&& descriptor = state.tiles[tileIndex];
-
-			const FixedPoint16<14, 2> sl = GetBits<44, 55>(cmd.Data<0>());
-			const FixedPoint16<14, 2> tl = GetBits<32, 43>(cmd.Data<0>());
-			const FixedPoint16<14, 2> sh = GetBits<12, 23>(cmd.Data<0>());
-			const FixedPoint16<14, 2> th = GetBits<0, 11>(cmd.Data<0>());
-
-			const uint32 bytesPerTextureLine =
-				GetBytesPerTextureLine(state.textureImage.size, state.textureImage.width);
-			const uint32 bytesPerTileLine = descriptor.line * sizeof(uint64);
-
-			const uint32 tmemBase = descriptor.tmemAddr * sizeof(uint64);
-			const uint32 dramBase = state.textureImage.dramAddr;
-			const uint8 bytesPerTexel = GetBytesParTexel(state.textureImage.size);
-
-			switch (state.textureImage.size)
+			switch (ctx.state->textureImage.size)
 			{
 			case TexelSize::Px4:
 				break;
 			case TexelSize::Px8:
-				break;
+				LoaderTile<TexelSize::Px8>(ctx, cmd);
+				return {};
 			case TexelSize::Px16:
-				for (uint32 t = 0; t <= (th.Int() - tl.Int()); t++)
-				{
-					const uint32 tileLine = tmemBase + (t + tl.Int()) * bytesPerTileLine + sl.Int() * bytesPerTexel;
-					const uint32 dramLine = dramBase + (t + tl.Int()) * bytesPerTextureLine + sl.Int() * bytesPerTexel;
-					// const uint32 tmemXor = t & 1 ? 4 : 0;
-					for (uint32 s = 0; s <= (sh.Int() - sl.Int()); s++)
-					{
-						const uint32 dramTexelAddress = dramLine + s * bytesPerTexel;
-						const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
-
-						uint16 tmemTexelAddress = tileLine + s * bytesPerTexel;
-						// tmemTexelAddress ^= tmemXor;
-						tmemTexelAddress &= 0x7FF;
-
-						WriteTmem<uint16>(state, tmemTexelAddress, texel);
-					}
-				}
+				LoaderTile<TexelSize::Px16>(ctx, cmd);
 				return {};
 			case TexelSize::Px32:
-				break;
+				LoaderTile<TexelSize::Px32>(ctx, cmd);
+				return {};
 			default: ;
-				throw NotImplementedError();
 			}
 			throw NotImplementedError();
 		}

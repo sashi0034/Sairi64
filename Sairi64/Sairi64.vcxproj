@@ -428,6 +428,7 @@
     <ClInclude Include="N64\Rdp_detail\Rdp_Interface.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftBlender.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftEdgeWalker.h" />
+    <ClInclude Include="N64\Rdp_detail\Soft\SoftLoader.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftRasterizer.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\Soft.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftCommon.h" />

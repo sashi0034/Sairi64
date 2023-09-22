@@ -88,13 +88,13 @@ public:
 	static OperatedUnit CTC1(Cpu& cpu, InstructionCop1Sub instr)
 	{
 		BEGIN_OP;
-		uint32 rt = instr.Rt();
+		uint32 rt = cpu.GetGpr().Read(instr.Rt());
 		switch (uint8 fs = instr.Fs())
 		{
 		case 0:
 			break; // fcr0 is read-only
 		case 31:
-			rt &= 0X183FFFF; // mask out bits held 0
+			rt &= 0x183FFFF; // mask out bits held 0
 			cpu.GetCop1().Fcr().fcr31 = {rt};
 			break;
 		default:

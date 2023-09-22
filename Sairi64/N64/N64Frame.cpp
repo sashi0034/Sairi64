@@ -27,7 +27,7 @@ namespace N64
 			if (n64.GetRsp().IsHalted() == false)
 			{
 				state.rspConsumableCycles += takenCpu * 2;
-				while (state.rspConsumableCycles >= 3)
+				while (state.rspConsumableCycles >= 3 && n64.GetRsp().IsHalted() == false)
 				{
 					// CPUステップ3回につき、RSPステップ2回になるように
 					const uint32 takenRsp = n64.GetRsp().Step(n64);

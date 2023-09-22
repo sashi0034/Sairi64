@@ -534,7 +534,7 @@ public:
 			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr8);
 			x86Asm.call(x86::rax); // eax <- value
 			if constexpr (op == Opcode::LB)
-				x86Asm.movsxd(x86::rax, x86::al); // rax <- sign-extended al
+				x86Asm.movsx(x86::rax, x86::al); // rax <- sign-extended al
 			else
 				x86Asm.movzx(x86::eax, x86::al); // rax <- zero-extended al
 		}
@@ -543,7 +543,7 @@ public:
 			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr16);
 			x86Asm.call(x86::rax); // eax <- value
 			if constexpr (op == Opcode::LH)
-				x86Asm.movsxd(x86::rax, x86::ax); // rax <- sign-extended ax
+				x86Asm.movsx(x86::rax, x86::ax); // rax <- sign-extended ax
 			else
 				x86Asm.movzx(x86::eax, x86::ax); // rax <- zero-extended ax
 		}

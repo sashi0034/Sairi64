@@ -527,7 +527,6 @@ public:
 		preprocessMemoryAccess<BusAccess::Load>(ctx, state, instr);
 		// now, paddr is stored in rax
 
-		if (rt == 0) return DecodedToken::Continue;
 		x86Asm.mov(x86::rdx, x86::rax); // rdx <- paddr
 		x86Asm.mov(x86::rcx, (uint64)ctx.n64); // rcx <- *n64
 		if constexpr (op == Opcode::LB || op == Opcode::LBU)
@@ -557,7 +556,7 @@ public:
 		{
 			static_assert(AlwaysFalseValue<Opcode, op>);
 		}
-		x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt])), x86::rax); // rt <- rax
+		if (rt != 0) x86Asm.mov(x86::qword_ptr(reinterpret_cast<uint64>(&gpr.Raw()[rt])), x86::rax); // rt <- rax
 		return DecodedToken::Continue;
 	}
 
@@ -859,15 +858,14 @@ private:
 			return false;
 		}
 
-		if (rt == &cpu.GetGpr().Raw()[0]) return true;
-
 		if constexpr (op == Opcode::LDL)
 		{
 			const sint32 shift = 8 * ((vaddr ^ 0) & 7);
 			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF << shift;
 			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
 			const uint64 oldRt = *rt;
-			*rt = (oldRt & ~mask) | (data << shift);
+			if (rt != &cpu.GetGpr().Raw()[0])
+				*rt = (oldRt & ~mask) | (data << shift);
 		}
 		else if constexpr (op == Opcode::LDR)
 		{
@@ -875,7 +873,8 @@ private:
 			const uint64 mask = (uint64)0xFFFFFFFFFFFFFFFF >> shift;
 			const uint64 data = Mmu::ReadPaddr64(n64, PAddr32(paddr.value() & ~7));
 			const uint64 oldRt = *rt;
-			*rt = (oldRt & ~mask) | (data >> shift);
+			if (rt != &cpu.GetGpr().Raw()[0])
+				*rt = (oldRt & ~mask) | (data >> shift);
 		}
 		else if constexpr (op == Opcode::LWL)
 		{
@@ -883,7 +882,8 @@ private:
 			const uint32 mask = 0xFFFFFFFF << shift;
 			const uint32 data = PAddr32(paddr.value() & ~3);
 			const sint32 result = (*rt & ~mask) | data << shift;
-			*rt = static_cast<sint64>(result);
+			if (rt != &cpu.GetGpr().Raw()[0])
+				*rt = static_cast<sint64>(result);
 		}
 		else if constexpr (op == Opcode::LWR)
 		{
@@ -891,7 +891,8 @@ private:
 			const uint32 mask = 0xFFFFFFFF >> shift;
 			const uint32 data = PAddr32(paddr.value() & ~3);
 			const sint32 result = (*rt & ~mask) | data >> shift;
-			*rt = static_cast<sint64>(result);
+			if (rt != &cpu.GetGpr().Raw()[0])
+				*rt = static_cast<sint64>(result);
 		}
 		else static_assert(AlwaysFalseValue<Opcode, op>);
 		return true;

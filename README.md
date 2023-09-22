@@ -11,10 +11,9 @@ I'm reviewing and relearning again: [kmc-jp/n64-emu](https://github.com/kmc-jp/n
  
     ![image](https://github.com/sashi0034/Sairi64/assets/82739042/ab7dd423-37bf-4c78-8d6c-bce57a764d74)
 
-# Note
+# Requirements
 
-- Only little-endian Windows machine is supported for now
-- The dynamic recompiler is currently only supported on x86_64
+- Little-endian x86_64 Windows (The dynamic recompiler supports only x86_64 for now)
 
 # Build
 

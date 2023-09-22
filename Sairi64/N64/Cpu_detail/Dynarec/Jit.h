@@ -533,19 +533,28 @@ public:
 		{
 			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr8);
 			x86Asm.call(x86::rax); // eax <- value
-			if constexpr (op == Opcode::LB) x86Asm.movsxd(x86::rax, x86::al); // rax <- sign-extended al
+			if constexpr (op == Opcode::LB)
+				x86Asm.movsxd(x86::rax, x86::al); // rax <- sign-extended al
+			else
+				x86Asm.movzx(x86::eax, x86::al); // rax <- zero-extended al
 		}
 		else if constexpr (op == Opcode::LH || op == Opcode::LHU)
 		{
 			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr16);
 			x86Asm.call(x86::rax); // eax <- value
-			if constexpr (op == Opcode::LH) x86Asm.movsxd(x86::rax, x86::ax); // rax <- sign-extended ax
+			if constexpr (op == Opcode::LH)
+				x86Asm.movsxd(x86::rax, x86::ax); // rax <- sign-extended ax
+			else
+				x86Asm.movzx(x86::eax, x86::ax); // rax <- zero-extended ax
 		}
 		else if constexpr (op == Opcode::LW || op == Opcode::LWU)
 		{
 			x86Asm.mov(x86::rax, (uint64)&Mmu::ReadPaddr32);
 			x86Asm.call(x86::rax); // rax <- value
-			if constexpr (op == Opcode::LW) x86Asm.movsxd(x86::rax, x86::eax); // rax <- sign-extended eax
+			if constexpr (op == Opcode::LW)
+				x86Asm.movsxd(x86::rax, x86::eax); // rax <- sign-extended eax
+			else
+				x86Asm.movzx(x86::eax, x86::eax); // rax <- zero-extended eax
 		}
 		else if constexpr (op == Opcode::LD)
 		{

@@ -75,8 +75,14 @@ public:
 		using ss = std::stringstream;
 		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.Info().frameRate)).str().c_str());
 		ImGui::Text((ss{} << "Frame count: " << n64Frame.Info().frameCount).str().c_str());
-		ImGui::Text((fmt::format("CPU PC: {:016X}", n64System.GetCpu().GetPc().Curr()).c_str()));
-		ImGui::Text((fmt::format("RSP PC: {:04X}", n64System.GetRsp().GetPc().Curr()).c_str()));
+		ImGui::Text((fmt::format("CPU PC: \n\t{:016X}\n\t{:016X}\n\t{:016X}",
+		                         n64System.GetCpu().GetPc().Prev(),
+		                         n64System.GetCpu().GetPc().Curr(),
+		                         n64System.GetCpu().GetPc().Next()).c_str()));
+		ImGui::Text((fmt::format("RSP PC: {:04X}, {:04X}, {:04X}",
+		                         n64System.GetRsp().GetPc().Prev(),
+		                         n64System.GetRsp().GetPc().Curr(),
+		                         n64System.GetRsp().GetPc().Next()).c_str()));
 
 		// システム
 		if (n64Frame.IsSuspended() == false)
@@ -100,8 +106,10 @@ public:
 		}
 
 		// 音量調整
-		if (ImGui::SliderFloat("Global volume", &m_globalVolume, 0.0f, 1.0f))
+		if (m_globalVolume == -1 ||
+			ImGui::SliderFloat("Global volume", &m_globalVolume, 0.0f, 1.0f))
 		{
+			if (m_globalVolume == -1) m_globalVolume = n64Config.audio.volume;
 			n64System.GetAI().SetGlobalVolume(m_globalVolume);
 		}
 
@@ -124,7 +132,7 @@ private:
 	bool m_fullscreen = true;
 	Size m_windowSize{};
 
-	float m_globalVolume = 0.0f;
+	float m_globalVolume = -1;
 
 	ImS3dTexture m_mainDisplay{Texture()};
 	UiMemoryViewer m_rdramViewer{};

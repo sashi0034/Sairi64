@@ -1,3 +1,7 @@
 [rom]
 # Enter the path where the ROM file is located
 filepath=""
+
+[audio]
+# Set audio global volume [-1.0, 1.0]
+volume=1.0

@@ -19,6 +19,7 @@ namespace N64::Rsp_detail
 	class Pc
 	{
 	public:
+		uint16 Prev() const { return m_raw.prev; }
 		uint16 Curr() const { return m_raw.curr; }
 		uint16 Next() const { return m_raw.next; }
 

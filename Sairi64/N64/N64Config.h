@@ -10,6 +10,11 @@ namespace N64
 			String filePath;
 		} rom;
 
+		struct
+		{
+			double volume;
+		} audio;
+
 		ProcessorType processor = defaultProcessor();
 
 		struct

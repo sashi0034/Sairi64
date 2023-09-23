@@ -23,7 +23,7 @@ public:
 		ImGui::SliderInt("Tile ID", &m_tileId, 0, 7);
 
 		const auto [width,height] = updateTexture(rdp);
-		constexpr float showScale = 4.0f;
+		constexpr float showScale = 2.0f;
 		if (const auto id = m_im.GetId())
 			ImGui::Image(id.value(), ImVec2{width * showScale, height * showScale},
 			             ImVec2{0, 0},

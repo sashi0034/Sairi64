@@ -12,6 +12,8 @@
 class Dui::DuiManager::Impl
 {
 public:
+	DuiExportData& ExportData() { return m_exportData; }
+
 	void CheckWindowSize()
 	{
 		const auto currentWindowSize = Window::GetState().frameBufferSize;
@@ -113,6 +115,8 @@ public:
 			n64System.GetAI().SetGlobalVolume(m_globalVolume);
 		}
 
+		ImGui::Checkbox("Power saving", &m_exportData.powerSaving);
+
 		ImGui::End();
 	}
 
@@ -129,6 +133,10 @@ public:
 	}
 
 private:
+	DuiExportData m_exportData{
+		.powerSaving = true
+	};
+
 	bool m_fullscreen = true;
 	Size m_windowSize{};
 
@@ -167,6 +175,11 @@ namespace Dui
 
 		// 各要素
 		m_impl->UpdateContents(n64System);
+	}
+
+	const DuiExportData& DuiManager::ExportData() const
+	{
+		return m_impl->ExportData();
 	}
 
 	DuiManager::ImplPtr::~ImplPtr() = default;

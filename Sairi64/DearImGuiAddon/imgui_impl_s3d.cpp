@@ -223,10 +223,10 @@ static void CreateFontsTexture()
 	Image image(size);
 	memcpy_s(image.dataAsUint8(), image.size_bytes(), pixels, size.x * size.y * 4);
 
-	Texture texture(image);
+	const Texture texture(image);
 	g_Context->fontTexture = texture;
 
-	ImTextureID id = ImGui_ImplS3d_RegisterTexture(texture);
+	const ImTextureID id = ImGui_ImplS3d_RegisterTexture(texture);
 	io.Fonts->SetTexID(id);
 
 	// io.FontGlobalScale = io.FontGlobalScale / Window::GetState().scaling;
@@ -288,7 +288,7 @@ void ImGui_ImplS3d_NewFrame()
 	}
 
 	ImGuiIO& io = ImGui::GetIO();
-	uint64 currentTime = Time::GetMillisec();
+	const uint64 currentTime = Time::GetMillisec();
 
 	// Display
 	{
@@ -297,104 +297,94 @@ void ImGui_ImplS3d_NewFrame()
 	}
 
 	// TextInput
+	const String editingText = TextInput::GetEditingText();
+	const String input = TextInput::GetRawInput();
+	if (editingText)
 	{
-		const String editingText = TextInput::GetEditingText();
-		const String input = TextInput::GetRawInput();
-		if (editingText)
-		{
-			// 文字変換との競合を防止するため、変換中はキーボード入力を一時的に無効化する
-			g_Context->keyDownMinTime = currentTime + 100;
-		}
-		if (input)
-		{
-			io.AddInputCharactersUTF8(Unicode::ToUTF8(input).c_str());
-		}
+		// 文字変換との競合を防止するため、変換中はキーボード入力を一時的に無効化する
+		g_Context->keyDownMinTime = currentTime + 100;
+	}
+	if (input)
+	{
+		io.AddInputCharactersUTF8(Unicode::ToUTF8(input).c_str());
 	}
 
 	// Keyboard
+	for (auto key : Keyboard::GetAllInputs())
 	{
-		for (auto key : Keyboard::GetAllInputs())
+		uint64& keyDownTime = g_Context->keyDownTimeList[key.code()];
+		if (key.down())
 		{
-			uint64& keyDownTime = g_Context->keyDownTimeList[key.code()];
-			if (key.down())
-			{
-				keyDownTime = currentTime;
-			}
-
-			const bool pressed = key.pressed() && keyDownTime >= g_Context->keyDownMinTime;
-			io.AddKeyEvent(ToImGuiKey(key), pressed);
+			keyDownTime = currentTime;
 		}
+
+		const bool pressed = key.pressed() && keyDownTime >= g_Context->keyDownMinTime;
+		io.AddKeyEvent(ToImGuiKey(key), pressed);
 	}
 
 	// Cursor
+	if (io.WantSetMousePos)
 	{
-		if (io.WantSetMousePos)
-		{
-			Cursor::SetPos(io.MousePos.x, io.MousePos.y);
-		}
+		Cursor::SetPos(io.MousePos.x, io.MousePos.y);
+	}
 
-		if (not(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange))
+	if (not(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange))
+	{
+		if (io.MouseDrawCursor)
 		{
-			if (io.MouseDrawCursor)
+			Cursor::RequestStyle(CursorStyle::Hidden);
+		}
+		else
+		{
+			CursorStyle s3dStyle;
+			switch (ImGui::GetMouseCursor())
 			{
-				Cursor::RequestStyle(CursorStyle::Hidden);
+			case ImGuiMouseCursor_None: s3dStyle = CursorStyle::Hidden;
+				break;
+			case ImGuiMouseCursor_Arrow: s3dStyle = CursorStyle::Arrow;
+				break;
+			case ImGuiMouseCursor_TextInput: s3dStyle = CursorStyle::IBeam;
+				break;
+			case ImGuiMouseCursor_ResizeAll: s3dStyle = CursorStyle::ResizeAll;
+				break;
+			case ImGuiMouseCursor_ResizeEW: s3dStyle = CursorStyle::ResizeLeftRight;
+				break;
+			case ImGuiMouseCursor_ResizeNS: s3dStyle = CursorStyle::ResizeUpDown;
+				break;
+			case ImGuiMouseCursor_ResizeNESW: s3dStyle = CursorStyle::ResizeNESW;
+				break;
+			case ImGuiMouseCursor_ResizeNWSE: s3dStyle = CursorStyle::ResizeNWSE;
+				break;
+			case ImGuiMouseCursor_Hand: s3dStyle = CursorStyle::Hand;
+				break;
+			case ImGuiMouseCursor_NotAllowed: s3dStyle = CursorStyle::NotAllowed;
+				break;
+			default: s3dStyle = CursorStyle::Default;
+				break;
 			}
-			else
-			{
-				CursorStyle s3dStyle;
-				switch (ImGui::GetMouseCursor())
-				{
-				case ImGuiMouseCursor_None: s3dStyle = CursorStyle::Hidden;
-					break;
-				case ImGuiMouseCursor_Arrow: s3dStyle = CursorStyle::Arrow;
-					break;
-				case ImGuiMouseCursor_TextInput: s3dStyle = CursorStyle::IBeam;
-					break;
-				case ImGuiMouseCursor_ResizeAll: s3dStyle = CursorStyle::ResizeAll;
-					break;
-				case ImGuiMouseCursor_ResizeEW: s3dStyle = CursorStyle::ResizeLeftRight;
-					break;
-				case ImGuiMouseCursor_ResizeNS: s3dStyle = CursorStyle::ResizeUpDown;
-					break;
-				case ImGuiMouseCursor_ResizeNESW: s3dStyle = CursorStyle::ResizeNESW;
-					break;
-				case ImGuiMouseCursor_ResizeNWSE: s3dStyle = CursorStyle::ResizeNWSE;
-					break;
-				case ImGuiMouseCursor_Hand: s3dStyle = CursorStyle::Hand;
-					break;
-				case ImGuiMouseCursor_NotAllowed: s3dStyle = CursorStyle::NotAllowed;
-					break;
-				default: s3dStyle = CursorStyle::Default;
-					break;
-				}
-				Cursor::RequestStyle(s3dStyle);
-			}
+			Cursor::RequestStyle(s3dStyle);
 		}
 	}
 
 	// Mouse
+	const Vec2 mousePos = Cursor::PosF();
+	const Vec2 wheel{Mouse::WheelH(), Mouse::Wheel()};
+
+	io.AddMousePosEvent(mousePos.x, mousePos.y);
+	io.AddMouseWheelEvent(-wheel.x, -wheel.y);
+	for (const Input& input : Mouse::GetAllInputs())
 	{
-		const Vec2 mousePos = Cursor::PosF();
-		const Vec2 wheel{Mouse::WheelH(), Mouse::Wheel()};
+		io.AddMouseButtonEvent(input.code(), input.pressed());
+	}
 
-		io.AddMousePosEvent(mousePos.x, mousePos.y);
-		io.AddMouseWheelEvent(-wheel.x, -wheel.y);
-		for (const Input& input : Mouse::GetAllInputs())
-		{
-			io.AddMouseButtonEvent(input.code(), input.pressed());
-		}
-
-		if (io.WantCaptureMouse)
-		{
-			Mouse::ClearLRInput();
-		}
+	if (io.WantCaptureMouse)
+	{
+		Mouse::ClearLRInput();
 	}
 
 	// Window
-	{
-		const WindowState& state = Window::GetState();
-		io.AddFocusEvent(!state.sizeMove && state.focused);
-	}
+	const WindowState& state = Window::GetState();
+	io.AddFocusEvent(!state.sizeMove && state.focused);
 }
 
 void ImGui_ImplS3d_RenderDrawData(ImDrawData* draw_data)
@@ -419,7 +409,7 @@ void ImGui_ImplS3d_RenderDrawData(ImDrawData* draw_data)
 			dstVtx.tex.x = srcVtx.uv.x;
 			dstVtx.tex.y = srcVtx.uv.y;
 
-			const uint8* c = (uint8*)(&srcVtx.col);
+			const uint8* c = reinterpret_cast<const uint8*>(&srcVtx.col);
 			dstVtx.color = ColorF(Color(c[0], c[1], c[2], c[3])).toFloat4();
 		}
 		sp.indices.resize(cmd_list->IdxBuffer.Size / 3);
@@ -431,6 +421,7 @@ void ImGui_ImplS3d_RenderDrawData(ImDrawData* draw_data)
 		uint32 idxOffset = 0;
 		ImVec2 clipOffset = draw_data->DisplayPos;
 
+		const ScopedRenderStates2D sampler{SamplerState::ClampNearest};
 		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
 		{
 			const ImDrawCmd& pcmd = cmd_list->CmdBuffer[cmd_i];

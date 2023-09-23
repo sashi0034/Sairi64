@@ -18,9 +18,7 @@ public:
 
 		ImGui::SliderInt("Tile ID", &m_tileId, 0, 7);
 
-		const auto [w0,h0] = updateTexture(rdp);
-		const auto width = std::max(w0, static_cast<int>(bufferSize_256));
-		const auto height = std::max(h0, static_cast<int>(bufferSize_256));
+		const auto [width,height] = updateTexture(rdp);
 		constexpr float showScale = 4.0f;
 		if (const auto id = m_im.GetId())
 			ImGui::Image(id.value(), ImVec2{width * showScale, height * showScale},
@@ -47,25 +45,27 @@ private:
 		const uint32 width = targetTile.line * sizeof(uint64) / std::max(bytesPerTexel, static_cast<uint8>(1));
 		const uint32 height = (commanderState.tmem.size() - targetTile.tmemAddr * sizeof(uint64)) / std::max(
 			(width * bytesPerTexel * bytesPerTexel), 1u);
-		const std::span tmem{
-			&commanderState.tmem[targetTile.tmemAddr * sizeof(uint64)], width * height * bytesPerTexel
+		const std::span tmem = commanderState.tmem;
+		const auto safeSize = Size{
+			std::max(width, bufferSize_256), std::max(height, bufferSize_256)
 		};
 
-		dumpTmem(targetTile, {width, height}, bytesPerTexel, tmem);
+		dumpTmem(targetTile, safeSize, bytesPerTexel, tmem);
 
 		m_texture.fill(m_pixelBuffer);
-		return {width, height};
+		return safeSize;
 	}
 
 	void dumpTmem(
 		const N64::Rdp_detail::TileProps& tile, Size size, uint8 bytePerTexel, std::span<const uint8> tmem)
 	{
 		const uint32 bytesPerTileLine = tile.line * sizeof(uint64);
-		for (uint32 y = 0; y < size.y; ++y)
+		for (uint32 y = 0; y < std::min(bufferSize_256, static_cast<uint32>(size.y)); ++y)
 		{
-			for (uint32 x = 0; x < size.x; ++x)
+			for (uint32 x = 0; x < std::min(bufferSize_256, static_cast<uint32>(size.x)); ++x)
 			{
-				const uint32 offset = (x ^ 1) * bytePerTexel + y * bytesPerTileLine; // ?
+				const uint32 offset =
+					tile.tmemAddr * sizeof(uint64) + (x ^ 1) * bytePerTexel + y * bytesPerTileLine; // ?
 				if (offset >= tmem.size()) break;
 				N64::Rdp_detail::Color16Bpp texel = Utils::ReadBytes16(tmem, offset);
 				m_pixelBuffer[y][x].r = texel.R() << 3;

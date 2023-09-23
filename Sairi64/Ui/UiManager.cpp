@@ -3,6 +3,7 @@
 
 #include "UiDisassembly.h"
 #include "UiMemoryViewer.h"
+#include "UiTmemViewer.h"
 #include "UiUtil.h"
 #include "N64/N64Frame.h"
 #include "N64/N64System.h"
@@ -34,6 +35,8 @@ public:
 
 		m_cpuDisassembly.Update("RDRAM Disassembly", n64.GetMemory().Rdram());
 		m_rspDisassembly.Update("IMEM Disassembly", n64.GetRsp().Imem());
+
+		m_tmemViewer.Update("TMEM Viewer", n64.GetRdp());
 	}
 
 private:
@@ -44,6 +47,7 @@ private:
 	UiMemoryViewer m_imemViewer{};
 	UiDisassembly m_cpuDisassembly{};
 	UiDisassembly m_rspDisassembly{};
+	UiTmemViewer m_tmemViewer{};
 };
 
 namespace Ui

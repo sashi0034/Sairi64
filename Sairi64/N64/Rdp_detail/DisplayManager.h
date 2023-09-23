@@ -12,6 +12,7 @@ namespace N64::Rdp_detail
 		void ScanR5G5B5A1(N64System& n64);
 		void ScanR8G8B8A8(N64System& n64);
 		void Render(const RenderConfig& config) const;
+		DynamicTexture GetTexture() const;
 
 	private:
 		class Impl;

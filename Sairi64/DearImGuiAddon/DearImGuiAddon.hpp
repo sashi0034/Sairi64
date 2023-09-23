@@ -20,7 +20,7 @@ class ImS3dTexture
 public:
 	explicit ImS3dTexture(const Texture& texture);
 	Texture& GetTexture() const;
-	ImTextureID GetId() const;
+	Optional<ImTextureID> GetId() const;
 
 private:
 	class Impl;

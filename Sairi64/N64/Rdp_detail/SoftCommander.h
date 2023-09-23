@@ -14,6 +14,7 @@ namespace N64::Rdp_detail
 	public:
 		void FullSync();
 		void EnqueueCommand(N64System& n64, const RdpCommand& cmd);
+		const CommanderState& GetState() const { return m_state; };
 
 	private:
 		CommanderState m_state{};

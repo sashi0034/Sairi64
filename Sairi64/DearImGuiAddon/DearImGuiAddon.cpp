@@ -63,7 +63,7 @@ public:
 	ImTextureID id;
 };
 
-ImS3dTexture::ImS3dTexture(const Texture& texture): m_impl(std::make_shared<Impl>(texture))
+ImS3dTexture::ImS3dTexture(const Texture& texture) : m_impl(std::make_shared<Impl>(texture))
 {
 }
 
@@ -72,7 +72,8 @@ Texture& ImS3dTexture::GetTexture() const
 	return m_impl->texture;
 }
 
-ImTextureID ImS3dTexture::GetId() const
+Optional<ImTextureID> ImS3dTexture::GetId() const
 {
+	if (m_impl->id == nullptr) return none;
 	return m_impl->id;
 }

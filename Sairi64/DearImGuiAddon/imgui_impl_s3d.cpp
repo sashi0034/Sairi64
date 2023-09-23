@@ -237,14 +237,14 @@ static void CreateFontsTexture()
 ImTextureID ImGui_ImplS3d_RegisterTexture(const Texture& tex)
 {
 	const ImTextureID id = reinterpret_cast<void*>(tex.id().value());
-	g_Context->textureDic.try_emplace(id, tex);
+	if (id != nullptr) g_Context->textureDic.try_emplace(id, tex);
 	return id;
 }
 
 void ImGui_ImplS3d_UnregisterTexture(const Texture& tex)
 {
 	const ImTextureID id = reinterpret_cast<void*>(tex.id().value());
-	g_Context->textureDic.erase(id);
+	if (id != nullptr) g_Context->textureDic.erase(id);
 }
 
 Texture ImGui_ImplS3d_GetTexture(ImTextureID id)

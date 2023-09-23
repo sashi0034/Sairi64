@@ -37,6 +37,8 @@ namespace N64::Rdp_detail
 		Rdp();
 		void UpdateDisplay(N64System& n64);
 		void RenderReal(const RenderConfig& config) const;
+		DynamicTexture GetDisplayTexture() const;
+		const CommanderState& GetCommanderState() const { return m_commander.GetState(); }
 
 		uint32 Read32(PAddr32 paddr) const;
 		void Write32(N64System& n64, PAddr32 paddr, uint32 value);

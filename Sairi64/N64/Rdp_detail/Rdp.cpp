@@ -156,6 +156,11 @@ namespace N64::Rdp_detail
 		m_display.Render(config);
 	}
 
+	DynamicTexture Rdp::GetDisplayTexture() const
+	{
+		return m_display.GetTexture();
+	}
+
 	uint32 Rdp::Read32(PAddr32 paddr) const
 	{
 		switch (paddr)

@@ -83,9 +83,14 @@ namespace N64::Rdp_detail
 
 	void DisplayManager::Render(const RenderConfig& config) const
 	{
+		(void)GetTexture().scaled(config.scale * m_videoScale).draw(config.startPoint);
+	}
+
+	DynamicTexture DisplayManager::GetTexture() const
+	{
 		m_refreshAction();
 		m_refreshAction = [] { return; };;
 		m_texture.fill(m_pixelBuffer);
-		(void)m_texture.scaled(config.scale * m_videoScale).draw(config.startPoint);
+		return m_texture;
 	}
 }

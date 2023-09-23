@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "imgui_impl_s3d.h"
 
-struct ImeWindowContext
+struct ImeWindowData
 {
 	Vec2 pos;
 
@@ -18,7 +18,7 @@ struct ImGui_ImplS3d_Context
 
 	Texture fontTexture;
 
-	Optional<ImeWindowContext> imeWindow;
+	Optional<ImeWindowData> imeWindow;
 
 	std::unordered_map<
 		ImTextureID, Texture, decltype([](ImTextureID id) { return reinterpret_cast<size_t>(id); })> textureDic;
@@ -182,7 +182,7 @@ static void SetImeDataCallback(ImGuiViewport* viewport, ImGuiPlatformImeData* da
 {
 	if (data->WantVisible)
 	{
-		g_Context->imeWindow = ImeWindowContext{
+		g_Context->imeWindow = ImeWindowData{
 			.pos = ToFloat2(data->InputPos),
 			.lineHeight = data->InputLineHeight
 		};
@@ -200,7 +200,7 @@ static void RenderImeWindow()
 		return;
 	}
 
-	ImeWindowContext& imeWindow = g_Context->imeWindow.value();
+	ImeWindowData& imeWindow = g_Context->imeWindow.value();
 
 	const auto& font = SimpleGUI::GetFont();
 	const auto drawableText = font(TextInput::GetEditingText());
@@ -234,16 +234,16 @@ static void CreateFontsTexture()
 
 // API
 
-ImTextureID ImGui_ImplS3d_RegisterTexture(Texture& tex)
+ImTextureID ImGui_ImplS3d_RegisterTexture(const Texture& tex)
 {
-	ImTextureID id = reinterpret_cast<void*>(tex.id().value());
+	const ImTextureID id = reinterpret_cast<void*>(tex.id().value());
 	g_Context->textureDic.try_emplace(id, tex);
 	return id;
 }
 
-void ImGui_ImplS3d_UnregisterTexture(Texture& tex)
+void ImGui_ImplS3d_UnregisterTexture(const Texture& tex)
 {
-	ImTextureID id = reinterpret_cast<void*>(tex.id().value());
+	const ImTextureID id = reinterpret_cast<void*>(tex.id().value());
 	g_Context->textureDic.erase(id);
 }
 
@@ -298,8 +298,8 @@ void ImGui_ImplS3d_NewFrame()
 
 	// TextInput
 	{
-		String editingText = TextInput::GetEditingText();
-		String input = TextInput::GetRawInput();
+		const String editingText = TextInput::GetEditingText();
+		const String input = TextInput::GetRawInput();
 		if (editingText)
 		{
 			// 文字変換との競合を防止するため、変換中はキーボード入力を一時的に無効化する
@@ -401,7 +401,7 @@ void ImGui_ImplS3d_RenderDrawData(ImDrawData* draw_data)
 {
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
-	Rect prevScissorRect = Graphics2D::GetScissorRect();
+	const Rect prevScissorRect = Graphics2D::GetScissorRect();
 
 	for (int n = 0; n < draw_data->CmdListsCount; n++)
 	{

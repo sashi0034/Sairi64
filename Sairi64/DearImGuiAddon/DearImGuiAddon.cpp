@@ -45,3 +45,34 @@ DearImGuiAddon::~DearImGuiAddon()
 {
 	ImGui_ImplS3d_Shutdown();
 }
+
+class ImS3dTexture::Impl
+{
+public:
+	explicit Impl(const Texture& texture): texture(texture)
+	{
+		id = ImGui_ImplS3d_RegisterTexture(texture);
+	}
+
+	~Impl()
+	{
+		ImGui_ImplS3d_UnregisterTexture(texture);
+	}
+
+	Texture texture;
+	ImTextureID id;
+};
+
+ImS3dTexture::ImS3dTexture(const Texture& texture): m_impl(std::make_shared<Impl>(texture))
+{
+}
+
+Texture& ImS3dTexture::GetTexture() const
+{
+	return m_impl->texture;
+}
+
+ImTextureID ImS3dTexture::GetId() const
+{
+	return m_impl->id;
+}

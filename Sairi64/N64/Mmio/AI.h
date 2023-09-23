@@ -25,6 +25,8 @@ namespace N64::Mmio
 		void Write32(N64System& n64, PAddr32 paddr, uint32 value);
 		uint32 Step(N64System& n64);
 
+		void SetGlobalVolume(double volume) const { (void)m_audio.setVolume(volume); }
+
 	private:
 		std::shared_ptr<AudioStreaming> m_stream{};
 		s3d::Audio m_audio{};

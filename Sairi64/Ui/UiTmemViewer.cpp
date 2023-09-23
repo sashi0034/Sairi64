@@ -14,7 +14,11 @@ class Ui::UiTmemViewer::Impl
 public:
 	void Update(std::string_view viewName, const N64::Rdp& rdp)
 	{
-		ImGui::Begin(viewName.data());
+		if (not ImGui::Begin(viewName.data()))
+		{
+			ImGui::End();
+			return;
+		}
 
 		ImGui::SliderInt("Tile ID", &m_tileId, 0, 7);
 

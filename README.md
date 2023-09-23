@@ -3,9 +3,9 @@ N64 emulator for my learning
 
 I'm reviewing and relearning again: [kmc-jp/n64-emu](https://github.com/kmc-jp/n64-emu)
 
-- 🖥️ Debug GUI
+- 🖥️ Debug GUI (using [Dear ImGui](https://github.com/ocornut/imgui))
 
-    ![image](https://github.com/sashi0034/Sairi64/assets/82739042/d26e074e-ba6b-4f89-9ad0-812a8418c7c5)
+    ![image](https://github.com/sashi0034/Sairi64/assets/82739042/80f0e957-54d5-4daf-9580-0ef2e3cd6a7f)
 
 - ✅ Succeeded in partially displaying [mini](https://github.com/wermipls/mimi)
  

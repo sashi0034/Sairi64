@@ -8,7 +8,7 @@ struct ImeWindowContext
 	double lineHeight;
 };
 
-struct ImGuiImpls3dContext
+struct ImGui_ImplS3d_Context
 {
 	std::string clipboardData;
 
@@ -20,8 +20,8 @@ struct ImGuiImpls3dContext
 
 	Optional<ImeWindowContext> imeWindow;
 
-	std::unordered_map<ImTextureID, Texture, decltype([](ImTextureID id) { return reinterpret_cast<size_t>(id); })>
-	textureDic;
+	std::unordered_map<
+		ImTextureID, Texture, decltype([](ImTextureID id) { return reinterpret_cast<size_t>(id); })> textureDic;
 };
 
 const static std::unordered_map<uint8, ImGuiKey> KeyId2ImGuiKeyDic{
@@ -157,11 +157,11 @@ static ImGuiKey ToImGuiKey(Input input)
 	       : itr->second;
 }
 
-static std::unique_ptr<ImGuiImpls3dContext> Context;
+static std::unique_ptr<ImGui_ImplS3d_Context> g_Context;
 
 static const char* GetClipboardTextCallback(void*)
 {
-	Context->clipboardData.clear();
+	g_Context->clipboardData.clear();
 
 	String buff;
 	if (not Clipboard::GetText(buff))
@@ -169,8 +169,8 @@ static const char* GetClipboardTextCallback(void*)
 		return NULL;
 	}
 
-	Context->clipboardData = Unicode::ToUTF8(buff);
-	return Context->clipboardData.c_str();
+	g_Context->clipboardData = Unicode::ToUTF8(buff);
+	return g_Context->clipboardData.c_str();
 }
 
 static void SetClipboardTextCallback(void*, const char* text)
@@ -182,25 +182,25 @@ static void SetImeDataCallback(ImGuiViewport* viewport, ImGuiPlatformImeData* da
 {
 	if (data->WantVisible)
 	{
-		Context->imeWindow = ImeWindowContext{
+		g_Context->imeWindow = ImeWindowContext{
 			.pos = ToFloat2(data->InputPos),
 			.lineHeight = data->InputLineHeight
 		};
 	}
 	else
 	{
-		Context->imeWindow.reset();
+		g_Context->imeWindow.reset();
 	}
 }
 
 static void RenderImeWindow()
 {
-	if (not Context->imeWindow)
+	if (not g_Context->imeWindow)
 	{
 		return;
 	}
 
-	ImeWindowContext& imeWindow = Context->imeWindow.value();
+	ImeWindowContext& imeWindow = g_Context->imeWindow.value();
 
 	const auto& font = SimpleGUI::GetFont();
 	const auto drawableText = font(TextInput::GetEditingText());
@@ -224,9 +224,9 @@ static void CreateFontsTexture()
 	memcpy_s(image.dataAsUint8(), image.size_bytes(), pixels, size.x * size.y * 4);
 
 	Texture texture(image);
-	Context->fontTexture = texture;
+	g_Context->fontTexture = texture;
 
-	ImTextureID id = ImGui_Impl_s3d_RegisterTexture(texture);
+	ImTextureID id = ImGui_ImplS3d_RegisterTexture(texture);
 	io.Fonts->SetTexID(id);
 
 	// io.FontGlobalScale = io.FontGlobalScale / Window::GetState().scaling;
@@ -234,28 +234,28 @@ static void CreateFontsTexture()
 
 // API
 
-ImTextureID ImGui_Impl_s3d_RegisterTexture(Texture& tex)
+ImTextureID ImGui_ImplS3d_RegisterTexture(Texture& tex)
 {
 	ImTextureID id = reinterpret_cast<void*>(tex.id().value());
-	Context->textureDic.try_emplace(id, tex);
+	g_Context->textureDic.try_emplace(id, tex);
 	return id;
 }
 
-void ImGui_Impl_s3d_UnregisterTexture(Texture& tex)
+void ImGui_ImplS3d_UnregisterTexture(Texture& tex)
 {
 	ImTextureID id = reinterpret_cast<void*>(tex.id().value());
-	Context->textureDic.erase(id);
+	g_Context->textureDic.erase(id);
 }
 
-Texture ImGui_Impl_s3d_GetTexture(ImTextureID id)
+Texture ImGui_ImplS3d_GetTexture(ImTextureID id)
 {
-	return Context->textureDic.at(id);
+	return g_Context->textureDic.at(id);
 }
 
-bool ImGui_Impl_s3d_Init()
+bool ImGui_ImplS3d_Init()
 {
-	Context = std::make_unique<ImGuiImpls3dContext>();
-	Context->keyDownTimeList.fill(0);
+	g_Context = std::make_unique<ImGui_ImplS3d_Context>();
+	g_Context->keyDownTimeList.fill(0);
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -263,8 +263,8 @@ bool ImGui_Impl_s3d_Init()
 	io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 	// io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 
-	io.BackendPlatformName = "imgui_impl_s3d";
-	io.BackendRendererName = "imgui_impl_s3d";
+	io.BackendPlatformName = "ImGui_ImplS3d";
+	io.BackendRendererName = "ImGui_ImplS3d";
 
 	io.GetClipboardTextFn = &GetClipboardTextCallback;
 	io.SetClipboardTextFn = &SetClipboardTextCallback;
@@ -275,14 +275,14 @@ bool ImGui_Impl_s3d_Init()
 	return true;
 }
 
-void ImGui_Impl_s3d_Shutdown()
+void ImGui_ImplS3d_Shutdown()
 {
-	Context.reset();
+	g_Context.reset();
 }
 
-void ImGui_Impl_s3d_NewFrame()
+void ImGui_ImplS3d_NewFrame()
 {
-	if (not Context->fontTexture)
+	if (not g_Context->fontTexture)
 	{
 		CreateFontsTexture();
 	}
@@ -303,7 +303,7 @@ void ImGui_Impl_s3d_NewFrame()
 		if (editingText)
 		{
 			// 文字変換との競合を防止するため、変換中はキーボード入力を一時的に無効化する
-			Context->keyDownMinTime = currentTime + 100;
+			g_Context->keyDownMinTime = currentTime + 100;
 		}
 		if (input)
 		{
@@ -315,13 +315,13 @@ void ImGui_Impl_s3d_NewFrame()
 	{
 		for (auto key : Keyboard::GetAllInputs())
 		{
-			uint64& keyDownTime = Context->keyDownTimeList[key.code()];
+			uint64& keyDownTime = g_Context->keyDownTimeList[key.code()];
 			if (key.down())
 			{
 				keyDownTime = currentTime;
 			}
 
-			const bool pressed = key.pressed() && keyDownTime >= Context->keyDownMinTime;
+			const bool pressed = key.pressed() && keyDownTime >= g_Context->keyDownMinTime;
 			io.AddKeyEvent(ToImGuiKey(key), pressed);
 		}
 	}
@@ -397,7 +397,7 @@ void ImGui_Impl_s3d_NewFrame()
 	}
 }
 
-void ImGui_Impl_s3d_RenderDrawData(ImDrawData* draw_data)
+void ImGui_ImplS3d_RenderDrawData(ImDrawData* draw_data)
 {
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
@@ -448,7 +448,7 @@ void ImGui_Impl_s3d_RenderDrawData(ImDrawData* draw_data)
 			}
 			else
 			{
-				Texture texture = ImGui_Impl_s3d_GetTexture(pcmd.TextureId);
+				Texture texture = ImGui_ImplS3d_GetTexture(pcmd.TextureId);
 				Graphics2D::SetScissorRect(Rect(pcmd.ClipRect.x - clipOffset.x, pcmd.ClipRect.y - clipOffset.y,
 				                                pcmd.ClipRect.z - pcmd.ClipRect.x, pcmd.ClipRect.w - pcmd.ClipRect.y));
 				sp.drawSubset(idxOffset, triangleCnt, texture);

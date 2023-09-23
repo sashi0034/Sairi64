@@ -1,15 +1,15 @@
 ﻿#include "stdafx.h"
-#include "UiTmemViewer.h"
+#include "DuiTmemViewer.h"
 
 #include "DearImGuiAddon/DearImGuiAddon.hpp"
 #include "N64/N64System.h"
 
-namespace Ui
+namespace Dui
 {
 	constexpr uint32 bufferSize_256 = 256;
 }
 
-class Ui::UiTmemViewer::Impl
+class Dui::DuiTmemViewer::Impl
 {
 public:
 	void Update(std::string_view viewName, const N64::Rdp& rdp)
@@ -80,17 +80,17 @@ private:
 	}
 };
 
-namespace Ui
+namespace Dui
 {
-	UiTmemViewer::UiTmemViewer() :
+	DuiTmemViewer::DuiTmemViewer() :
 		m_impl(std::make_unique<Impl>())
 	{
 	}
 
-	void UiTmemViewer::Update(std::string_view viewName, const N64::Rdp& rdp)
+	void DuiTmemViewer::Update(std::string_view viewName, const N64::Rdp& rdp)
 	{
 		m_impl->Update(viewName, rdp);
 	}
 
-	UiTmemViewer::ImplPtr::~ImplPtr() = default;
+	DuiTmemViewer::ImplPtr::~ImplPtr() = default;
 }

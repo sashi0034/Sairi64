@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "N64/Rdp.h"
 
-namespace Ui
+namespace Dui
 {
-	class UiTmemViewer
+	class DuiTmemViewer
 	{
 	public:
-		UiTmemViewer();
+		DuiTmemViewer();
 		void Update(std::string_view viewName, const N64::Rdp& rdp);
 
 	private:

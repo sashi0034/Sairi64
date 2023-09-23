@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Ui
+namespace Dui
 {
 	constexpr ImVec4 HexToImVec4(uint32_t hex)
 	{

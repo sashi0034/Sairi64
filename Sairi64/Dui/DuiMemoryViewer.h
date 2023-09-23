@@ -1,14 +1,18 @@
 ﻿#pragma once
 
-namespace Ui
+namespace N64
 {
-	class UiDisassembly
+	class N64System;
+}
+
+namespace Dui
+{
+	class DuiMemoryViewer
 	{
 	public:
 		void Update(std::string_view viewName, std::span<uint8> memory);
 
 	private:
-		Array<std::string> m_disassembledBuffer{};
 		int m_baseAddr{};
 	};
 }

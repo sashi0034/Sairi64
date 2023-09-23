@@ -8,7 +8,7 @@
 #include "N64/N64Frame.h"
 #include "N64/N64Singleton.h"
 #include "N64/N64System.h"
-#include "Ui/UiManager.h"
+#include "Dui/DuiManager.h"
 #include "Utils/Util.h"
 
 void setupWindow()
@@ -24,7 +24,7 @@ void setupWindow()
 	System::SetTerminationTriggers(UserAction::CloseButtonClicked);
 }
 
-void Main()
+void processDebugUi()
 {
 	Addon::Register<DearImGuiAddon>(U"ImGui");
 
@@ -45,7 +45,7 @@ void Main()
 	N64::N64Frame n64Frame{};
 	const N64::N64Config& n64Config = N64::N64Config::LoadToml(U"config.toml", U"asset/config_example.toml");
 
-	Ui::UiManager uiManager{};
+	Dui::DuiManager uiManager{};
 
 	n64Frame.Init(n64System, n64Config);
 
@@ -70,4 +70,9 @@ void Main()
 	}
 
 	n64Frame.HaltTasks();
+}
+
+void Main()
+{
+	processDebugUi();
 }

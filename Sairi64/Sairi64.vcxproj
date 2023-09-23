@@ -165,10 +165,10 @@
     <ClCompile Include="Tests\N64Test.cpp" />
     <ClCompile Include="Tests\RspTest.cpp" />
     <ClCompile Include="Tests\UtilTest.cpp" />
-    <ClCompile Include="Ui\UiDisassembly.cpp" />
-    <ClCompile Include="Ui\UiManager.cpp" />
-    <ClCompile Include="Ui\UiMemoryViewer.cpp" />
-    <ClCompile Include="Ui\UiTmemViewer.cpp" />
+    <ClCompile Include="Dui\DuiDisassembly.cpp" />
+    <ClCompile Include="Dui\DuiManager.cpp" />
+    <ClCompile Include="Dui\DuiMemoryViewer.cpp" />
+    <ClCompile Include="Dui\DuiTmemViewer.cpp" />
     <ClCompile Include="Utils\Util.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -450,11 +450,11 @@
     <ClInclude Include="N64\Rsp_detail\Vectors.h" />
     <ClInclude Include="N64\Rsp_detail\VU.h" />
     <ClInclude Include="N64\Scheduler.h" />
-    <ClInclude Include="Ui\UiDisassembly.h" />
-    <ClInclude Include="Ui\UiManager.h" />
-    <ClInclude Include="Ui\UiMemoryViewer.h" />
-    <ClInclude Include="Ui\UiTmemViewer.h" />
-    <ClInclude Include="Ui\UiUtil.h" />
+    <ClInclude Include="Dui\DuiDisassembly.h" />
+    <ClInclude Include="Dui\DuiManager.h" />
+    <ClInclude Include="Dui\DuiMemoryViewer.h" />
+    <ClInclude Include="Dui\DuiTmemViewer.h" />
+    <ClInclude Include="Dui\DuiUtil.h" />
     <ClInclude Include="Utils\Util.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

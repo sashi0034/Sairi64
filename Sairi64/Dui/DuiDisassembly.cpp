@@ -1,12 +1,12 @@
 ﻿#include "stdafx.h"
-#include "UiDisassembly.h"
+#include "DuiDisassembly.h"
 
-#include "UiUtil.h"
+#include "DuiUtil.h"
 #include "N64/Instruction.h"
 #include "N64/Debugger/DebugDisassembler.h"
 #include "Utils/Util.h"
 
-namespace Ui
+namespace Dui
 {
 	static constexpr int pageInstructionLength = 128;
 	constexpr int showPageSize = pageInstructionLength * 4;
@@ -25,7 +25,7 @@ namespace Ui
 		}
 	}
 
-	void UiDisassembly::Update(std::string_view viewName, std::span<uint8> memory)
+	void DuiDisassembly::Update(std::string_view viewName, std::span<uint8> memory)
 	{
 		if (!ImGui::Begin(viewName.data()))
 		{

@@ -1,15 +1,15 @@
 ﻿#include "stdafx.h"
-#include "UiManager.h"
+#include "DuiManager.h"
 
-#include "UiDisassembly.h"
-#include "UiMemoryViewer.h"
-#include "UiTmemViewer.h"
-#include "UiUtil.h"
+#include "DuiDisassembly.h"
+#include "DuiMemoryViewer.h"
+#include "DuiTmemViewer.h"
+#include "DuiUtil.h"
 #include "DearImGuiAddon/DearImGuiAddon.hpp"
 #include "N64/N64Frame.h"
 #include "N64/N64System.h"
 
-class Ui::UiManager::Impl
+class Dui::DuiManager::Impl
 {
 public:
 	void CheckWindowSize()
@@ -135,22 +135,22 @@ private:
 	float m_globalVolume = -1;
 
 	ImS3dTexture m_mainDisplay{Texture()};
-	UiMemoryViewer m_rdramViewer{};
-	UiMemoryViewer m_dmemViewer{};
-	UiMemoryViewer m_imemViewer{};
-	UiDisassembly m_cpuDisassembly{};
-	UiDisassembly m_rspDisassembly{};
-	UiTmemViewer m_tmemViewer{};
+	DuiMemoryViewer m_rdramViewer{};
+	DuiMemoryViewer m_dmemViewer{};
+	DuiMemoryViewer m_imemViewer{};
+	DuiDisassembly m_cpuDisassembly{};
+	DuiDisassembly m_rspDisassembly{};
+	DuiTmemViewer m_tmemViewer{};
 };
 
-namespace Ui
+namespace Dui
 {
-	UiManager::UiManager() :
+	DuiManager::DuiManager() :
 		m_impl(std::make_unique<Impl>())
 	{
 	}
 
-	void UiManager::Update(N64::N64System& n64System, N64::N64Frame& n64Frame, const N64::N64Config& n64Config)
+	void DuiManager::Update(N64::N64System& n64System, N64::N64Frame& n64Frame, const N64::N64Config& n64Config)
 	{
 		m_impl->CheckWindowSize();
 
@@ -169,5 +169,5 @@ namespace Ui
 		m_impl->UpdateContents(n64System);
 	}
 
-	UiManager::ImplPtr::~ImplPtr() = default;
+	DuiManager::ImplPtr::~ImplPtr() = default;
 }

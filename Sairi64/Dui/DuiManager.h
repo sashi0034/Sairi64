@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "N64/N64Frame.h"
 
-namespace Ui
+namespace Dui
 {
-	class UiManager
+	class DuiManager
 	{
 	public:
-		UiManager();
+		DuiManager();
 		void Update(N64::N64System& n64System, N64::N64Frame& n64Frame, const N64::N64Config& n64Config);
 
 	private:

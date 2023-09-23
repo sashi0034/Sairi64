@@ -4,6 +4,11 @@
 #include "DearImGuiAddon/DearImGuiAddon.hpp"
 #include "N64/N64System.h"
 
+namespace Ui
+{
+	constexpr uint32 bufferSize_256 = 256;
+}
+
 class Ui::UiTmemViewer::Impl
 {
 public:
@@ -13,18 +18,24 @@ public:
 
 		ImGui::SliderInt("Tile ID", &m_tileId, 0, 7);
 
-		const auto [width,height] = updateTexture(rdp);
+		const auto [w0,h0] = updateTexture(rdp);
+		const auto width = std::max(w0, static_cast<int>(bufferSize_256));
+		const auto height = std::max(h0, static_cast<int>(bufferSize_256));
 		constexpr float showScale = 4.0f;
 		if (const auto id = m_im.GetId())
-			ImGui::Image(id.value(), ImVec2{width * showScale, height * showScale});
+			ImGui::Image(id.value(), ImVec2{width * showScale, height * showScale},
+			             ImVec2{0, 0},
+			             ImVec2{
+				             width / static_cast<float>(bufferSize_256), height / static_cast<float>(bufferSize_256)
+			             });
 
 		ImGui::End();
 	}
 
 private:
 	int m_tileId{};
-	Image m_pixelBuffer{};
-	DynamicTexture m_texture{};
+	Image m_pixelBuffer{bufferSize_256, bufferSize_256, Palette::Black};
+	DynamicTexture m_texture{m_pixelBuffer, TexturePixelFormat::R8G8B8A8_Unorm};
 	ImS3dTexture m_im{m_texture};
 
 	Size updateTexture(const N64::Rdp& rdp)
@@ -39,13 +50,6 @@ private:
 		const std::span tmem{
 			&commanderState.tmem[targetTile.tmemAddr * sizeof(uint64)], width * height * bytesPerTexel
 		};
-
-		if (m_pixelBuffer.size() != Size{width, height})
-		{
-			m_pixelBuffer = Image(width, height, Palette::Black);;
-			m_texture = DynamicTexture(m_pixelBuffer, TexturePixelFormat::R8G8B8A8_Unorm);
-			m_im = ImS3dTexture(m_texture);
-		}
 
 		dumpTmem(targetTile, {width, height}, bytesPerTexel, tmem);
 

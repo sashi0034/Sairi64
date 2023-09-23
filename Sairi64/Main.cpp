@@ -55,9 +55,16 @@ void Main()
 	{
 		// N64更新制御
 		n64Frame.ControlFrame(n64System, n64Config);
-		n64System.GetRdp().RenderReal({
-			.startPoint = {32, 32}, .scale = 2.0
-		});
+		// n64System.GetRdp().RenderReal({
+		// 	.startPoint = {32, 32}, .scale = 2.0
+		// });
+
+		// フォーカスが当たっていないときはウィンドウを停止
+		while (Window::GetState().focused == false)
+		{
+			n64Frame.HaltTasks();
+			System::Sleep(1000 / Profiler::FPS());
+		}
 
 		uiManager.Update(n64System, n64Frame, n64Config);
 	}

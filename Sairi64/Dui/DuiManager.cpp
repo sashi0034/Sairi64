@@ -77,6 +77,9 @@ public:
 		using ss = std::stringstream;
 		ImGui::Text((ss{} << "FPS: " << fmt::format("{:.2f}", n64Frame.Info().frameRate)).str().c_str());
 		ImGui::Text((ss{} << "Frame count: " << n64Frame.Info().frameCount).str().c_str());
+		ImGui::Text(fmt::format("Resolution: {}x{}",
+		                        m_mainDisplay.GetTexture().size().x,
+		                        m_mainDisplay.GetTexture().size().y).c_str());
 		ImGui::Text((fmt::format("CPU PC: \n\t{:016X}\n\t{:016X}\n\t{:016X}",
 		                         n64System.GetCpu().GetPc().Prev(),
 		                         n64System.GetCpu().GetPc().Curr(),

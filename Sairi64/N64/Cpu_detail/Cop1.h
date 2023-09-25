@@ -116,7 +116,7 @@ namespace N64::Cpu_detail
 		T value;
 		if constexpr (sizeof(T) == 4)
 		{
-			const uint32 raw = GetFgr64(cop0, index);
+			const uint32 raw = GetFgr32(cop0, index);
 			memcpy(&value, &raw, sizeof(T));
 		}
 		else if constexpr (sizeof(T) == 8)

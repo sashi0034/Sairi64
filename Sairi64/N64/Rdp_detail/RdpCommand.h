@@ -97,4 +97,43 @@ namespace N64::Rdp_detail
 		uint16 DxMDy() const { return GetBits<16, 31>(Data<offset + 3>()); }
 		uint16 DxMDyFrac() const { return GetBits<0, 15>(Data<offset + 3>()); }
 	};
+
+	template <uint8 offset = 12>
+	class TextureCoefficient : public RdpCommand
+	{
+	public:
+		static_assert(offset % 4 == 0);
+
+		uint16 SInt() const { return GetBits<48, 63>(Data<offset + 0>()); }
+		uint16 TInt() const { return GetBits<32, 47>(Data<offset + 0>()); }
+		uint16 WInt() const { return GetBits<16, 31>(Data<offset + 0>()); }
+
+		uint16 DsDxInt() const { return GetBits<48, 63>(Data<offset + 1>()); }
+		uint16 DtDxInt() const { return GetBits<32, 47>(Data<offset + 1>()); }
+		uint16 DwDxInt() const { return GetBits<16, 31>(Data<offset + 1>()); }
+
+		uint16 SFrac() const { return GetBits<48, 63>(Data<offset + 2>()); }
+		uint16 TFrac() const { return GetBits<32, 47>(Data<offset + 2>()); }
+		uint16 WFrac() const { return GetBits<16, 31>(Data<offset + 2>()); }
+
+		uint16 DsDxFrac() const { return GetBits<48, 63>(Data<offset + 3>()); }
+		uint16 DtDxFrac() const { return GetBits<32, 47>(Data<offset + 3>()); }
+		uint16 DwDxFrac() const { return GetBits<16, 31>(Data<offset + 3>()); }
+
+		uint16 DsDeInt() const { return GetBits<48, 63>(Data<offset + 4>()); }
+		uint16 DtDeInt() const { return GetBits<32, 47>(Data<offset + 4>()); }
+		uint16 DwDeInt() const { return GetBits<16, 31>(Data<offset + 4>()); }
+
+		uint16 DsDyInt() const { return GetBits<48, 63>(Data<offset + 5>()); }
+		uint16 DtDyInt() const { return GetBits<32, 47>(Data<offset + 5>()); }
+		uint16 DwDyInt() const { return GetBits<16, 31>(Data<offset + 5>()); }
+
+		uint16 DsDeFrac() const { return GetBits<48, 63>(Data<offset + 6>()); }
+		uint16 DtDeFrac() const { return GetBits<32, 47>(Data<offset + 6>()); }
+		uint16 DwDeFrac() const { return GetBits<16, 31>(Data<offset + 6>()); }
+
+		uint16 DsDyFrac() const { return GetBits<48, 63>(Data<offset + 7>()); }
+		uint16 DtDyFrac() const { return GetBits<32, 47>(Data<offset + 7>()); }
+		uint16 DwDyFrac() const { return GetBits<16, 31>(Data<offset + 7>()); }
+	};
 }

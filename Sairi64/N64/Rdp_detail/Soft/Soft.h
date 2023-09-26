@@ -26,6 +26,15 @@ namespace N64::Rdp_detail::Soft
 			return {};
 		}
 
+		[[nodiscard]]
+		static SoftUnit ShadeTextureTriangle(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			static TriangleEdgeWalker edgeWalker{};
+			const auto ec = static_cast<EdgeCoefficient<0>>(cmd);
+			const auto tc = static_cast<TextureCoefficient<12>>(cmd);
+			return {};
+		}
+
 		// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L1031
 		[[nodiscard]]
 		static SoftUnit FillRectangle(const CommanderContext& ctx, const RdpCommand& cmd)

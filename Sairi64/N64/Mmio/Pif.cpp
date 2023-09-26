@@ -147,7 +147,7 @@ private:
 				result.SetBetween<0, 2>(0x00, 0x00, 0x00);
 				return;
 			case Joybus::JoybusType::Controller:
-				result.SetBetween<0, 2>(0x05, 0x00, device->HasAccessor() ? 0x02 : 0x01);
+				result.SetBetween<0, 2>(0x05, 0x00, device->HasAccessor() ? 0x01 : 0x02);
 				return;
 			case Joybus::JoybusType::DancePad:
 				break;

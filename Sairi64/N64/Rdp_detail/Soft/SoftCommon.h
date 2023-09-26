@@ -136,7 +136,7 @@ namespace N64::Rdp_detail::Soft
 	{
 		{ t.GetStartY() } -> std::same_as<uint32>;
 		{ t.GetEndY() } -> std::same_as<uint32>;
-		{ t.GetHSpan(std::declval<uint32>()) } -> std::same_as<const HSpan&>;
+		{ t.GetXSpan(std::declval<uint32>()) } -> std::same_as<const HSpan&>;
 	};
 
 	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L630

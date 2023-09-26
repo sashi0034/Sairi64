@@ -14,6 +14,8 @@ namespace N64::Rdp_detail
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
 	};
 
+	constexpr uint8 MaxRdpCommandLength_22 = 22;
+
 	enum class CommandId
 	{
 		NonShadedTriangle = 0x08,
@@ -61,20 +63,23 @@ namespace N64::Rdp_detail
 		CommandId Id() const { return static_cast<CommandId>(GetBits<56, 61>(m_span[0])); }
 		template <uint8 index> uint64 Data() const { return m_span[index]; }
 
+		static RdpCommand MakeFromDwords(const std::span<const uint64> span) { return RdpCommand(span); };
 		static RdpCommand MakeWithRearrangeWords(std::span<uint32> span32);
 
 	private:
-		explicit RdpCommand(std::span<uint64> span): m_span(span) { return; }
-
-		std::span<uint64> m_span{};
+		explicit RdpCommand(std::span<const uint64> span): m_span(span) { return; }
+		std::span<const uint64> m_span{};
 	};
 
-	template <uint8 offset = 0>
+	inline const RdpCommand& GetEmptyCommand()
+	{
+		static constexpr std::array<uint64, MaxRdpCommandLength_22> data{};
+		return RdpCommand::MakeFromDwords(data);
+	}
+
 	class EdgeCoefficient : public RdpCommand
 	{
 	public:
-		static_assert(offset % 4 == 0);
-
 		bool RightMajor() const { return GetBits<55>(Data<offset + 0>()); }
 		uint8 Level() const { return GetBits<51, 53>(Data<offset + 0>()); }
 		uint8 Tile() const { return GetBits<48, 50>(Data<offset + 0>()); }
@@ -96,14 +101,14 @@ namespace N64::Rdp_detail
 		uint16 XmFrac() const { return GetBits<32, 47>(Data<offset + 3>()); }
 		uint16 DxMDy() const { return GetBits<16, 31>(Data<offset + 3>()); }
 		uint16 DxMDyFrac() const { return GetBits<0, 15>(Data<offset + 3>()); }
+
+	private:
+		static constexpr uint8 offset = 0;
 	};
 
-	template <uint8 offset = 12>
 	class TextureCoefficient : public RdpCommand
 	{
 	public:
-		static_assert(offset % 4 == 0);
-
 		uint16 SInt() const { return GetBits<48, 63>(Data<offset + 0>()); }
 		uint16 TInt() const { return GetBits<32, 47>(Data<offset + 0>()); }
 		uint16 WInt() const { return GetBits<16, 31>(Data<offset + 0>()); }
@@ -135,5 +140,10 @@ namespace N64::Rdp_detail
 		uint16 DsDyFrac() const { return GetBits<48, 63>(Data<offset + 7>()); }
 		uint16 DtDyFrac() const { return GetBits<32, 47>(Data<offset + 7>()); }
 		uint16 DwDyFrac() const { return GetBits<16, 31>(Data<offset + 7>()); }
+
+		static TextureCoefficient Empty() { return static_cast<TextureCoefficient>(GetEmptyCommand()); }
+
+	private:
+		static constexpr uint8 offset = 12;
 	};
 }

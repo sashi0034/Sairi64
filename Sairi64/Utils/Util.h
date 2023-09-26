@@ -187,24 +187,25 @@ namespace Utils
 	};
 
 	// https://github.com/Dillonb/n64/blob/91c198fe60c8a4e4c4e9e12b43f24157f5e21347/src/rdp/softrdp.cpp#L156
-	template <uint8 intPart, uint8 fracPart>
-	class FixedPoint16
+	template <typename T, uint8 intPart, uint8 fracPart>
+	class FixedPointType
 	{
 	public:
-		static_assert(intPart + fracPart == 16);
-		FixedPoint16(uint16 raw = 0): m_raw(raw) { return; }
+		static_assert(intPart + fracPart == sizeof(T) * 8);
+		FixedPointType(T raw = 0): m_raw(raw) { return; }
+		FixedPointType(T intValue, T fracValue): m_raw((intValue << fracPart) | fracValue) { return; }
 
 		// operator uint16() const { return m_raw; }
-		uint16 Raw() const { return m_raw; }
+		T Raw() const { return m_raw; }
 		auto Frac() { return BitAccess<0, fracPart - 1>(m_raw); }
-		uint16 Frac() const { return GetBits<0, fracPart - 1>(m_raw); }
-		auto Int() { return BitAccess<fracPart, 15>(m_raw); }
-		uint16 Int() const { return GetBits<fracPart, 15>(m_raw); }
+		T Frac() const { return GetBits<0, fracPart - 1>(m_raw); }
+		auto Int() { return BitAccess<fracPart, sizeof(T) * 8 - 1>(m_raw); }
+		T Int() const { return GetBits<fracPart, sizeof(T) * 8 - 1>(m_raw); }
 
 		template <uint8 otherIntPart, uint8 otherFracPart>
-		FixedPoint16<intPart, fracPart> operator+(FixedPoint16<otherIntPart, otherFracPart> other)
+		FixedPointType<T, intPart, fracPart> operator+(FixedPointType<T, otherIntPart, otherFracPart> other)
 		{
-			FixedPoint16<intPart, fracPart> result{};
+			FixedPointType<T, intPart, fracPart> result{};
 			uint8 thisShift{};
 			uint8 otherShift{};
 			uint8 afterShift{};
@@ -220,21 +221,37 @@ namespace Utils
 				otherShift = fracPart - otherFracPart;
 				afterShift = 0;
 			}
-			const int32 a = static_cast<int32>(static_cast<int16>(m_raw)) << thisShift;
-			const int32 b = static_cast<int32>(static_cast<int16>(other.Raw())) << otherShift;
-			result.m_raw = (a + b) >> afterShift;
+			if constexpr (std::same_as<T, uint16>)
+			{
+				const int32 a = static_cast<int32>(static_cast<int16>(m_raw)) << thisShift;
+				const int32 b = static_cast<int32>(static_cast<int16>(other.Raw())) << otherShift;
+				result.m_raw = (a + b) >> afterShift;
+			}
+			else if constexpr (std::same_as<T, uint32>)
+			{
+				const int64 a = static_cast<int64>(static_cast<int32>(m_raw)) << thisShift;
+				const int64 b = static_cast<int64>(static_cast<int32>(other.Raw())) << otherShift;
+				result.m_raw = (a + b) >> afterShift;
+			}
+			else static_assert(AlwaysFalse<T>);
 			return result;
 		}
 
 		template <uint8 otherIntPart, uint8 otherFracPart>
-		void operator+=(FixedPoint16<otherIntPart, otherFracPart> other)
+		void operator+=(FixedPointType<T, otherIntPart, otherFracPart> other)
 		{
 			*this = *this + other;
 		}
 
 	private:
-		uint16 m_raw{};
+		T m_raw{};
 	};
+
+	template <uint8 intPart, uint8 fracPart>
+	using FixedPoint16 = FixedPointType<uint16, intPart, fracPart>;
+
+	template <uint8 intPart, uint8 fracPart>
+	using FixedPoint32 = FixedPointType<uint32, intPart, fracPart>;
 
 	inline int16 Sign8To16(int8 value)
 	{

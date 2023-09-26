@@ -50,9 +50,9 @@ namespace N64::Rdp_detail
 		case CommandId::ShadeZBufferTriangle:
 			break;
 		case CommandId::ShadeTextureTriangle:
-			break;
+			return Soft::ShadeTextureTriangle(ctx, cmd);
 		case CommandId::ShadeTextureZBufferTriangle:
-			break;
+			return Soft::ShadeTextureZBufferTriangle(ctx, cmd);
 		case CommandId::TextureRectangle:
 			return Soft::TextureRectangle(ctx, cmd);
 		case CommandId::TextureRectangleFlip:

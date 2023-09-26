@@ -154,7 +154,7 @@
     <ClCompile Include="N64\Rdp_detail\Rdp.cpp" />
     <ClCompile Include="N64\Rdp_detail\DisplayManager.cpp" />
     <ClCompile Include="N64\Rdp_detail\Soft\SoftBlender.cpp" />
-    <ClCompile Include="N64\Rdp_detail\Soft\SoftRasterizer.cpp" />
+    <ClCompile Include="N64\Rdp_detail\Soft\SoftRenderer.cpp" />
     <ClCompile Include="N64\Rsp_detail\Dynarec\ImemCache.cpp" />
     <ClCompile Include="N64\Rsp_detail\Dynarec\SpRecompiler.cpp" />
     <ClCompile Include="N64\Rsp_detail\Rsp.cpp" />
@@ -430,7 +430,7 @@
     <ClInclude Include="N64\Rdp_detail\Soft\SoftBlender.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftEdgeWalker.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftLoader.h" />
-    <ClInclude Include="N64\Rdp_detail\Soft\SoftRasterizer.h" />
+    <ClInclude Include="N64\Rdp_detail\Soft\SoftRenderer.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\Soft.h" />
     <ClInclude Include="N64\Rdp_detail\Soft\SoftCommon.h" />
     <ClInclude Include="N64\Rsp.h" />

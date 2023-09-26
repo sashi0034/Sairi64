@@ -3,9 +3,10 @@
 #include "SoftCommon.h"
 #include "SoftEdgeWalker.h"
 #include "SoftLoader.h"
-#include "SoftRasterizer.h"
+#include "SoftRenderer.h"
 
 // https://ultra64.ca/files/documentation/silicon-graphics/SGI_RDP_Command_Summary.pdf
+// https://emudev.org/2021/09/21/Angrylion_RDP_Comments.html
 
 namespace N64::Rdp_detail::Soft
 {
@@ -15,13 +16,13 @@ namespace N64::Rdp_detail::Soft
 		[[nodiscard]]
 		static SoftUnit NonShadedTriangle(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
-			static TriangleEdgeWalker edgeWalker{};
-			const auto ec = static_cast<EdgeCoefficient<0>>(cmd);
+			static TriangleEdgeWalker<CommandId::NonShadedTriangle> edgeWalker{};
+			const auto ec = static_cast<EdgeCoefficient>(cmd);
 			auto&& state = *ctx.state;
 			const uint8 bpp = GetBytesPerPixel(state);
 
-			edgeWalker.EdgeWalk(ec, bpp);
-			Rasterize(ctx, edgeWalker, bpp);
+			edgeWalker.EdgeWalk(ec, TextureCoefficient::Empty(), bpp);
+			RenderNonShadedTriangle(ctx, edgeWalker, bpp);
 
 			return {};
 		}
@@ -29,9 +30,33 @@ namespace N64::Rdp_detail::Soft
 		[[nodiscard]]
 		static SoftUnit ShadeTextureTriangle(const CommanderContext& ctx, const RdpCommand& cmd)
 		{
-			static TriangleEdgeWalker edgeWalker{};
-			const auto ec = static_cast<EdgeCoefficient<0>>(cmd);
-			const auto tc = static_cast<TextureCoefficient<12>>(cmd);
+			static TriangleEdgeWalker<CommandId::ShadeTextureTriangle> edgeWalker{};
+			const auto ec = static_cast<EdgeCoefficient>(cmd);
+			// TODO: Shade
+			const auto tc = static_cast<TextureCoefficient>(cmd);
+			auto&& state = *ctx.state;
+			const uint8 bpp = GetBytesPerPixel(state);
+
+			edgeWalker.EdgeWalk(ec, tc, bpp);
+			RenderShadeTextureTriangle(ctx, tc, edgeWalker, bpp);
+
+			return {};
+		}
+
+		[[nodiscard]]
+		static SoftUnit ShadeTextureZBufferTriangle(const CommanderContext& ctx, const RdpCommand& cmd)
+		{
+			// TODO: ZBuffer実装してちゃんとする
+			static TriangleEdgeWalker<CommandId::ShadeTextureTriangle> edgeWalker{}; // TODO: 修正
+			const auto ec = static_cast<EdgeCoefficient>(cmd);
+			// TODO: Shade
+			const auto tc = static_cast<TextureCoefficient>(cmd);
+			auto&& state = *ctx.state;
+			const uint8 bpp = GetBytesPerPixel(state);
+
+			edgeWalker.EdgeWalk(ec, tc, bpp);
+			RenderShadeTextureTriangle(ctx, tc, edgeWalker, bpp);
+
 			return {};
 		}
 
@@ -51,7 +76,7 @@ namespace N64::Rdp_detail::Soft
 			const int endX = (xl + 1);
 
 			const auto edgeWalker = RectangleEdgeWalker(yh, yl, HSpan{startX, endX});
-			Rasterize(ctx, edgeWalker, bytesPerPixel);
+			RenderFillRectangle(ctx, edgeWalker, bytesPerPixel);
 
 			return {};
 		}

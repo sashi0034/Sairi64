@@ -58,8 +58,13 @@ namespace N64::Joybus
 		constexpr sint8 keyboardAxisSensitivity = 100;
 		if (KeyA.pressed()) state.joyX = -keyboardAxisSensitivity;
 		if (KeyD.pressed()) state.joyX = keyboardAxisSensitivity;
-		if (KeyW.pressed()) state.joyY = -keyboardAxisSensitivity;
-		if (KeyS.pressed()) state.joyY = keyboardAxisSensitivity;
+		if (KeyW.pressed()) state.joyY = keyboardAxisSensitivity;
+		if (KeyS.pressed()) state.joyY = -keyboardAxisSensitivity;
+		if (state.joyX != 0 && state.joyY != 0)
+		{
+			state.joyX /= std::sqrt(2);
+			state.joyY /= std::sqrt(2);
+		}
 
 		return state;
 	}

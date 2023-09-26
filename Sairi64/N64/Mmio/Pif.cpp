@@ -102,6 +102,7 @@ public:
 			default: {
 				if (cmd.IsEndOfCommands()) return;
 				const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
+				if (result.Raw().size() >= pifRamSize_64) N64Logger::Abort(U"pif command is broken");
 				cursor += 1 + cmdLength + result.Length();
 
 				// コマンド処理

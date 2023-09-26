@@ -207,14 +207,14 @@ public:
 			return AssumeNotImplemented(ctx, instr);
 		}
 		auto&& x86Asm = *ctx.x86Asm;
-		using floating = FloatingFmtType<fmt>::type;
+		using floating_t = FloatingFmtType<fmt>::type;
 		const auto validLabel = x86Asm.newLabel();
 
 		x86Asm.mov(x86::rcx, (uint64)ctx.cpu);
 		x86Asm.mov(x86::dl, instr.Fs());
 		x86Asm.mov(x86::r8b, instr.Ft());
 		if constexpr (fmt == FloatingFmt::Single || fmt == FloatingFmt::Double)
-			x86Asm.call(reinterpret_cast<uint64>(&helperCondFmt_template<funct, floating>));
+			x86Asm.call(reinterpret_cast<uint64>(&helperCondFmt_template<funct, floating_t>));
 		x86Asm.test(x86::al, x86::al); // if function was succeeded
 		x86Asm.jne(validLabel); // then goto @valid
 		x86Asm.mov(x86::rax, state.recompiledLength);
@@ -353,10 +353,11 @@ private:
 		{
 			cop1.SetFgrBy<After>(cop0, fd, static_cast<sint64>(cop1.GetFgrBy<Before>(cop0, fs)) * sign);
 		}
-		else
+		else if constexpr (std::same_as<Before, float> || std::same_as<Before, double>)
 		{
 			cop1.SetFgrBy<After>(cop0, fd, cop1.GetFgrBy<Before>(cop0, fs) * sign);
 		}
+		else static_assert(AlwaysFalse<Before>);
 	}
 
 	template <typename Fmt>
@@ -509,6 +510,7 @@ private:
 	template <OpCop1FmtFunct funct, typename Fmt>
 	N64_ABI static bool helperFmt_arithmetic(Cpu& cpu, uint8 fd, uint8 fs, uint8 ft)
 	{
+		static_assert(std::same_as<Fmt, float> || std::same_as<Fmt, double>);
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();
 
@@ -547,8 +549,8 @@ private:
 		auto&& cop1 = cpu.GetCop1();
 		auto&& cop0 = cpu.GetCop0();
 
-		Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
-		Fmt ftF = cop1.GetFgrBy<Fmt>(cop0, ft);
+		const Fmt fsF = cop1.GetFgrBy<Fmt>(cop0, fs);
+		const Fmt ftF = cop1.GetFgrBy<Fmt>(cop0, ft);
 
 		if constexpr (
 			funct == OpCop1FmtFunct::CondSfFmt ||

@@ -61,11 +61,21 @@ public:
 		}
 		constexpr float displayScale = 2.0f;
 		const Float2 displaySize = display.size() * displayScale;
-		const auto maxSize = ImGui::GetContentRegionAvail();
+		const auto regionSize = ImGui::GetContentRegionAvail();
 		if (const auto id = m_mainDisplay.GetId())
 		{
-			ImGui::Image(id.value(),
-			             ImVec2{std::min(displaySize.x, maxSize.x), std::min(displaySize.y, maxSize.y)});
+			if (displaySize.x / regionSize.x > displaySize.y / regionSize.y)
+			{
+				// 幅で合わせる
+				ImGui::Image(id.value(),
+				             ImVec2{regionSize.x, displaySize.y * (regionSize.x / displaySize.x)});
+			}
+			else
+			{
+				// 高さで合わせる
+				ImGui::Image(id.value(),
+				             ImVec2{displaySize.x * (regionSize.y / displaySize.y), regionSize.y});
+			}
 		}
 
 		ImGui::End();

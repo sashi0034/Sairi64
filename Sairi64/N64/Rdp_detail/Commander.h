@@ -120,10 +120,10 @@ namespace N64::Rdp_detail
 	{
 		struct
 		{
-			uint16 xl;
-			uint16 yl;
-			uint16 xh;
-			uint16 yh;
+			FixedPoint16<14, 2> xl;
+			FixedPoint16<14, 2> yl;
+			FixedPoint16<14, 2> xh;
+			FixedPoint16<14, 2> yh;
 			bool f;
 			bool o;
 		} scissorRect;

@@ -108,16 +108,25 @@ namespace N64::Rdp_detail::Soft
 			const uint32 bytesPerScreenLine = state.colorImage.width * bytesPerPixel;
 			const uint32 bytesPerTileLine = descriptor.line * sizeof(uint64);
 			const uint8 bytesPerTexel = GetBytesParTexel(descriptor.size);
+			const auto& scissor = ctx.state->scissorRect;
+
+			// TODO: 同様に、他の場所でもシザー短形を適応
+			const int startY = std::max(scissor.yh.Int(), yh.Int());
+			const int endY = std::min(
+				std::max(0, static_cast<int>(scissor.yl.Int()) - 1), static_cast<int>(yl.Int()));
+			const int startX = std::max(scissor.xh.Int(), xh.Int());
+			const int endX = std::min(
+				std::max(0, static_cast<int>(scissor.xl.Int()) - 1), static_cast<int>(xl.Int()));
 
 			auto s = startS;
 			auto t = startT;
 			switch (descriptor.size)
 			{
 			case TexelSize::Px16:
-				for (int y = yh.Int(); y <= yl.Int(); y++)
+				for (int y = startY; y <= endY; y++)
 				{
 					const uint32 screenLine = state.colorImage.dramAddr + y * bytesPerScreenLine;
-					for (int x = xh.Int(); x <= xl.Int(); x++)
+					for (int x = startX; x <= endX; x++)
 					{
 						const auto processedT =
 							ProcessST(t, descriptor.ct, descriptor.mt, descriptor.maskT, descriptor.shiftT);

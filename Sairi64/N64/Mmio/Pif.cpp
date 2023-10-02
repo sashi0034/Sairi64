@@ -63,6 +63,16 @@ namespace N64::Mmio
 		}
 	};
 
+	template <int cmdLength, int resultLength>
+	void assertCmdLength(const PifCmdArgs& cmd)
+	{
+		if (cmd.Length() != cmdLength || cmd.ResultLength() != resultLength)
+		{
+			N64Logger::Warn(U"wrong length in pif command {:02X}h: cmd={}, result={}"_fmt(
+				cmd.Index(), cmd.Length(), cmd.ResultLength()));
+		}
+	}
+
 	constexpr uint8 pifRamEnd_63 = 63;
 	constexpr uint8 pifRamSize_64 = 64;
 
@@ -102,6 +112,7 @@ public:
 			default: {
 				if (cmd.IsEndOfCommands()) return;
 				const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
+				// TODO: PifCmdResult(pif, cmd.ResultLength());
 				if (result.Raw().size() >= pifRamSize_64) N64Logger::Abort(U"pif command is broken");
 				cursor += 1 + cmdLength + result.Length();
 
@@ -120,17 +131,21 @@ private:
 		{
 		case 0x00: [[fallthrough]];
 		case 0xFF:
+			assertCmdLength<1, 3>(cmd);
 			readControllerId(pif, *channel, result);
 			(*channel)++;
 			break;
 		case 0x01:
+			assertCmdLength<1, 4>(cmd);
 			if (readButtons(pif, *channel, result) == false) cmd.SetAt<1>(cmd.GetAt<1>() | 0x80);
 			(*channel)++;
 			break;
 		case 0x02:
+			assertCmdLength<3, 33>(cmd);
 			readMemPack(pif, *channel, cmd, result);
 			break;
 		case 0x03:
+			assertCmdLength<35, 1>(cmd);
 			writeMemPack(pif, *channel, cmd, result);
 			break;
 		default: N64Logger::Abort(U"not implemented pif command index: {:02X}"_fmt(cmd.Index()));

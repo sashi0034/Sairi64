@@ -37,7 +37,6 @@ namespace N64::Mmio
 	{
 	public:
 		PifCmdResult(Pif& pif, int cursor) : m_span(&pif.Ram()[cursor], pif.Ram().size() - cursor) { return; }
-		uint8 Length() const { return m_span[0] & 0x3F; }
 		template <uint8 offset> void SetAt(uint8 value) const { m_span[offset] = value; };
 
 		template <uint8 startOffset, uint8 endIndex, typename... Values>
@@ -112,9 +111,8 @@ public:
 			default: {
 				if (cmd.IsEndOfCommands()) return;
 				const auto result = PifCmdResult(pif, cursor + 1 + cmdLength);
-				// TODO: PifCmdResult(pif, cmd.ResultLength());
 				if (result.Raw().size() >= pifRamSize_64) N64Logger::Abort(U"pif command is broken");
-				cursor += 1 + cmdLength + result.Length();
+				cursor += 1 + cmdLength + cmd.ResultLength();
 
 				// コマンド処理
 				processCommandIO(pif, &channel, cmd, result);

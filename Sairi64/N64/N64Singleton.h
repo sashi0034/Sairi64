@@ -4,7 +4,7 @@
 
 namespace N64
 {
-	class N64Singleton
+	class N64Singleton : Uncopyable
 	{
 	public:
 		static N64Singleton& Instance();
@@ -13,12 +13,13 @@ namespace N64
 		~N64Singleton();
 
 		N64System& GetSystem() { return m_system; }
+		const N64System& GetSystem() const { return m_system; }
+
 		N64Logger& GetLogger() { return m_logger; }
+		const N64Logger& GetLogger() const { return m_logger; }
 
 	private:
 		N64System m_system{};
 		N64Logger m_logger{};
-
-		static N64Singleton* s_instance;
 	};
 }

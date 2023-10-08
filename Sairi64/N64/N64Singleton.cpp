@@ -3,7 +3,7 @@
 
 namespace N64
 {
-	N64Singleton* N64Singleton::s_instance = nullptr;
+	N64Singleton* s_instance = nullptr;
 
 	N64Singleton& N64Singleton::Instance()
 	{

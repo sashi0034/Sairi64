@@ -13,21 +13,44 @@
 
 namespace N64
 {
-	class N64System
+	class N64System : Uncopyable
 	{
 	public:
 		Cpu& GetCpu() { return m_cpu; }
+		const Cpu& GetCpu() const { return m_cpu; }
+
 		Rsp& GetRsp() { return m_rsp; }
+		const Rsp& GetRsp() const { return m_rsp; }
+
 		Rdp& GetRdp() { return m_rdp; }
+		const Rdp& GetRdp() const { return m_rdp; }
+
 		Memory& GetMemory() { return m_memory; }
+		const Memory& GetMemory() const { return m_memory; }
+
 		Mmio::SI& GetSI() { return m_si; }
+		const Mmio::SI& GetSI() const { return m_si; }
+
 		Mmio::RI& GetRI() { return m_ri; }
+		const Mmio::RI& GetRI() const { return m_ri; }
+
 		Mmio::PI& GetPI() { return m_pi; }
+		const Mmio::PI& GetPI() const { return m_pi; }
+
 		Mmio::MI& GetMI() { return m_mi; }
+		const Mmio::MI& GetMI() const { return m_mi; }
+
 		Mmio::AI& GetAI() { return m_ai; }
+		const Mmio::AI& GetAI() const { return m_ai; }
+
 		Mmio::VI& GetVI() { return m_vi; }
+		const Mmio::VI& GetVI() const { return m_vi; }
+
 		Scheduler& GetScheduler() { return m_scheduler; }
+		const Scheduler& GetScheduler() const { return m_scheduler; }
+
 		asmjit::JitRuntime& GetJit() { return m_jit; }
+		const asmjit::JitRuntime& GetJit() const { return m_jit; }
 
 		N64System& operator=(const N64System&) = delete;
 

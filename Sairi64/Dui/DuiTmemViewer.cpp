@@ -47,13 +47,10 @@ private:
 		auto&& targetTile = commanderState.tiles[tileId];
 		const uint8 bytesPerTexel = N64::Rdp_detail::GetBytesParTexel(targetTile.size);
 		const uint32 width = targetTile.line * sizeof(uint64) / std::max(bytesPerTexel, static_cast<uint8>(1));
-		const uint32 height = (commanderState.tmem.size() - targetTile.tmemAddr * sizeof(uint64)) / std::max(
-			(width * bytesPerTexel * bytesPerTexel), 1u);
+		// const uint32 height = (commanderState.tmem.size() - targetTile.tmemAddr * sizeof(uint64)) / std::max(
+		// 	(width * bytesPerTexel * bytesPerTexel), 1u);
 		const std::span tmem = commanderState.tmem;
-		const auto safeSize = Size{
-			std::max(width, bufferSize_256), std::max(height, bufferSize_256)
-		};
-
+		const auto safeSize = Size{std::min(width, bufferSize_256), bufferSize_256};
 		dumpTmem(targetTile, safeSize, bytesPerTexel, tmem);
 
 		m_texture.fill(m_pixelBuffer);
@@ -63,10 +60,11 @@ private:
 	void dumpTmem(
 		const N64::Rdp_detail::TileProps& tile, Size size, uint8 bytePerTexel, std::span<const uint8> tmem)
 	{
+		m_pixelBuffer.fill(Color{0});
 		const uint32 bytesPerTileLine = tile.line * sizeof(uint64);
-		for (uint32 y = 0; y < std::min(bufferSize_256, static_cast<uint32>(size.y)); ++y)
+		for (uint32 y = 0; y < size.y; ++y)
 		{
-			for (uint32 x = 0; x < std::min(bufferSize_256, static_cast<uint32>(size.x)); ++x)
+			for (uint32 x = 0; x < size.x; ++x)
 			{
 				const uint32 offset =
 					tile.tmemAddr * sizeof(uint64) + (x ^ 1) * bytePerTexel + y * bytesPerTileLine; // ?

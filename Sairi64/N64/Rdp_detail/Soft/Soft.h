@@ -136,7 +136,7 @@ namespace N64::Rdp_detail::Soft
 						const auto processedS = s;
 						// TODO: 直す
 						// ProcessST(s, descriptor.cs, descriptor.ms, descriptor.maskS, descriptor.shiftS);
-						const uint16 tmemAddr = ((tmemLine + processedS.Int() * bytesPerTexel) & 0x7FF); // ^ tmemXor;
+						const uint16 tmemAddr = ((tmemLine + processedS.Int() * bytesPerTexel) & 0xFFF); // ^ tmemXor;
 						const uint16 pixel = ReadTmem<uint16>(state, tmemAddr);
 						WriteRdram<uint16>(ctx, screenLine + x * bytesPerPixel, pixel);
 
@@ -168,7 +168,7 @@ namespace N64::Rdp_detail::Soft
 			const uint32 dramBase = state.textureImage.dramAddr;
 			const uint8 bytesPerTexel = GetBytesParTexel(state.textureImage.size);
 
-			FixedPoint16<5, 11> t{};
+			FixedPoint32<21, 11> t{};
 			t.Int().Set(tl);
 			int tmemXor{};
 			switch (state.textureImage.size)
@@ -182,7 +182,8 @@ namespace N64::Rdp_detail::Soft
 					// 	t += dxt;
 					// 	tmemXor = t.Int() & 1 ? 4 : 0;
 					// }
-					const uint32 dramTexelAddress = dramBase + s * bytesPerTexel;
+					const uint32 dramTexelAddress =
+						dramBase + s * bytesPerTexel + t.Int() * state.textureImage.width * bytesPerTexel;
 					const uint16 texel = ReadRdram<uint16>(ctx, dramTexelAddress);
 
 					uint16 tmemTexelAddress = (tmemBase + (s * bytesPerTexel));

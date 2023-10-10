@@ -248,7 +248,7 @@ namespace N64::Mmu
 				if constexpr (wire32)
 				{
 					N64Logger::Warn(U"read n64dd registers paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
-					return static_cast<uint32>(-1);
+					return static_cast<Wire>(0xFF);
 				}
 				return unsupportedReadPMap<Wire>(paddr);
 			};
@@ -263,7 +263,7 @@ namespace N64::Mmu
 				if constexpr (wire32)
 				{
 					N64Logger::Warn(U"read n64dd ipl rom paddr: {:08X}"_fmt(static_cast<uint32>(paddr)));
-					return static_cast<uint32>(-1);
+					return static_cast<Wire>(0xFF);
 				}
 				return unsupportedReadPMap<Wire>(paddr);
 			};

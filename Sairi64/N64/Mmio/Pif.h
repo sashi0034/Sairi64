@@ -13,7 +13,10 @@ namespace N64::Mmio
 	{
 	public:
 		Pif();
+
 		PifRam& Ram() { return m_ram; }
+		const PifRam& Ram() const { return m_ram; }
+
 		void ProcessCommands();
 
 		static void ExecuteRom(N64System& n64);

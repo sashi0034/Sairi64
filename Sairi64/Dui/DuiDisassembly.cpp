@@ -11,7 +11,7 @@ namespace Dui
 	static constexpr int pageInstructionLength = 128;
 	constexpr int showPageSize = pageInstructionLength * 4;
 
-	void disassemblePage(Array<std::string>& buffer, std::span<uint8> memory, int baseAddr)
+	void disassemblePage(Array<std::string>& buffer, std::span<const uint8> memory, int baseAddr)
 	{
 		if (buffer.size() < pageInstructionLength)
 		{
@@ -25,7 +25,7 @@ namespace Dui
 		}
 	}
 
-	void DuiDisassembly::Update(std::string_view viewName, std::span<uint8> memory)
+	void DuiDisassembly::Update(std::string_view viewName, std::span<const uint8> memory)
 	{
 		if (!ImGui::Begin(viewName.data()))
 		{

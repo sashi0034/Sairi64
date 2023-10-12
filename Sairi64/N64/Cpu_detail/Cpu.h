@@ -91,6 +91,9 @@ namespace N64::Cpu_detail
 		Cop0& GetCop0() { return m_cop0; }
 		Cop1& GetCop1() { return m_cop1; }
 
+		const Pc& GetPc() const { return m_pc; }
+		const DelaySlot& GetDelaySlot() const { return m_delaySlot; }
+		const Gpr& GetGpr() const { return m_gpr; }
 		const Cop0& GetCop0() const { return m_cop0; }
 		const Cop1& GetCop1() const { return m_cop1; }
 

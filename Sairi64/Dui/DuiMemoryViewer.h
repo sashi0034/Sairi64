@@ -10,7 +10,7 @@ namespace Dui
 	class DuiMemoryViewer
 	{
 	public:
-		void Update(std::string_view viewName, std::span<uint8> memory);
+		void Update(std::string_view viewName, std::span<uint8 const> memory);
 
 	private:
 		int m_baseAddr{};

@@ -2,11 +2,10 @@
 #include "DuiMemoryViewer.h"
 
 #include "DuiUtil.h"
-#include "N64/N64System.h"
 
 namespace Dui
 {
-	void DuiMemoryViewer::Update(std::string_view viewName, std::span<uint8> memory)
+	void DuiMemoryViewer::Update(std::string_view viewName, std::span<uint8 const> memory)
 	{
 		const uint8* data = memory.data();
 		const uint32 dataSize = memory.size();

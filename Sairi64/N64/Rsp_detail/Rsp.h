@@ -74,9 +74,14 @@ namespace N64::Rsp_detail
 		SpDmem& Dmem() { return m_dmem; }
 		SpImem& Imem() { return m_imem; }
 		Dynarec::ImemCache& ImemCache() { return m_imemCache; }
-
 		SpStatus32& Status() { return m_status; }
 		Pc& GetPc() { return m_pc; }
+
+		const SpDmem& Dmem() const { return m_dmem; }
+		const SpImem& Imem() const { return m_imem; }
+		const Dynarec::ImemCache& ImemCache() const { return m_imemCache; }
+		const SpStatus32& Status() const { return m_status; }
+		const Pc& GetPc() const { return m_pc; }
 
 		class Interface;
 		class Process;

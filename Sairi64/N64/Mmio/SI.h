@@ -38,6 +38,9 @@ namespace N64::Mmio
 		Pif& GetPif() { return m_pif; }
 		PifRam& GetPifRam() { return m_pif.Ram(); }
 
+		const Pif& GetPif() const { return m_pif; }
+		const PifRam& GetPifRam() const { return m_pif.Ram(); }
+
 		uint32 Read32(N64System& n64, PAddr32 paddr) const;
 		void Write32(N64System& n64, PAddr32 paddr, uint32 value);
 

@@ -133,7 +133,7 @@ public:
 		ImGui::End();
 	}
 
-	void UpdateContents(N64::N64System& n64)
+	void UpdateContents(const N64::N64System& n64)
 	{
 		m_rdramViewer.Update("RDRAM Viewer", n64.GetMemory().Rdram());
 		m_dmemViewer.Update("DMEM Viewer", n64.GetRsp().Dmem());

@@ -11,7 +11,7 @@ using namespace N64;
 
 #define WAIT_ENABLE true
 
-#if 1
+#if 0
 bool inspectResult(Rsp& rsp, const Array<uint8>& goldenData)
 {
 	const auto goldenSize = goldenData.size();
